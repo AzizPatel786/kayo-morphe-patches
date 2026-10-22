@@ -6,6 +6,33 @@ import app.morphe.patcher.patch.Compatibility
 import app.morphe.patcher.patch.SupportedAbi
 
 object Constants {
+    val COMPATIBILITY_KAYO_SPORTS = Compatibility(
+        name = "Kayo Sports",
+        packageName = "au.com.kayosports",
+        apkFileType = ApkFileType.APK,
+        appIconColor = 0x05D669,
+        targets = listOf(
+            AppTarget(
+                version = null
+            ),
+            AppTarget(
+                version = "6.1.3"
+            )
+        )
+    )
+
+    val COMPATIBILITY_KAYO_SPORTS_TV = Compatibility(
+        name = "Kayo Sports (Android TV)",
+        packageName = "au.com.kayosports.tv",
+        apkFileType = ApkFileType.APK,
+        appIconColor = 0x05D669,
+        targets = listOf(
+            AppTarget(
+                version = null
+            )
+        )
+    )
+
     val COMPATIBILITY_EXAMPLE = Compatibility(
         name = "XYZ app", // App name as it appears in the Android launcher.
         packageName = "com.example.app",
