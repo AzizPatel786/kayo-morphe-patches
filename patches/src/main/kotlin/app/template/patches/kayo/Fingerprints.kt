@@ -277,3 +277,33 @@ object PlaybackCodecsServiceIsHevcSupportedFingerprint : Fingerprint(
         )
     )
 )
+
+/**
+ * Matches the class implementing `LHv/G;` (PlayerInterfaceDazn) that creates and holds the ExoPlayer instance.
+ */
+object PlayerInterfaceClassFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    filters = listOf(
+        string("playbackAnalyticsSender"),
+        string("exoplayerFactoryProvider"),
+        string("trackSelector")
+    )
+)
+
+/**
+ * Matches `LHv/P;->R1(Lcom/google/android/exoplayer2/ExoPlayer;)V` which attaches the active ExoPlayer.
+ */
+object PlayerInterfaceAttachExoPlayerFingerprint : Fingerprint(
+    classFingerprint = PlayerInterfaceClassFingerprint,
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "V",
+    parameters = listOf("Lcom/google/android/exoplayer2/ExoPlayer;"),
+    filters = listOf(
+        fieldAccess(
+            opcode = Opcode.IPUT_OBJECT,
+            definingClass = "this",
+            type = "Lcom/google/android/exoplayer2/ExoPlayer;"
+        )
+    )
+)
+

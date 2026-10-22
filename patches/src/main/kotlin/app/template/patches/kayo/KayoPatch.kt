@@ -141,5 +141,14 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                 return v0
             """
         )
+
+        // 11. Capture active ExoPlayer instance when attached in PlayerInterfaceDazn.R1(ExoPlayer)
+        PlayerInterfaceAttachExoPlayerFingerprint.methodOrNull?.let { method ->
+            method.addInstruction(
+                0,
+                "invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->onExoPlayerAttached(Lcom/google/android/exoplayer2/ExoPlayer;)V"
+            )
+        }
     }
 }
+

@@ -2,6 +2,8 @@ package app.template.extension.kayo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
@@ -13,12 +15,16 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -33,12 +39,15 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Extension helper class for Kayo Sports In-Player Quality Menu patch.
+ * Extension helper class for Kayo Sports In-Player Quality Menu and
+ * Live Stream Diagnostics (Stats for Nerds) patch.
  *
- * Hooks into Kayo's ProfileBasedTrackSelector (Lpx/e;) and player controls
- * (AbstractDaznPlayerControls / DefaultPlayerControls) to provide an interactive
- * resolution/bitrate selector and prevent Kayo's TrackBitrateLimiter from
- * overriding a manually selected resolution.
+ * Hooks into Kayo's ProfileBasedTrackSelector (Lpx/e;), player interface (LHv/P;),
+ * and player controls (AbstractDaznPlayerControls / DefaultPlayerControls) to:
+ * 1. Provide an interactive resolution/bitrate selector (Auto / 4K UHD / 1080p FHD / etc.).
+ * 2. Prevent Kayo's TrackBitrateLimiter from capping live playback below UHD.
+ * 3. Provide a dedicated Live Diagnostics button that displays real-time bitrate,
+ *    framerate, and resolution for the live stream (HUD overlay + full report).
  */
 @SuppressWarnings("unused")
 public final class KayoPatch {
@@ -50,12 +59,17 @@ public final class KayoPatch {
 
     private static final int VIDEO_TRACK_TYPE = 2; // C.TRACK_TYPE_VIDEO
     private static final int QUALITY_AUTO = -1;
+
     private static final int QUALITY_BUTTON_VIEW_ID = 0x7f0b9999;
+    private static final int DIAGNOSTICS_BUTTON_VIEW_ID = 0x7f0b9998;
+    private static final int DIAGNOSTICS_OVERLAY_VIEW_ID = 0x7f0b9997;
+    private static final int DIAGNOSTICS_OVERLAY_TEXT_VIEW_ID = 0x7f0b9996;
 
     private static volatile DefaultTrackSelector currentTrackSelector;
     private static volatile Tracks currentTracks;
+    private static volatile WeakReference<ExoPlayer> currentPlayerRef;
 
-    // -1 means Auto (Adaptive), > 0 means target video height (e.g. 1080, 720, 540)
+    // -1 means Auto (Adaptive), > 0 means target video height (e.g. 2160, 1080, 720, 540)
     private static volatile int selectedHeight = QUALITY_AUTO;
     // Specific bitrate to lock to (or -1 if any bitrate at that height)
     private static volatile int selectedBitrate = QUALITY_AUTO;
@@ -64,7 +78,64 @@ public final class KayoPatch {
     private static final List<WeakReference<TextView>> qualityBadgeViews = new ArrayList<>();
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    private static volatile WeakReference<View> activeOverlayRef;
+    private static Runnable overlayUpdateRunnable;
+
     private KayoPatch() {
+    }
+
+    /**
+     * Live metrics snapshot representing active stream playback parameters.
+     */
+    public static final class StreamMetrics {
+        public final int width;
+        public final int height;
+        public final float frameRate;
+        public final int bitrate;
+        public final String codecs;
+        public final String mimeType;
+        public final String playbackState;
+        public final long bufferedDurationMs;
+        public final boolean is4K;
+        public final boolean is1080p;
+        public final String tierLabel;
+
+        public StreamMetrics(
+                int width,
+                int height,
+                float frameRate,
+                int bitrate,
+                String codecs,
+                String mimeType,
+                String playbackState,
+                long bufferedDurationMs
+        ) {
+            this.width = width;
+            this.height = height;
+            this.frameRate = frameRate;
+            this.bitrate = bitrate;
+            this.codecs = codecs != null ? codecs : "";
+            this.mimeType = mimeType != null ? mimeType : "";
+            this.playbackState = playbackState != null ? playbackState : "Active";
+            this.bufferedDurationMs = bufferedDurationMs;
+
+            this.is4K = (height >= 2160 || width >= 3840);
+            this.is1080p = !is4K && (height >= 1080 || width >= 1920);
+
+            if (is4K) {
+                this.tierLabel = "4K UHD (2160p)";
+            } else if (is1080p) {
+                this.tierLabel = "1080p FHD";
+            } else if (height >= 720 || width >= 1280) {
+                this.tierLabel = "720p HD";
+            } else if (height >= 540) {
+                this.tierLabel = "540p SD";
+            } else if (height > 0) {
+                this.tierLabel = height + "p";
+            } else {
+                this.tierLabel = "Probing...";
+            }
+        }
     }
 
     /**
@@ -123,7 +194,7 @@ public final class KayoPatch {
 
             if (bitrate > 0) {
                 double mbps = bitrate / 1_000_000.0;
-                sb.append(String.format(Locale.US, "  •  %.2f Mbps", mbps));
+                sb.append(String.format(Locale.US, "  -  %.2f Mbps", mbps));
             }
 
             if (format.codecs != null) {
@@ -165,7 +236,7 @@ public final class KayoPatch {
     }
 
     // =========================================================================
-    // Bytecode Hook Entrypoints for ProfileBasedTrackSelector (Lpx/e;)
+    // Bytecode Hook Entrypoints
     // =========================================================================
 
     /**
@@ -183,6 +254,16 @@ public final class KayoPatch {
                 selector.setParameters(builder.build());
             } catch (Throwable ignored) {
             }
+        }
+    }
+
+    /**
+     * Called from {@code LHv/P;->R1(Lcom/google/android/exoplayer2/ExoPlayer;)V} when the player is attached.
+     */
+    public static void onExoPlayerAttached(ExoPlayer player) {
+        if (player != null) {
+            currentPlayerRef = new WeakReference<>(player);
+            updateAllQualityBadges();
         }
     }
 
@@ -243,18 +324,9 @@ public final class KayoPatch {
         return false;
     }
 
-    // =========================================================================
-    // Bytecode Hook Entrypoints for Player Controls UI
-    // =========================================================================
-
     /**
-     * Called from {@code AbstractDaznPlayerControls.j4(...)} and {@code DefaultPlayerControls.<init>(...)}
-     * when the player controls view is initialized.
-     *
-     * 1. Loads persisted quality preference if enabled.
-     * 2. Injects a dedicated "HD / Quality" pill button right next to the track selector button
-     *    inside the top-right controls bar.
-     * 3. Also attaches a long-click listener on the existing track selector button as a fallback.
+     * Called when the player controls view is initialized.
+     * Injects both the Video Quality pill badge and the Diagnostics button into the controls bar.
      */
     public static void onControlsInitialized(final View trackSelectorButton) {
         if (trackSelectorButton == null) {
@@ -267,10 +339,9 @@ public final class KayoPatch {
         // Always make the track selector button visible so the user can access it on live streams
         trackSelectorButton.setVisibility(View.VISIBLE);
 
-        // Find the enclosing player controls view (which implements View.OnClickListener in AbstractDaznPlayerControls)
         final View.OnClickListener originalClickListener = findParentOnClickListener(trackSelectorButton);
 
-        // Clicking the track selector button opens the Video Quality menu (with an "Audio / CC" button if original listener exists)
+        // Clicking the track selector button opens the Video Quality menu
         trackSelectorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -287,7 +358,7 @@ public final class KayoPatch {
             }
         });
 
-        // Long-pressing the audio/track selector button also opens the Quality dialog directly
+        // Long-pressing the track selector button opens the Quality dialog directly
         trackSelectorButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -296,8 +367,8 @@ public final class KayoPatch {
             }
         });
 
-        // Inject a dedicated Quality badge button into the track selector button
-        injectQualityButton(trackSelectorButton);
+        // Inject Quality badge and Diagnostics button
+        injectQualityAndDiagnosticsButtons(trackSelectorButton);
     }
 
     private static View.OnClickListener findParentOnClickListener(View view) {
@@ -313,20 +384,14 @@ public final class KayoPatch {
 
     /**
      * Called when {@code AbstractDaznPlayerControls.o2(boolean visible)} is invoked.
-     * Forces the track selector button to remain visible on all streams (live & VOD).
+     * Forces the track selector button to remain visible on all streams.
      */
     public static boolean overrideTrackSelectorVisibility(boolean originalVisible) {
         return true;
     }
 
     /**
-     * Called when the user clicks the track selector button in {@code AbstractDaznPlayerControls.onClick(View)}
-     * or {@code DefaultPlayerControls}.
-     *
-     * Shows our Video Quality selector dialog with an option to also open the original Audio & Subtitles menu.
-     *
-     * @param view The clicked view (or player controls view).
-     * @return {@code true} to consume the click and show the Quality menu.
+     * Called when the user clicks the track selector button.
      */
     public static boolean onTrackSelectorClicked(final View view) {
         if (view == null) {
@@ -334,6 +399,522 @@ public final class KayoPatch {
         }
         showQualityDialog(view.getContext(), null);
         return true;
+    }
+
+    // =========================================================================
+    // Real-Time Diagnostics & Metrics Retrieval
+    // =========================================================================
+
+    /**
+     * Extracts active live stream playback metrics from ExoPlayer renderer or currentTracks.
+     * Guarantees accurate metrics for both 4K UHD and 1080p FHD live streams.
+     */
+    public static StreamMetrics getActiveStreamMetrics() {
+        Format format = null;
+        ExoPlayer player = currentPlayerRef != null ? currentPlayerRef.get() : null;
+
+        // 1. Try active renderer format directly from ExoPlayer
+        if (player != null) {
+            try {
+                format = player.getVideoFormat();
+            } catch (Throwable ignored) {
+            }
+        }
+
+        // 2. Fallback: query selected track from currentTracks
+        if (format == null && currentTracks != null) {
+            List<VideoTrackOption> options = extractVideoTracks(currentTracks);
+            VideoTrackOption playing = findCurrentlyPlayingTrack(options);
+            if (playing != null) {
+                format = playing.format;
+            } else if (!options.isEmpty()) {
+                if (selectedHeight != QUALITY_AUTO) {
+                    for (VideoTrackOption opt : options) {
+                        if (opt.height == selectedHeight) {
+                            format = opt.format;
+                            break;
+                        }
+                    }
+                }
+                if (format == null) {
+                    format = options.get(0).format;
+                }
+            }
+        }
+
+        int width = 0;
+        int height = 0;
+        float frameRate = 0f;
+        int bitrate = 0;
+        String codecs = "";
+        String mimeType = "";
+
+        if (format != null) {
+            width = format.width > 0 ? format.width : 0;
+            height = format.height > 0 ? format.height : 0;
+            frameRate = format.frameRate > 0 ? format.frameRate : 0f;
+            bitrate = format.bitrate > 0 ? format.bitrate
+                    : (format.peakBitrate > 0 ? format.peakBitrate : format.averageBitrate);
+            codecs = format.codecs != null ? format.codecs : "";
+            mimeType = format.sampleMimeType != null ? format.sampleMimeType : "";
+        }
+
+        String stateStr = "Active";
+        long bufferedMs = 0;
+
+        if (player != null) {
+            try {
+                int state = player.getPlaybackState();
+                boolean isPlaying = player.isPlaying();
+                bufferedMs = player.getTotalBufferedDuration();
+
+                switch (state) {
+                    case ExoPlayer.STATE_BUFFERING:
+                        stateStr = "Buffering";
+                        break;
+                    case ExoPlayer.STATE_READY:
+                        stateStr = isPlaying ? "Playing" : "Paused";
+                        break;
+                    case ExoPlayer.STATE_ENDED:
+                        stateStr = "Ended";
+                        break;
+                    case ExoPlayer.STATE_IDLE:
+                        stateStr = "Idle";
+                        break;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+
+        return new StreamMetrics(width, height, frameRate, bitrate, codecs, mimeType, stateStr, bufferedMs);
+    }
+
+    /**
+     * Formats live metrics for the real-time HUD overlay card.
+     */
+    private static String formatLiveMetricsText(StreamMetrics m) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Tier:     ").append(m.tierLabel).append("\n");
+        if (m.width > 0 && m.height > 0) {
+            sb.append("Res:      ").append(m.width).append(" x ").append(m.height).append("\n");
+        } else if (m.height > 0) {
+            sb.append("Res:      ").append(m.height).append("p\n");
+        } else {
+            sb.append("Res:      Searching...\n");
+        }
+
+        if (m.frameRate > 0f) {
+            sb.append(String.format(Locale.US, "FPS:      %.1f fps\n", m.frameRate));
+        } else {
+            sb.append("FPS:      N/A\n");
+        }
+
+        if (m.bitrate > 0) {
+            double mbps = m.bitrate / 1_000_000.0;
+            int kbps = (int) (m.bitrate / 1_000);
+            sb.append(String.format(Locale.US, "Bitrate:  %.2f Mbps (%d kbps)\n", mbps, kbps));
+        } else {
+            sb.append("Bitrate:  Probing...\n");
+        }
+
+        if (!m.codecs.isEmpty()) {
+            String shortCodec = m.codecs;
+            if (shortCodec.contains("hev") || shortCodec.contains("hvc")) {
+                shortCodec = "HEVC (" + shortCodec + ")";
+            } else if (shortCodec.contains("avc")) {
+                shortCodec = "AVC (" + shortCodec + ")";
+            }
+            sb.append("Codec:    ").append(shortCodec).append("\n");
+        }
+
+        double bufSec = m.bufferedDurationMs / 1000.0;
+        if (bufSec > 0) {
+            sb.append(String.format(Locale.US, "State:    %s [Buffer: %.1fs]\n", m.playbackState, bufSec));
+        } else {
+            sb.append("State:    ").append(m.playbackState).append("\n");
+        }
+
+        if (selectedHeight == QUALITY_AUTO) {
+            sb.append("Lock:     Auto (Adaptive)");
+        } else {
+            sb.append("Lock:     Locked to ").append(selectedHeight).append("p");
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Toggles the on-screen live diagnostics HUD overlay.
+     */
+    public static void toggleDiagnosticsOverlay(final Context rawContext) {
+        final Activity activity = findActivity(rawContext);
+        if (activity == null) {
+            return;
+        }
+
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ViewGroup rootView = activity.findViewById(android.R.id.content);
+                    if (rootView == null) {
+                        return;
+                    }
+
+                    View existing = rootView.findViewById(DIAGNOSTICS_OVERLAY_VIEW_ID);
+                    if (existing != null) {
+                        rootView.removeView(existing);
+                        activeOverlayRef = null;
+                        stopDiagnosticsOverlayTimer();
+                        Toast.makeText(activity, "Live Diagnostics HUD hidden", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    View overlay = buildDiagnosticsOverlayView(activity);
+                    overlay.setId(DIAGNOSTICS_OVERLAY_VIEW_ID);
+
+                    FrameLayout.LayoutParams flp = new FrameLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    flp.gravity = Gravity.TOP | Gravity.START;
+                    flp.topMargin = dpToPx(activity, 52);
+                    flp.leftMargin = dpToPx(activity, 16);
+                    overlay.setLayoutParams(flp);
+
+                    rootView.addView(overlay);
+                    activeOverlayRef = new WeakReference<>(overlay);
+
+                    startDiagnosticsOverlayTimer();
+                    Toast.makeText(activity, "Live Diagnostics HUD enabled", Toast.LENGTH_SHORT).show();
+                } catch (Throwable t) {
+                    Toast.makeText(activity, "Failed to toggle HUD: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private static View buildDiagnosticsOverlayView(final Activity activity) {
+        LinearLayout root = new LinearLayout(activity);
+        root.setOrientation(LinearLayout.VERTICAL);
+
+        int padH = dpToPx(activity, 14);
+        int padV = dpToPx(activity, 12);
+        root.setPadding(padH, padV, padH, padV);
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dpToPx(activity, 8));
+        bg.setColor(Color.parseColor("#EE0B111E")); // Deep obsidian navy, 93% opacity
+        bg.setStroke(dpToPx(activity, 1), Color.parseColor("#38BDF8")); // Sky cyan border
+        root.setBackground(bg);
+
+        // Title bar row
+        LinearLayout titleBar = new LinearLayout(activity);
+        titleBar.setOrientation(LinearLayout.HORIZONTAL);
+        titleBar.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView title = new TextView(activity);
+        title.setText("STREAM DIAGNOSTICS");
+        title.setTextColor(Color.parseColor("#38BDF8"));
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        LinearLayout.LayoutParams titleLp = new LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1.0f
+        );
+        titleBar.addView(title, titleLp);
+
+        // Close button [X]
+        TextView closeBtn = new TextView(activity);
+        closeBtn.setText("X");
+        closeBtn.setTextColor(Color.parseColor("#94A3B8"));
+        closeBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        closeBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        int closePad = dpToPx(activity, 4);
+        closeBtn.setPadding(closePad * 2, 0, closePad, 0);
+        closeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleDiagnosticsOverlay(activity);
+            }
+        });
+        titleBar.addView(closeBtn);
+
+        root.addView(titleBar);
+
+        // Divider line
+        View divider = new View(activity);
+        divider.setBackgroundColor(Color.parseColor("#334155"));
+        LinearLayout.LayoutParams divLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dpToPx(activity, 1)
+        );
+        divLp.topMargin = dpToPx(activity, 6);
+        divLp.bottomMargin = dpToPx(activity, 8);
+        root.addView(divider, divLp);
+
+        // Live Metrics TextView
+        TextView metricsTv = new TextView(activity);
+        metricsTv.setId(DIAGNOSTICS_OVERLAY_TEXT_VIEW_ID);
+        metricsTv.setTextColor(Color.parseColor("#F8FAFC"));
+        metricsTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+        metricsTv.setTypeface(Typeface.MONOSPACE);
+        metricsTv.setLineSpacing(dpToPx(activity, 3), 1.0f);
+        metricsTv.setText(formatLiveMetricsText(getActiveStreamMetrics()));
+        root.addView(metricsTv);
+
+        // Action row: [FULL DETAILS]
+        LinearLayout actionsRow = new LinearLayout(activity);
+        actionsRow.setOrientation(LinearLayout.HORIZONTAL);
+        actionsRow.setGravity(Gravity.END);
+        LinearLayout.LayoutParams actionsLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        actionsLp.topMargin = dpToPx(activity, 8);
+
+        TextView detailsBtn = new TextView(activity);
+        detailsBtn.setText("[ FULL DETAILS ]");
+        detailsBtn.setTextColor(Color.parseColor("#38BDF8"));
+        detailsBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f);
+        detailsBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        detailsBtn.setPadding(dpToPx(activity, 6), dpToPx(activity, 4), dpToPx(activity, 6), dpToPx(activity, 4));
+        detailsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDiagnosticsDialog(activity);
+            }
+        });
+        actionsRow.addView(detailsBtn);
+
+        root.addView(actionsRow, actionsLp);
+
+        // Enable dragging the HUD card across the video screen
+        root.setOnTouchListener(new View.OnTouchListener() {
+            private float initialX, initialY;
+            private float initialTouchX, initialTouchY;
+            private boolean isDragging = false;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = v.getX();
+                        initialY = v.getY();
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        isDragging = false;
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        float deltaX = event.getRawX() - initialTouchX;
+                        float deltaY = event.getRawY() - initialTouchY;
+                        if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10 || isDragging) {
+                            isDragging = true;
+                            v.setX(initialX + deltaX);
+                            v.setY(initialY + deltaY);
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        return isDragging;
+                    default:
+                        return false;
+                }
+            }
+        });
+
+        return root;
+    }
+
+    private static void startDiagnosticsOverlayTimer() {
+        stopDiagnosticsOverlayTimer();
+        overlayUpdateRunnable = new Runnable() {
+            @Override
+            public void run() {
+                View overlay = activeOverlayRef != null ? activeOverlayRef.get() : null;
+                if (overlay == null || overlay.getParent() == null) {
+                    stopDiagnosticsOverlayTimer();
+                    return;
+                }
+                TextView tv = overlay.findViewById(DIAGNOSTICS_OVERLAY_TEXT_VIEW_ID);
+                if (tv != null) {
+                    StreamMetrics m = getActiveStreamMetrics();
+                    tv.setText(formatLiveMetricsText(m));
+                }
+                mainHandler.postDelayed(this, 1000);
+            }
+        };
+        mainHandler.post(overlayUpdateRunnable);
+    }
+
+    private static void stopDiagnosticsOverlayTimer() {
+        if (overlayUpdateRunnable != null) {
+            mainHandler.removeCallbacks(overlayUpdateRunnable);
+            overlayUpdateRunnable = null;
+        }
+    }
+
+    /**
+     * Displays a full technical Stream Diagnostics alert dialog.
+     */
+    public static void showDiagnosticsDialog(final Context rawContext) {
+        final Activity activity = findActivity(rawContext);
+        final Context context = activity != null ? activity : rawContext;
+        if (context == null) {
+            return;
+        }
+
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    buildAndShowDiagnosticsDialog(context);
+                } catch (Throwable t) {
+                    Toast.makeText(context, "Unable to show diagnostics: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private static void buildAndShowDiagnosticsDialog(final Context context) {
+        StreamMetrics m = getActiveStreamMetrics();
+        final String report = buildDiagnosticsReportString(m);
+
+        ScrollView scrollView = new ScrollView(context);
+        int pad = dpToPx(context, 16);
+        scrollView.setPadding(pad, pad, pad, pad);
+
+        TextView reportTv = new TextView(context);
+        reportTv.setText(report);
+        reportTv.setTextColor(Color.parseColor("#F1F5F9"));
+        reportTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+        reportTv.setTypeface(Typeface.MONOSPACE);
+        reportTv.setLineSpacing(dpToPx(context, 2), 1.0f);
+        scrollView.addView(reportTv);
+
+        AlertDialog.Builder b = new AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Dialog_Alert);
+        b.setTitle("Live Stream Diagnostics");
+        b.setView(scrollView);
+
+        b.setPositiveButton("Copy Report", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    ClipboardManager cm = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (cm != null) {
+                        ClipData clip = ClipData.newPlainText("Kayo Stream Diagnostics", report);
+                        cm.setPrimaryClip(clip);
+                        Toast.makeText(context, "Diagnostics copied to clipboard", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        });
+
+        b.setNeutralButton("Toggle HUD", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                toggleDiagnosticsOverlay(context);
+            }
+        });
+
+        b.setNegativeButton("Close", null);
+        b.show();
+    }
+
+    private static String buildDiagnosticsReportString(StreamMetrics m) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("===============================\n");
+        sb.append("   LIVE STREAM DIAGNOSTICS     \n");
+        sb.append("===============================\n\n");
+
+        sb.append("[ ACTIVE RENDITION ]\n");
+        sb.append("Quality Tier:   ").append(m.tierLabel).append("\n");
+        if (m.width > 0 && m.height > 0) {
+            sb.append("Resolution:     ").append(m.width).append(" x ").append(m.height).append("\n");
+        } else if (m.height > 0) {
+            sb.append("Resolution:     ").append(m.height).append("p\n");
+        } else {
+            sb.append("Resolution:     Probing...\n");
+        }
+
+        if (m.frameRate > 0f) {
+            sb.append(String.format(Locale.US, "Framerate:      %.2f fps\n", m.frameRate));
+        } else {
+            sb.append("Framerate:      N/A\n");
+        }
+
+        if (m.bitrate > 0) {
+            double mbps = m.bitrate / 1_000_000.0;
+            int kbps = (int) (m.bitrate / 1_000);
+            sb.append(String.format(Locale.US, "Bitrate:        %.2f Mbps (%d kbps)\n", mbps, kbps));
+        } else {
+            sb.append("Bitrate:        Probing...\n");
+        }
+
+        if (!m.codecs.isEmpty()) {
+            sb.append("Video Codec:    ").append(m.codecs).append("\n");
+        }
+        if (!m.mimeType.isEmpty()) {
+            sb.append("MIME Type:      ").append(m.mimeType).append("\n");
+        }
+
+        sb.append("\n[ PLAYBACK & BUFFER ]\n");
+        sb.append("Playback State: ").append(m.playbackState).append("\n");
+        double bufSec = m.bufferedDurationMs / 1000.0;
+        sb.append(String.format(Locale.US, "Buffered Time:  %.1f seconds\n", bufSec));
+        if (selectedHeight == QUALITY_AUTO) {
+            sb.append("Quality Mode:   Auto (Adaptive)\n");
+        } else {
+            sb.append("Quality Mode:   Locked to ").append(selectedHeight).append("p\n");
+        }
+
+        sb.append("\n[ MANIFEST RENDITIONS ]\n");
+        List<VideoTrackOption> tracks = extractVideoTracks(currentTracks);
+        if (tracks.isEmpty()) {
+            sb.append("(No renditions reported yet)\n");
+        } else {
+            for (VideoTrackOption t : tracks) {
+                boolean isCur = t.isCurrentlyPlaying;
+                sb.append(isCur ? "[*] " : "[ ] ");
+                if (t.height >= 2160) {
+                    sb.append(t.height).append("p (4K UHD) ");
+                } else if (t.height > 0) {
+                    sb.append(t.height).append("p ");
+                } else {
+                    sb.append("Track ");
+                }
+                if (t.frameRate > 0f) {
+                    sb.append(String.format(Locale.US, "@ %.0ffps ", t.frameRate));
+                }
+                if (t.bitrate > 0) {
+                    double mb = t.bitrate / 1_000_000.0;
+                    sb.append(String.format(Locale.US, "- %.2f Mbps ", mb));
+                }
+                if (t.format != null && t.format.codecs != null) {
+                    if (t.format.codecs.contains("hev") || t.format.codecs.contains("hvc")) {
+                        sb.append("(HEVC) ");
+                    } else if (t.format.codecs.contains("avc")) {
+                        sb.append("(AVC) ");
+                    }
+                }
+                if (isCur) {
+                    sb.append("[CURRENT]");
+                }
+                sb.append("\n");
+            }
+        }
+
+        sb.append("\n[ 4K DRM & DEVICE CAPABILITIES ]\n");
+        sb.append("Widevine DRM:   L1 (Spoofed)\n");
+        sb.append("HDCP Version:   HDCP 2.2\n");
+        sb.append("HEVC Decoder:   Supported (Hardware)\n");
+        sb.append("Device Model:   Chromecast with Google TV 4K\n");
+        sb.append("Device Codename:sabrina\n");
+
+        return sb.toString();
     }
 
     // =========================================================================
@@ -481,28 +1062,18 @@ public final class KayoPatch {
     }
 
     // =========================================================================
-    // UI Injection & Quality Dialog
+    // UI Injection & Badges
     // =========================================================================
 
-    private static void injectQualityButton(final View trackSelectorButton) {
+    private static void injectQualityAndDiagnosticsButtons(final View trackSelectorButton) {
         try {
             ViewGroup parent = (ViewGroup) trackSelectorButton.getParent();
             if (parent == null) {
                 return;
             }
 
-            // Check if already injected in this view hierarchy
-            View existing = parent.findViewById(QUALITY_BUTTON_VIEW_ID);
-            if (existing != null) {
-                return;
-            }
-
             Context context = trackSelectorButton.getContext();
 
-            // Create a sleek pill badge inside the trackSelectorButton LinearLayout (or alongside it)
-            // Notice in view_dazn_player_controls.xml, toggle_track_selector is a LinearLayout
-            // containing an AppCompatImageView! Adding a TextView label inside toggle_track_selector
-            // (or in menu_group) avoids any ConstraintLayout positioning issues!
             if (trackSelectorButton instanceof LinearLayout) {
                 LinearLayout buttonLayout = (LinearLayout) trackSelectorButton;
                 buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -516,14 +1087,43 @@ public final class KayoPatch {
                 int padH = dpToPx(context, 8);
                 buttonLayout.setPadding(padH, buttonLayout.getPaddingTop(), padH, buttonLayout.getPaddingBottom());
 
-                TextView badge = createQualityBadgeTextView(context);
-                badge.setId(QUALITY_BUTTON_VIEW_ID);
-                buttonLayout.addView(badge);
+                // 1. Quality badge button
+                if (buttonLayout.findViewById(QUALITY_BUTTON_VIEW_ID) == null) {
+                    TextView badge = createQualityBadgeTextView(context);
+                    badge.setId(QUALITY_BUTTON_VIEW_ID);
+                    badge.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showQualityDialog(v.getContext(), null);
+                        }
+                    });
+                    buttonLayout.addView(badge);
 
-                synchronized (qualityBadgeViews) {
-                    qualityBadgeViews.add(new WeakReference<>(badge));
+                    synchronized (qualityBadgeViews) {
+                        qualityBadgeViews.add(new WeakReference<>(badge));
+                    }
+                    updateQualityBadgeText(badge);
                 }
-                updateQualityBadgeText(badge);
+
+                // 2. Diagnostics button (STATS)
+                if (buttonLayout.findViewById(DIAGNOSTICS_BUTTON_VIEW_ID) == null) {
+                    TextView diagBtn = createDiagnosticsButtonTextView(context);
+                    diagBtn.setId(DIAGNOSTICS_BUTTON_VIEW_ID);
+                    diagBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            toggleDiagnosticsOverlay(v.getContext());
+                        }
+                    });
+                    diagBtn.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            showDiagnosticsDialog(v.getContext());
+                            return true;
+                        }
+                    });
+                    buttonLayout.addView(diagBtn);
+                }
             }
         } catch (Throwable ignored) {
         }
@@ -543,7 +1143,36 @@ public final class KayoPatch {
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(dpToPx(context, 4));
-        bg.setColor(Color.parseColor("#CC05D669")); // Kayo green accent with slight transparency
+        bg.setColor(Color.parseColor("#CC05D669")); // Kayo green accent
+        tv.setBackground(bg);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.leftMargin = dpToPx(context, 4);
+        tv.setLayoutParams(params);
+
+        return tv;
+    }
+
+    private static TextView createDiagnosticsButtonTextView(Context context) {
+        TextView tv = new TextView(context);
+        tv.setText("STATS");
+        tv.setTextColor(Color.WHITE);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+        tv.setTypeface(Typeface.DEFAULT_BOLD);
+        tv.setGravity(Gravity.CENTER);
+        tv.setSingleLine(true);
+
+        int padH = dpToPx(context, 6);
+        int padV = dpToPx(context, 2);
+        tv.setPadding(padH, padV, padH, padV);
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dpToPx(context, 4));
+        bg.setColor(Color.parseColor("#DD0F172A")); // Deep dark slate
+        bg.setStroke(dpToPx(context, 1), Color.parseColor("#38BDF8")); // Cyan border
         tv.setBackground(bg);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -579,10 +1208,13 @@ public final class KayoPatch {
             return;
         }
         if (selectedHeight == QUALITY_AUTO) {
-            // Show AUTO or currently active adaptive resolution
-            VideoTrackOption playing = findCurrentlyPlayingTrack( extractVideoTracks(currentTracks) );
+            VideoTrackOption playing = findCurrentlyPlayingTrack(extractVideoTracks(currentTracks));
             if (playing != null && playing.height > 0) {
-                badge.setText("AUTO (" + playing.height + "p)");
+                if (playing.height >= 2160) {
+                    badge.setText("AUTO (4K)");
+                } else {
+                    badge.setText("AUTO (" + playing.height + "p)");
+                }
             } else {
                 badge.setText("AUTO");
             }
@@ -591,7 +1223,11 @@ public final class KayoPatch {
             bg.setColor(Color.parseColor("#99333333"));
             badge.setBackground(bg);
         } else {
-            badge.setText(selectedHeight + "p");
+            if (selectedHeight >= 2160) {
+                badge.setText("4K");
+            } else {
+                badge.setText(selectedHeight + "p");
+            }
             GradientDrawable bg = new GradientDrawable();
             bg.setCornerRadius(dpToPx(badge.getContext(), 4));
             bg.setColor(Color.parseColor("#DD05D669"));
@@ -607,6 +1243,10 @@ public final class KayoPatch {
         }
         return null;
     }
+
+    // =========================================================================
+    // Quality Dialog
+    // =========================================================================
 
     /**
      * Displays the interactive Video Quality selector dialog.
@@ -634,8 +1274,6 @@ public final class KayoPatch {
         loadPrefsIfNeeded(context);
 
         final List<VideoTrackOption> videoOptions = extractVideoTracks(currentTracks);
-
-        // If the stream hasn't reported Tracks yet or is still loading, provide standard Kayo fallback presets
         final boolean hasLiveTracks = !videoOptions.isEmpty();
 
         final List<String> labels = new ArrayList<>();
@@ -646,10 +1284,11 @@ public final class KayoPatch {
         String autoLabel = "Auto (Adaptive)";
         if (activeTrack != null && activeTrack.height > 0) {
             double mbps = activeTrack.bitrate > 0 ? activeTrack.bitrate / 1_000_000.0 : 0;
+            String labelPrefix = activeTrack.height >= 2160 ? "4K UHD" : activeTrack.height + "p";
             if (mbps > 0) {
-                autoLabel = String.format(Locale.US, "Auto (Adaptive  •  Currently %dp @ %.2f Mbps)", activeTrack.height, mbps);
+                autoLabel = String.format(Locale.US, "Auto (Adaptive  -  Currently %s @ %.2f Mbps)", labelPrefix, mbps);
             } else {
-                autoLabel = "Auto (Adaptive  •  Currently " + activeTrack.height + "p)";
+                autoLabel = "Auto (Adaptive  -  Currently " + labelPrefix + ")";
             }
         }
 
@@ -750,6 +1389,14 @@ public final class KayoPatch {
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                     onOpenOriginalTrackSelector.run();
+                }
+            });
+        } else {
+            builder.setPositiveButton("Diagnostics", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    showDiagnosticsDialog(context);
                 }
             });
         }

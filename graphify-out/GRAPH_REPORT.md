@@ -1,22 +1,22 @@
 # Graph Report - Morphe Stuff  (2026-10-22)
 
 ## Corpus Check
-- 26 files · ~9,636 words
+- 27 files · ~11,609 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 6, .properties 2, .xml 1)
 
 ## Summary
-- 246 nodes · 362 edges · 23 communities (15 shown, 8 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 13 edges (avg confidence: 0.82)
+- 275 nodes · 428 edges · 24 communities (15 shown, 9 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6f9adcf0`
+- Built from commit: `794217fc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- TrackGroup
+- .extractVideoTracks
 - KayoPatch
 - KayoPatch.java
 - Builder
@@ -35,30 +35,31 @@
 - rules/graphify.md
 - workflows/graphify.md
 - Open PR to Main Workflow
+- .getActiveStreamMetrics
 
 ## God Nodes (most connected - your core abstractions)
-1. `KayoPatch` - 32 edges
+1. `KayoPatch` - 46 edges
 2. `Builder` - 21 edges
 3. `TrackGroup` - 15 edges
 4. `Builder` - 13 edges
-5. `Group` - 10 edges
-6. `DefaultTrackSelector` - 10 edges
-7. `TrackSelectionOverride` - 9 edges
-8. `VideoTrackOption` - 8 edges
-9. `Format` - 8 edges
-10. `Tracks` - 8 edges
+5. `ExoPlayer` - 11 edges
+6. `Format` - 10 edges
+7. `Group` - 10 edges
+8. `DefaultTrackSelector` - 10 edges
+9. `TrackSelectionOverride` - 9 edges
+10. `VideoTrackOption` - 8 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Bug Report Template` --semantically_similar_to--> `Feature Request Template`  [INFERRED] [semantically similar]
   .github/ISSUE_TEMPLATE/bug_report.yml → .github/ISSUE_TEMPLATE/feature_request.yml
+- `KayoPatch` --references--> `ExoPlayer`  [EXTRACTED]
+  extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java → extensions/extension/src/main/java/com/google/android/exoplayer2/ExoPlayer.java
 - `KayoPatch` --references--> `Tracks`  [EXTRACTED]
   extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java → extensions/extension/src/main/java/com/google/android/exoplayer2/Tracks.java
 - `KayoPatch` --references--> `DefaultTrackSelector`  [EXTRACTED]
   extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java → extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java
 - `TrackSelectionOverride` --references--> `TrackGroup`  [EXTRACTED]
   extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionOverride.java → extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java
-- `Parameters` --inherits--> `TrackSelectionParameters`  [EXTRACTED]
-  extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java → extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionParameters.java
 
 ## Import Cycles
 - None detected.
@@ -66,22 +67,22 @@
 ## Hyperedges (group relationships)
 - **GitHub Issue Template Configuration Suite** — github_issue_template_bug_report, github_issue_template_feature_request, github_issue_template_config [EXTRACTED 1.00]
 
-## Communities (23 total, 8 thin omitted)
+## Communities (24 total, 9 thin omitted)
 
-### Community 0 - "TrackGroup"
+### Community 0 - ".extractVideoTracks"
 Cohesion: 0.11
 Nodes (6): VideoTrackOption, Format, TrackGroup, Group, Tracks, ImmutableList
 
 ### Community 1 - "KayoPatch"
-Cohesion: 0.15
-Nodes (7): android.app.Activity, android.content.Context, android.view.View, android.widget.TextView, SuppressWarnings, KayoPatch, OnClickListener
+Cohesion: 0.12
+Nodes (10): android.app.Activity, android.content.Context, android.os.Handler, android.view.View, android.widget.TextView, SuppressWarnings, KayoPatch, StreamMetrics (+2 more)
 
 ### Community 2 - "KayoPatch.java"
-Cohesion: 0.10
-Nodes (20): alertdialog, android.os.Handler, arraylist, collections, color, comparator, contextwrapper, dialoginterface (+12 more)
+Cohesion: 0.08
+Nodes (23): alertdialog, arraylist, clipboardmanager, clipdata, collections, color, comparator, contextwrapper (+15 more)
 
 ### Community 3 - "Builder"
-Cohesion: 0.15
+Cohesion: 0.13
 Nodes (4): Builder, DefaultTrackSelector, Parameters, Override
 
 ### Community 4 - "generate_patches_readme.py"
@@ -89,11 +90,11 @@ Cohesion: 0.13
 Nodes (18): anchor(), build_content(), patches_table(), pkg_emoji(), Wrap a patches table in a <details> spoiler with a versions sub-table. If…, Build the full generated patches section., Generates the patches section of README.md from patches-list.json and injects…, Return a standard package emoji regardless of the package name. (+10 more)
 
 ### Community 5 - "Fingerprints.kt"
-Cohesion: 0.16
-Nodes (20): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, opcode, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint (+12 more)
+Cohesion: 0.15
+Nodes (22): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, opcode, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint (+14 more)
 
 ### Community 6 - "Builder"
-Cohesion: 0.12
+Cohesion: 0.13
 Nodes (3): TrackSelectionOverride, Builder, TrackSelectionParameters
 
 ### Community 7 - "package.json"
@@ -130,23 +131,23 @@ Nodes (3): Bug Report Template, Issue Template Configuration, Feature Request Te
 
 ## Knowledge Gaps
 - **26 isolated node(s):** `@cleyrop-org/semantic-release-backmerge`, `@cleyrop-org/semantic-release-backmerge`, `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec` (+21 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 117 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 125 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `KayoPatch` connect `KayoPatch` to `TrackGroup`, `KayoPatch.java`, `Builder`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
-- **Why does `TrackGroup` connect `TrackGroup` to `KayoPatch.java`, `Builder`, `Builder`?**
-  _High betweenness centrality (0.049) - this node is a cross-community bridge._
+- **Why does `KayoPatch` connect `KayoPatch` to `.extractVideoTracks`, `KayoPatch.java`, `Builder`, `.getActiveStreamMetrics`?**
+  _High betweenness centrality (0.107) - this node is a cross-community bridge._
+- **Why does `TrackGroup` connect `.extractVideoTracks` to `KayoPatch.java`, `Builder`, `Builder`?**
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **What connects `@cleyrop-org/semantic-release-backmerge`, `@cleyrop-org/semantic-release-backmerge`, `@MorpheApp/changelog` to the rest of the system?**
   _26 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `TrackGroup` be split into smaller, more focused modules?**
+- **Should `.extractVideoTracks` be split into smaller, more focused modules?**
   _Cohesion score 0.11375661375661375 - nodes in this community are weakly interconnected._
 - **Should `KayoPatch` be split into smaller, more focused modules?**
-  _Cohesion score 0.14532019704433496 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11806543385490754 - nodes in this community are weakly interconnected._
 - **Should `KayoPatch.java` be split into smaller, more focused modules?**
-  _Cohesion score 0.09523809523809523 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `Builder` be split into smaller, more focused modules?**
-  _Cohesion score 0.14855072463768115 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.12962962962962962 - nodes in this community are weakly interconnected._
