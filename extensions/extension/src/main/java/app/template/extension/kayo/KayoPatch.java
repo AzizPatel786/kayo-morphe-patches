@@ -102,7 +102,9 @@ public final class KayoPatch {
 
         String getDisplayLabel() {
             StringBuilder sb = new StringBuilder();
-            if (height > 0) {
+            if (height >= 2160) {
+                sb.append(height).append("p (4K UHD)");
+            } else if (height > 0) {
                 sb.append(height).append("p");
             } else if (width > 0) {
                 sb.append(width).append("w");
@@ -113,7 +115,7 @@ public final class KayoPatch {
             if (frameRate > 0f) {
                 int fps = Math.round(frameRate);
                 if (fps >= 48) {
-                    sb.append(fps); // e.g. 1080p50, 720p50
+                    sb.append(fps); // e.g. 2160p50, 1080p50, 720p50
                 } else {
                     sb.append(" ").append(fps).append("fps");
                 }
@@ -124,8 +126,13 @@ public final class KayoPatch {
                 sb.append(String.format(Locale.US, "  •  %.2f Mbps", mbps));
             }
 
-            if (format.codecs != null && format.codecs.contains("hev")) {
-                sb.append(" (HEVC)");
+            if (format.codecs != null) {
+                if (format.codecs.contains("hev") || format.codecs.contains("hvc")) {
+                    sb.append(" (HEVC)");
+                }
+                if (format.codecs.contains("hdr") || format.codecs.contains("dovi") || format.codecs.contains("dvhe")) {
+                    sb.append(" [HDR]");
+                }
             }
 
             if (isCurrentlyPlaying) {
@@ -136,6 +143,13 @@ public final class KayoPatch {
         }
 
         String getShortBadgeLabel() {
+            if (height >= 2160) {
+                int fps = Math.round(frameRate);
+                if (fps >= 48) {
+                    return "4K" + fps;
+                }
+                return "4K";
+            }
             if (height > 0) {
                 int fps = Math.round(frameRate);
                 if (fps >= 48) {
@@ -160,7 +174,36 @@ public final class KayoPatch {
     public static void onTrackSelectorInit(DefaultTrackSelector selector) {
         if (selector != null) {
             currentTrackSelector = selector;
+            try {
+                DefaultTrackSelector.Parameters.Builder builder = selector.buildUponParameters();
+                builder.clearViewportSizeConstraints();
+                builder.clearVideoSizeConstraints();
+                builder.setExceedVideoConstraintsIfNecessary(true);
+                builder.setExceedRendererCapabilitiesIfNecessary(true);
+                selector.setParameters(builder.build());
+            } catch (Throwable ignored) {
+            }
         }
+    }
+
+    /**
+     * Ensures all high-definition and 4K capabilities are reported in the playback request body.
+     */
+    public static String spoofPlaybackCapabilities(String original) {
+        if (original == null || original.isEmpty()) {
+            return "mta,50fps,lowlatency,hevc,hdr";
+        }
+        StringBuilder sb = new StringBuilder(original);
+        if (!original.contains(",50fps")) {
+            sb.append(",50fps");
+        }
+        if (!original.contains(",hevc")) {
+            sb.append(",hevc");
+        }
+        if (!original.contains(",hdr")) {
+            sb.append(",hdr");
+        }
+        return sb.toString();
     }
 
     /**
@@ -359,8 +402,11 @@ public final class KayoPatch {
                 // Restore adaptive streaming across all video tracks
                 builder.clearOverridesOfType(VIDEO_TRACK_TYPE)
                         .clearVideoSizeConstraints()
+                        .clearViewportSizeConstraints()
                         .setMinVideoBitrate(0)
                         .setMaxVideoBitrate(Integer.MAX_VALUE)
+                        .setExceedVideoConstraintsIfNecessary(true)
+                        .setExceedRendererCapabilitiesIfNecessary(true)
                         .setForceHighestSupportedBitrate(false);
                 selector.setParameters(builder.build());
                 updateAllQualityBadges();
@@ -401,6 +447,7 @@ public final class KayoPatch {
             }
 
             builder.clearOverridesOfType(VIDEO_TRACK_TYPE)
+                    .clearViewportSizeConstraints()
                     .setExceedVideoConstraintsIfNecessary(true)
                     .setExceedRendererCapabilitiesIfNecessary(true);
 

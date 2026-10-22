@@ -54,6 +54,11 @@ public class DefaultTrackSelector {
                 return this;
             }
 
+            @Override
+            public Builder clearViewportSizeConstraints() {
+                return this;
+            }
+
             public Builder setForceHighestSupportedBitrate(boolean forceHighestSupportedBitrate) {
                 return this;
             }

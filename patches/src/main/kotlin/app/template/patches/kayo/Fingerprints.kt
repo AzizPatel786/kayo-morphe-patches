@@ -221,3 +221,59 @@ object DefaultPlayerControlsConstructorFingerprint : Fingerprint(
         )
     )
 )
+
+/**
+ * Matches `PlaybackServiceDelegate.t()` (`Lgv/x;->t()Ljava/lang/String;`),
+ * which computes the stream capabilities string ("mta,50fps,lowlatency,hevc,hdr") sent in the playback request body.
+ */
+object PlaybackServiceDelegateCapabilitiesFingerprint : Fingerprint(
+    returnType = "Ljava/lang/String;",
+    parameters = listOf(),
+    filters = listOf(
+        string("mta"),
+        string(",50fps"),
+        string(",lowlatency")
+    )
+)
+
+/**
+ * Matches `PlaybackServiceDelegate.u()` (`Lgv/x;->u()Ljava/lang/String;`),
+ * which sends "low" tier when DrmTierService reports low tier.
+ */
+object PlaybackServiceDelegateDrmTierFingerprint : Fingerprint(
+    classFingerprint = PlaybackServiceDelegateCapabilitiesFingerprint,
+    returnType = "Ljava/lang/String;",
+    parameters = listOf(),
+    filters = listOf(
+        string("low")
+    )
+)
+
+/**
+ * Matches `DrmTierService.b()` (`Lge/i;->b()Z`),
+ * which determines whether the device is considered low DRM tier (e.g. failing external HDCP display check).
+ */
+object DrmTierServiceIsLowTierFingerprint : Fingerprint(
+    returnType = "Z",
+    parameters = listOf(),
+    filters = listOf(
+        string("Error determining DRM tier, defaulting to Low: "),
+        string("DrmTier")
+    )
+)
+
+/**
+ * Matches `PlaybackCodecsService.a()` (`LXu/b;->a()Z`),
+ * which checks if HEVC decoder is supported.
+ */
+object PlaybackCodecsServiceIsHevcSupportedFingerprint : Fingerprint(
+    returnType = "Z",
+    parameters = listOf(),
+    filters = listOf(
+        string("video/hevc"),
+        fieldAccess(
+            opcode = Opcode.IGET_OBJECT,
+            type = "Ls6/p;"
+        )
+    )
+)

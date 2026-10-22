@@ -63,16 +63,10 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             """
         )
 
-        ProfileBasedTrackSelectorSetMaxSizeFingerprint.method.addInstructionsWithLabels(
+        // Neutralize Kayo's client-side maxVideoHeight cap so ExoPlayer is never constrained to 720p
+        ProfileBasedTrackSelectorSetMaxSizeFingerprint.method.addInstruction(
             0,
-            """
-                invoke-static {}, $EXTENSION_CLASS_DESCRIPTOR->shouldIgnoreBitrateLimit()Z
-                move-result v0
-                if-eqz v0, :allow_adaptive_size
-                return-void
-                :allow_adaptive_size
-                nop
-            """
+            "return-void"
         )
 
         // 4. Force the top-bar track selector button (toggle_track_selector) to always be visible
@@ -85,7 +79,7 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             """
         )
 
-        // 5. Inject our live resolution pill badge ("AUTO (1080p)" / "1080p50") and attach the
+        // 5. Inject our live resolution pill badge ("AUTO (1080p)" / "1080p50" / "4K") and attach the
         // Video Quality selector menu click listener after AbstractDaznPlayerControls sets up
         // getTrackSelectorButton().setOnClickListener(this).
         AbstractDaznPlayerControlsSetupFingerprint.let { fp ->
@@ -111,5 +105,41 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                 "invoke-static {v$buttonRegister}, $EXTENSION_CLASS_DESCRIPTOR->onControlsInitialized(Landroid/view/View;)V"
             )
         }
+
+        // 7. Force full playback capabilities ("mta,50fps,lowlatency,hevc,hdr") in the stream request
+        PlaybackServiceDelegateCapabilitiesFingerprint.method.addInstructions(
+            0,
+            """
+                const-string v0, "mta,50fps,lowlatency,hevc,hdr"
+                return-object v0
+            """
+        )
+
+        // 8. Prevent sending "low" DRM tier in the playback request body (which restricts CDN to 720p)
+        PlaybackServiceDelegateDrmTierFingerprint.method.addInstructions(
+            0,
+            """
+                const/4 v0, 0x0
+                return-object v0
+            """
+        )
+
+        // 9. Force DrmTierService.b() to return false (not low tier)
+        DrmTierServiceIsLowTierFingerprint.method.addInstructions(
+            0,
+            """
+                const/4 v0, 0x0
+                return v0
+            """
+        )
+
+        // 10. Force HEVC decoder support check to return true
+        PlaybackCodecsServiceIsHevcSupportedFingerprint.method.addInstructions(
+            0,
+            """
+                const/4 v0, 0x1
+                return v0
+            """
+        )
     }
 }

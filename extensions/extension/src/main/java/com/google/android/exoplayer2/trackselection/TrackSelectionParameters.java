@@ -47,6 +47,10 @@ public class TrackSelectionParameters {
             return this;
         }
 
+        public Builder clearViewportSizeConstraints() {
+            return this;
+        }
+
         public Builder addOverride(TrackSelectionOverride override) {
             return this;
         }
