@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-23)
+
+### 🐛 Bug Fixes
+
+* **ci:** remove unneeded backmerge plugin for single branch setup ([886119a](https://github.com/AzizPatel786/kayo-morphe-patches/commit/886119a51cf959fff237669054a9cb378951d8d5))
+
 ## 1.0.0 (2026-10-23)
 
 ### 🐛 Bug Fixes

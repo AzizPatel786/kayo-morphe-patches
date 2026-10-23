@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-23T21:33:38",
-  "description": "## 1.0.0 (2026-10-23)\n\n### 🐛 Bug Fixes\n\n* **ci:** fix release workflow, releaserc json syntax, and gradle credentials ([6e92001](https://github.com/AzizPatel786/kayo-morphe-patches/commit/6e920010a7d65ae9415240cf8afd306b176e3a0f))\n* **tv:** add Kayo Android TV 4.6.1 support and make mobile fingerprints optional ([cd4329c](https://github.com/AzizPatel786/kayo-morphe-patches/commit/cd4329ca908ab382e821902f8ae941d8c26aa7ab))\n\n### ✨ New Features\n\n* **kayo:** add In-player quality menu patch for Kayo Sports ([6f9adcf](https://github.com/AzizPatel786/kayo-morphe-patches/commit/6f9adcf093f1f87d5fb91f1162f9058a4cb0085d))\n* **kayo:** add live stream diagnostics button and HUD overlay for 4K/1080p metrics ([c688a4f](https://github.com/AzizPatel786/kayo-morphe-patches/commit/c688a4f84e1a782aa4e7bb8764fc35573470feea))\n* **kayo:** unlock 4K UHD and 1080p50 playback and remove resolution caps ([794217f](https://github.com/AzizPatel786/kayo-morphe-patches/commit/794217fcf3789d339b752152cf23eedd146d448b))",
-  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.0.0/patches-1.0.0.mpp",
+  "created_at": "2026-10-23T21:44:17",
+  "description": "## [1.0.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-23)\n\n### 🐛 Bug Fixes\n\n* **ci:** remove unneeded backmerge plugin for single branch setup ([886119a](https://github.com/AzizPatel786/kayo-morphe-patches/commit/886119a51cf959fff237669054a9cb378951d8d5))",
+  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.0.1/patches-1.0.1.mpp",
   "signature_download_url": "",
-  "version": "1.0.0"
+  "version": "1.0.1"
 }
