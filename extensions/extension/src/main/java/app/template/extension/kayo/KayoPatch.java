@@ -75,6 +75,9 @@ public final class KayoPatch {
     private static volatile int selectedBitrate = QUALITY_AUTO;
     private static volatile boolean prefsLoaded = false;
 
+    private static volatile WeakReference<Object> currentMedia3PlayerRef;
+    private static long lastCenterClickTime = 0;
+
     private static final List<WeakReference<TextView>> qualityBadgeViews = new ArrayList<>();
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -265,6 +268,144 @@ public final class KayoPatch {
             currentPlayerRef = new WeakReference<>(player);
             updateAllQualityBadges();
         }
+    }
+
+    /**
+     * TV hook: Intercepts VideoCapabilitiesPlugin.execute to spoof 4K, 60fps, Widevine L1,
+     * HDCP 2.2, HEVC, and HDR support on Android TV.
+     */
+    public static boolean onVideoCapabilitiesExecute(String action, org.json.JSONArray args, Object callback) {
+        if (action == null || callback == null) {
+            return false;
+        }
+        try {
+            switch (action) {
+                case "IS_4K_SUPPORTED": {
+                    org.json.JSONObject result = new org.json.JSONObject();
+                    result.put("is4KSupported", true);
+                    org.json.JSONArray framerates = new org.json.JSONArray();
+                    framerates.put(24.0);
+                    framerates.put(25.0);
+                    framerates.put(30.0);
+                    framerates.put(50.0);
+                    framerates.put(60.0);
+                    result.put("supportedFramerates", framerates);
+                    invokeCallbackSuccess(callback, result);
+                    return true;
+                }
+                case "IS_WIDEVINE_L1_SUPPORTED": {
+                    org.json.JSONObject result = new org.json.JSONObject();
+                    result.put("isWidevineL1Supported", true);
+                    invokeCallbackSuccess(callback, result);
+                    return true;
+                }
+                case "GET_HDCP_LEVEL": {
+                    org.json.JSONObject result = new org.json.JSONObject();
+                    result.put("maxHdcpLevel", "HDCP_V2_2");
+                    result.put("connectedHdcpLevel", "HDCP_V2_2");
+                    invokeCallbackSuccess(callback, result);
+                    return true;
+                }
+                case "IS_HEVC_SUPPORTED": {
+                    org.json.JSONObject result = new org.json.JSONObject();
+                    result.put("isHevcSupported", true);
+                    invokeCallbackSuccess(callback, result);
+                    return true;
+                }
+                case "IS_HEVC_MAIN10_LEVEL51_SUPPORTED": {
+                    org.json.JSONObject result = new org.json.JSONObject();
+                    result.put("isHevcMain10Level51Supported", true);
+                    invokeCallbackSuccess(callback, result);
+                    return true;
+                }
+                case "GET_HDR_SUPPORTED_TYPES": {
+                    org.json.JSONObject result = new org.json.JSONObject();
+                    org.json.JSONArray types = new org.json.JSONArray();
+                    types.put(1); // DOLBY_VISION
+                    types.put(2); // HDR10
+                    types.put(3); // HLG
+                    types.put(4); // HDR10_PLUS
+                    result.put("hdrSupportedTypes", types);
+                    invokeCallbackSuccess(callback, result);
+                    return true;
+                }
+                default:
+                    return false;
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error in onVideoCapabilitiesExecute", t);
+            return false;
+        }
+    }
+
+    private static void invokeCallbackSuccess(Object callback, org.json.JSONObject result) {
+        try {
+            java.lang.reflect.Method m = callback.getClass().getMethod("success", org.json.JSONObject.class);
+            m.invoke(callback, result);
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error invoking PluginCallback.success", t);
+        }
+    }
+
+    /**
+     * TV hook: Overrides max bitrate parameter in DrmPlayer.setMaxVideoBitrate(I)V.
+     */
+    public static int overrideTvMaxBitrate(int originalBitrate) {
+        if (selectedBitrate > 0) {
+            return selectedBitrate;
+        }
+        // Returning 0 causes DrmPlayer to default to Integer.MAX_VALUE (uncapped 4K UHD)
+        return 0;
+    }
+
+    /**
+     * TV hook: Captures active Media3 ExoPlayer instance from PlayerView.setPlayer(ExoPlayer).
+     */
+    public static void onMedia3PlayerAttached(Object player) {
+        if (player != null) {
+            currentMedia3PlayerRef = new WeakReference<>(player);
+            android.util.Log.i("MorpheKayo", "Media3 ExoPlayer attached: " + player.getClass().getName());
+        }
+    }
+
+    /**
+     * TV hook: Handles Android TV remote keys (Info, Menu, Color keys, D-pad Center double tap)
+     * in MainActivity.dispatchKeyEvent(KeyEvent).
+     */
+    public static boolean onTvKeyEvent(Activity activity, android.view.KeyEvent event) {
+        if (event == null || event.getAction() != android.view.KeyEvent.ACTION_DOWN) {
+            return false;
+        }
+        int keyCode = event.getKeyCode();
+
+        // 1. Diagnostics HUD toggle: Remote Info (165), Red (183), Yellow (185), Green (184), Blue (186)
+        if (keyCode == android.view.KeyEvent.KEYCODE_INFO ||
+                keyCode == android.view.KeyEvent.KEYCODE_PROG_RED ||
+                keyCode == android.view.KeyEvent.KEYCODE_PROG_YELLOW ||
+                keyCode == android.view.KeyEvent.KEYCODE_PROG_GREEN ||
+                keyCode == android.view.KeyEvent.KEYCODE_PROG_BLUE) {
+            toggleDiagnosticsOverlay(activity);
+            return true;
+        }
+
+        // 2. Menu button (KEYCODE_MENU = 82): opens the Quality selector menu
+        if (keyCode == android.view.KeyEvent.KEYCODE_MENU) {
+            showQualityDialog(activity, null);
+            return true;
+        }
+
+        // 3. Double-tap Center / Enter to toggle Diagnostics HUD
+        if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER || keyCode == android.view.KeyEvent.KEYCODE_ENTER) {
+            long now = System.currentTimeMillis();
+            if (now - lastCenterClickTime < 400) {
+                lastCenterClickTime = 0;
+                toggleDiagnosticsOverlay(activity);
+                return true;
+            }
+            lastCenterClickTime = now;
+        }
+
+        return false;
     }
 
     /**
@@ -483,6 +624,55 @@ public final class KayoPatch {
                         break;
                 }
             } catch (Throwable ignored) {
+            }
+        } else {
+            Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+            if (media3Player != null) {
+                try {
+                    java.lang.reflect.Method getVideoFormatMethod = media3Player.getClass().getMethod("getVideoFormat");
+                    Object media3Format = getVideoFormatMethod.invoke(media3Player);
+                    if (media3Format != null) {
+                        Class<?> fmtClass = media3Format.getClass();
+                        java.lang.reflect.Field fWidth = fmtClass.getField("width");
+                        java.lang.reflect.Field fHeight = fmtClass.getField("height");
+                        java.lang.reflect.Field fFrameRate = fmtClass.getField("frameRate");
+                        java.lang.reflect.Field fBitrate = fmtClass.getField("bitrate");
+                        java.lang.reflect.Field fCodecs = fmtClass.getField("codecs");
+                        java.lang.reflect.Field fMime = fmtClass.getField("sampleMimeType");
+
+                        width = fWidth.getInt(media3Format);
+                        height = fHeight.getInt(media3Format);
+                        frameRate = fFrameRate.getFloat(media3Format);
+                        bitrate = fBitrate.getInt(media3Format);
+                        Object c = fCodecs.get(media3Format);
+                        codecs = c != null ? c.toString() : "";
+                        Object m = fMime.get(media3Format);
+                        mimeType = m != null ? m.toString() : "";
+                    }
+
+                    java.lang.reflect.Method getPlaybackState = media3Player.getClass().getMethod("getPlaybackState");
+                    int state = (Integer) getPlaybackState.invoke(media3Player);
+                    java.lang.reflect.Method isPlayingMethod = media3Player.getClass().getMethod("isPlaying");
+                    boolean isPlaying = (Boolean) isPlayingMethod.invoke(media3Player);
+                    java.lang.reflect.Method getBuffered = media3Player.getClass().getMethod("getTotalBufferedDuration");
+                    bufferedMs = (Long) getBuffered.invoke(media3Player);
+
+                    switch (state) {
+                        case 2: // STATE_BUFFERING
+                            stateStr = "Buffering";
+                            break;
+                        case 3: // STATE_READY
+                            stateStr = isPlaying ? "Playing" : "Paused";
+                            break;
+                        case 4: // STATE_ENDED
+                            stateStr = "Ended";
+                            break;
+                        case 1: // STATE_IDLE
+                            stateStr = "Idle";
+                            break;
+                    }
+                } catch (Throwable ignored) {
+                }
             }
         }
 
@@ -1058,6 +1248,38 @@ public final class KayoPatch {
             selector.setParameters(builder.build());
             updateAllQualityBadges();
         } catch (Throwable ignored) {
+        }
+
+        // Android TV Media3 player track selector support
+        Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+        if (media3Player != null) {
+            try {
+                java.lang.reflect.Method getTrackSelector = media3Player.getClass().getMethod("getTrackSelector");
+                Object tvSelector = getTrackSelector.invoke(media3Player);
+                if (tvSelector != null) {
+                    java.lang.reflect.Method getParams = tvSelector.getClass().getMethod("getParameters");
+                    Object params = getParams.invoke(tvSelector);
+                    java.lang.reflect.Method buildUpon = params.getClass().getMethod("buildUpon");
+                    Object builder = buildUpon.invoke(params);
+                    Class<?> builderClass = builder.getClass();
+
+                    if (selectedHeight == QUALITY_AUTO) {
+                        builderClass.getMethod("setMaxVideoSize", int.class, int.class).invoke(builder, Integer.MAX_VALUE, Integer.MAX_VALUE);
+                        builderClass.getMethod("setMaxVideoBitrate", int.class).invoke(builder, Integer.MAX_VALUE);
+                    } else {
+                        builderClass.getMethod("setMaxVideoSize", int.class, int.class).invoke(builder, Integer.MAX_VALUE, selectedHeight);
+                        if (selectedBitrate > 0) {
+                            builderClass.getMethod("setMaxVideoBitrate", int.class).invoke(builder, selectedBitrate);
+                        }
+                    }
+
+                    java.lang.reflect.Method buildMethod = builderClass.getMethod("build");
+                    Object newParams = buildMethod.invoke(builder);
+                    java.lang.reflect.Method setParams = tvSelector.getClass().getMethod("setParameters", newParams.getClass());
+                    setParams.invoke(tvSelector, newParams);
+                }
+            } catch (Throwable ignored) {
+            }
         }
     }
 

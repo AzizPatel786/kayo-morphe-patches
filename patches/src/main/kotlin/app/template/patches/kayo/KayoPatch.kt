@@ -27,20 +27,27 @@ val inPlayerQualityMenuPatch = bytecodePatch(
     extendWith("extensions/extension.mpe")
 
     execute {
+        // =====================================================================
+        // Mobile Specific Hooks (au.com.kayosports)
+        // =====================================================================
+
         // 1. Capture DefaultTrackSelector instance when ProfileBasedTrackSelector (Lpx/e;) is constructed.
-        ProfileBasedTrackSelectorConstructorFingerprint.method.addInstruction(
-            0,
-            "invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->onTrackSelectorInit(Lcom/google/android/exoplayer2/trackselection/DefaultTrackSelector;)V"
-        )
+        ProfileBasedTrackSelectorConstructorFingerprint.methodOrNull?.let { method ->
+            method.addInstruction(
+                0,
+                "invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->onTrackSelectorInit(Lcom/google/android/exoplayer2/trackselection/DefaultTrackSelector;)V"
+            )
+        }
 
         // 2. Intercept ProfileBasedTrackSelector.f(Tracks) (called by onTracksChanged(Tracks))
         // to capture the available video tracks, update the in-player quality badge, and re-apply
         // any manual resolution lock.
-        ProfileBasedTrackSelectorUpdateTracksFingerprint.let { fp ->
+        ProfileBasedTrackSelectorUpdateTracksFingerprint.methodOrNull?.let { method ->
+            val fp = ProfileBasedTrackSelectorUpdateTracksFingerprint
             val selectorFieldIndex = fp.instructionMatches[1].index
-            val selectorFieldRef = fp.method.getInstruction<ReferenceInstruction>(selectorFieldIndex).reference as FieldReference
+            val selectorFieldRef = method.getInstruction<ReferenceInstruction>(selectorFieldIndex).reference as FieldReference
 
-            fp.method.addInstructions(
+            method.addInstructions(
                 0,
                 """
                     iget-object v0, p0, $selectorFieldRef
@@ -51,43 +58,50 @@ val inPlayerQualityMenuPatch = bytecodePatch(
 
         // 3. Prevent Kayo's automatic TrackBitrateLimiter / ProfileBitrate from overriding
         // a manually selected video resolution in b(int maxVideoBitrate) and c(int maxVideoHeight).
-        ProfileBasedTrackSelectorSetMaxBitrateFingerprint.method.addInstructionsWithLabels(
-            0,
-            """
-                invoke-static {}, $EXTENSION_CLASS_DESCRIPTOR->shouldIgnoreBitrateLimit()Z
-                move-result v0
-                if-eqz v0, :allow_adaptive_bitrate
-                return-void
-                :allow_adaptive_bitrate
-                nop
-            """
-        )
+        ProfileBasedTrackSelectorSetMaxBitrateFingerprint.methodOrNull?.let { method ->
+            method.addInstructionsWithLabels(
+                0,
+                """
+                    invoke-static {}, $EXTENSION_CLASS_DESCRIPTOR->shouldIgnoreBitrateLimit()Z
+                    move-result v0
+                    if-eqz v0, :allow_adaptive_bitrate
+                    return-void
+                    :allow_adaptive_bitrate
+                    nop
+                """
+            )
+        }
 
         // Neutralize Kayo's client-side maxVideoHeight cap so ExoPlayer is never constrained to 720p
-        ProfileBasedTrackSelectorSetMaxSizeFingerprint.method.addInstruction(
-            0,
-            "return-void"
-        )
+        ProfileBasedTrackSelectorSetMaxSizeFingerprint.methodOrNull?.let { method ->
+            method.addInstruction(
+                0,
+                "return-void"
+            )
+        }
 
         // 4. Force the top-bar track selector button (toggle_track_selector) to always be visible
         // on live streams (Kayo normally hides it on live streams when there is only 1 audio track).
-        AbstractDaznPlayerControlsTrackSelectorVisibilityFingerprint.method.addInstructions(
-            0,
-            """
-                invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->overrideTrackSelectorVisibility(Z)Z
-                move-result p1
-            """
-        )
+        AbstractDaznPlayerControlsTrackSelectorVisibilityFingerprint.methodOrNull?.let { method ->
+            method.addInstructions(
+                0,
+                """
+                    invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->overrideTrackSelectorVisibility(Z)Z
+                    move-result p1
+                """
+            )
+        }
 
         // 5. Inject our live resolution pill badge ("AUTO (1080p)" / "1080p50" / "4K") and attach the
         // Video Quality selector menu click listener after AbstractDaznPlayerControls sets up
         // getTrackSelectorButton().setOnClickListener(this).
-        AbstractDaznPlayerControlsSetupFingerprint.let { fp ->
+        AbstractDaznPlayerControlsSetupFingerprint.methodOrNull?.let { method ->
+            val fp = AbstractDaznPlayerControlsSetupFingerprint
             val moveResultIndex = fp.instructionMatches[3].index
             val setOnClickIndex = fp.instructionMatches[4].index
-            val buttonRegister = fp.method.getInstruction<OneRegisterInstruction>(moveResultIndex).registerA
+            val buttonRegister = method.getInstruction<OneRegisterInstruction>(moveResultIndex).registerA
 
-            fp.method.addInstruction(
+            method.addInstruction(
                 setOnClickIndex + 1,
                 "invoke-static {v$buttonRegister}, $EXTENSION_CLASS_DESCRIPTOR->onControlsInitialized(Landroid/view/View;)V"
             )
@@ -107,40 +121,48 @@ val inPlayerQualityMenuPatch = bytecodePatch(
         }
 
         // 7. Force full playback capabilities ("mta,50fps,lowlatency,hevc,hdr") in the stream request
-        PlaybackServiceDelegateCapabilitiesFingerprint.method.addInstructions(
-            0,
-            """
-                const-string v0, "mta,50fps,lowlatency,hevc,hdr"
-                return-object v0
-            """
-        )
+        PlaybackServiceDelegateCapabilitiesFingerprint.methodOrNull?.let { method ->
+            method.addInstructions(
+                0,
+                """
+                    const-string v0, "mta,50fps,lowlatency,hevc,hdr"
+                    return-object v0
+                """
+            )
+        }
 
         // 8. Prevent sending "low" DRM tier in the playback request body (which restricts CDN to 720p)
-        PlaybackServiceDelegateDrmTierFingerprint.method.addInstructions(
-            0,
-            """
-                const/4 v0, 0x0
-                return-object v0
-            """
-        )
+        PlaybackServiceDelegateDrmTierFingerprint.methodOrNull?.let { method ->
+            method.addInstructions(
+                0,
+                """
+                    const/4 v0, 0x0
+                    return-object v0
+                """
+            )
+        }
 
         // 9. Force DrmTierService.b() to return false (not low tier)
-        DrmTierServiceIsLowTierFingerprint.method.addInstructions(
-            0,
-            """
-                const/4 v0, 0x0
-                return v0
-            """
-        )
+        DrmTierServiceIsLowTierFingerprint.methodOrNull?.let { method ->
+            method.addInstructions(
+                0,
+                """
+                    const/4 v0, 0x0
+                    return v0
+                """
+            )
+        }
 
         // 10. Force HEVC decoder support check to return true
-        PlaybackCodecsServiceIsHevcSupportedFingerprint.method.addInstructions(
-            0,
-            """
-                const/4 v0, 0x1
-                return v0
-            """
-        )
+        PlaybackCodecsServiceIsHevcSupportedFingerprint.methodOrNull?.let { method ->
+            method.addInstructions(
+                0,
+                """
+                    const/4 v0, 0x1
+                    return v0
+                """
+            )
+        }
 
         // 11. Capture active ExoPlayer instance when attached in PlayerInterfaceDazn.R1(ExoPlayer)
         PlayerInterfaceAttachExoPlayerFingerprint.methodOrNull?.let { method ->
@@ -149,6 +171,61 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                 "invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->onExoPlayerAttached(Lcom/google/android/exoplayer2/ExoPlayer;)V"
             )
         }
+
+        // =====================================================================
+        // Android TV Specific Hooks (au.com.kayosports.tv)
+        // =====================================================================
+
+        // 12. Hook VideoCapabilitiesPlugin.execute to spoof 4K, 60fps, Widevine L1, HDCP 2.2, HEVC, and HDR
+        TvVideoCapabilitiesPluginExecuteFingerprint.methodOrNull?.let { method ->
+            method.addInstructionsWithLabels(
+                0,
+                """
+                    invoke-static {p1, p2, p3}, $EXTENSION_CLASS_DESCRIPTOR->onVideoCapabilitiesExecute(Ljava/lang/String;Lorg/json/JSONArray;Ljava/lang/Object;)Z
+                    move-result v0
+                    if-eqz v0, :cond_native_exec
+                    const/4 v0, 0x1
+                    return v0
+                    :cond_native_exec
+                    nop
+                """
+            )
+        }
+
+        // 13. Hook DrmPlayer.setMaxVideoBitrate to override/uncap max bitrate on Android TV
+        TvDrmPlayerSetMaxBitrateFingerprint.methodOrNull?.let { method ->
+            method.addInstructions(
+                0,
+                """
+                    invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->overrideTvMaxBitrate(I)I
+                    move-result p1
+                """
+            )
+        }
+
+        // 14. Hook PlayerView.setPlayer to capture active Media3 ExoPlayer instance for Live Diagnostics
+        TvPlayerViewSetPlayerFingerprint.methodOrNull?.let { method ->
+            method.addInstruction(
+                0,
+                "invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->onMedia3PlayerAttached(Ljava/lang/Object;)V"
+            )
+        }
+
+        // 15. Hook MainActivity.dispatchKeyEvent to handle Android TV remote keys (Info, Menu, Color keys)
+        // for toggling Live Stream Diagnostics HUD and Quality Menu.
+        TvMainActivityDispatchKeyEventFingerprint.methodOrNull?.let { method ->
+            method.addInstructionsWithLabels(
+                0,
+                """
+                    invoke-static {p0, p1}, $EXTENSION_CLASS_DESCRIPTOR->onTvKeyEvent(Landroid/app/Activity;Landroid/view/KeyEvent;)Z
+                    move-result v0
+                    if-eqz v0, :cond_native_key
+                    const/4 v0, 0x1
+                    return v0
+                    :cond_native_key
+                    nop
+                """
+            )
+        }
     }
 }
-

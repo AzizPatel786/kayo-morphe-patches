@@ -1,17 +1,17 @@
-# Graph Report - Morphe Stuff  (2026-10-22)
+# Graph Report - Morphe Stuff  (2026-10-24)
 
 ## Corpus Check
-- 27 files · ~11,609 words
+- 27 files · ~12,715 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 6, .properties 2, .xml 1)
 
 ## Summary
-- 275 nodes · 428 edges · 24 communities (15 shown, 9 thin omitted)
+- 286 nodes · 448 edges · 24 communities (15 shown, 9 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `794217fc`
+- Built from commit: `c688a4f8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -38,7 +38,7 @@
 - .getActiveStreamMetrics
 
 ## God Nodes (most connected - your core abstractions)
-1. `KayoPatch` - 46 edges
+1. `KayoPatch` - 51 edges
 2. `Builder` - 21 edges
 3. `TrackGroup` - 15 edges
 4. `Builder` - 13 edges
@@ -74,12 +74,12 @@ Cohesion: 0.11
 Nodes (6): VideoTrackOption, Format, TrackGroup, Group, Tracks, ImmutableList
 
 ### Community 1 - "KayoPatch"
-Cohesion: 0.12
-Nodes (10): android.app.Activity, android.content.Context, android.os.Handler, android.view.View, android.widget.TextView, SuppressWarnings, KayoPatch, StreamMetrics (+2 more)
+Cohesion: 0.11
+Nodes (9): android.app.Activity, android.content.Context, android.os.Handler, android.view.View, android.widget.TextView, SuppressWarnings, KayoPatch, KeyEvent (+1 more)
 
 ### Community 2 - "KayoPatch.java"
 Cohesion: 0.08
-Nodes (23): alertdialog, arraylist, clipboardmanager, clipdata, collections, color, comparator, contextwrapper (+15 more)
+Nodes (24): alertdialog, arraylist, clipboardmanager, clipdata, collections, color, comparator, contextwrapper (+16 more)
 
 ### Community 3 - "Builder"
 Cohesion: 0.13
@@ -90,11 +90,11 @@ Cohesion: 0.13
 Nodes (18): anchor(), build_content(), patches_table(), pkg_emoji(), Wrap a patches table in a <details> spoiler with a versions sub-table. If…, Build the full generated patches section., Generates the patches section of README.md from patches-list.json and injects…, Return a standard package emoji regardless of the package name. (+10 more)
 
 ### Community 5 - "Fingerprints.kt"
-Cohesion: 0.15
-Nodes (22): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, opcode, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint (+14 more)
+Cohesion: 0.13
+Nodes (26): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, opcode, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint (+18 more)
 
 ### Community 6 - "Builder"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (3): TrackSelectionOverride, Builder, TrackSelectionParameters
 
 ### Community 7 - "package.json"
@@ -106,8 +106,8 @@ Cohesion: 0.33
 Nodes (5): Dependabot Configuration, Conventional Changelog Version Pinning, Release Workflow, Fallback Build Verification, Semantic Release Automation
 
 ### Community 9 - "PatchListGenerator.kt"
-Cohesion: 0.22
-Nodes (14): file, gsonbuilder, jsonobject, loadpatchesfromjar, manifest, Patch, generatePatchList(), JsonCompatibility (+6 more)
+Cohesion: 0.17
+Nodes (15): file, gsonbuilder, JSONArray, JSONObject, loadpatchesfromjar, manifest, Patch, generatePatchList() (+7 more)
 
 ### Community 10 - "KayoPatch.kt"
 Cohesion: 0.18
@@ -131,22 +131,22 @@ Nodes (3): Bug Report Template, Issue Template Configuration, Feature Request Te
 
 ## Knowledge Gaps
 - **26 isolated node(s):** `@cleyrop-org/semantic-release-backmerge`, `@cleyrop-org/semantic-release-backmerge`, `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec` (+21 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 125 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 128 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `KayoPatch` connect `KayoPatch` to `.extractVideoTracks`, `KayoPatch.java`, `Builder`, `.getActiveStreamMetrics`?**
-  _High betweenness centrality (0.107) - this node is a cross-community bridge._
+- **Why does `KayoPatch` connect `KayoPatch` to `.extractVideoTracks`, `KayoPatch.java`, `Builder`, `PatchListGenerator.kt`, `.getActiveStreamMetrics`?**
+  _High betweenness centrality (0.179) - this node is a cross-community bridge._
 - **Why does `TrackGroup` connect `.extractVideoTracks` to `KayoPatch.java`, `Builder`, `Builder`?**
-  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
 - **What connects `@cleyrop-org/semantic-release-backmerge`, `@cleyrop-org/semantic-release-backmerge`, `@MorpheApp/changelog` to the rest of the system?**
   _26 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `.extractVideoTracks` be split into smaller, more focused modules?**
-  _Cohesion score 0.11375661375661375 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10837438423645321 - nodes in this community are weakly interconnected._
 - **Should `KayoPatch` be split into smaller, more focused modules?**
-  _Cohesion score 0.11806543385490754 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11470985155195682 - nodes in this community are weakly interconnected._
 - **Should `KayoPatch.java` be split into smaller, more focused modules?**
   _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `Builder` be split into smaller, more focused modules?**

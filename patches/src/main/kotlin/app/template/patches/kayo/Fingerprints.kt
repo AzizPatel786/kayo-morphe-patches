@@ -307,3 +307,72 @@ object PlayerInterfaceAttachExoPlayerFingerprint : Fingerprint(
     )
 )
 
+/**
+ * Matches `VideoCapabilitiesPlugin.execute(String, JSONArray, PluginCallback)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvVideoCapabilitiesPluginExecuteFingerprint : Fingerprint(
+    returnType = "Z",
+    parameters = listOf(
+        "Ljava/lang/String;",
+        "Lorg/json/JSONArray;",
+        "Lcom/dazn/shared/plugins/api/PluginCallback;"
+    ),
+    filters = listOf(
+        string("VideoCapabilitiesPlugin"),
+        string("IS_4K_SUPPORTED"),
+        string("IS_WIDEVINE_L1_SUPPORTED")
+    )
+)
+
+/**
+ * Matches `DrmPlayer.setMaxVideoBitrate(int)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvDrmPlayerSetMaxBitrateFingerprint : Fingerprint(
+    returnType = "V",
+    parameters = listOf("I"),
+    filters = listOf(
+        string("getTrackSelectionParameters(...)"),
+        fieldAccess(
+            opcode = Opcode.IPUT,
+            definingClass = "Landroidx/media3/common/TrackSelectionParameters\$Builder;",
+            name = "maxVideoBitrate"
+        )
+    )
+)
+
+/**
+ * Matches `PlayerView.setPlayer(ExoPlayer)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvPlayerViewSetPlayerFingerprint : Fingerprint(
+    returnType = "V",
+    parameters = listOf("Landroidx/media3/exoplayer/ExoPlayer;"),
+    filters = listOf(
+        fieldAccess(
+            opcode = Opcode.IPUT_OBJECT,
+            definingClass = "this",
+            type = "Landroidx/media3/exoplayer/ExoPlayer;"
+        ),
+        fieldAccess(
+            opcode = Opcode.IGET_BOOLEAN,
+            definingClass = "this",
+            name = "surfaceReady"
+        )
+    )
+)
+
+/**
+ * Matches `MainActivity.dispatchKeyEvent(KeyEvent)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvMainActivityDispatchKeyEventFingerprint : Fingerprint(
+    name = "dispatchKeyEvent",
+    returnType = "Z",
+    parameters = listOf("Landroid/view/KeyEvent;"),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lcom/dazn/MainActivity;",
+            name = "getWebViewHost"
+        )
+    )
+)
+
+
