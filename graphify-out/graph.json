@@ -20,6 +20,45 @@
   },
   "nodes": [
     {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption",
+      "label": "VideoTrackOption",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": "videotrackoption",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L147"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format_format",
+      "label": "Format",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": "format",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
+      "source_location": "L6"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup_trackgroup",
+      "label": "TrackGroup",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": "trackgroup",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
+      "source_location": "L8"
+    },
+    {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_tracks_group",
       "label": "Group",
       "_callable": true,
@@ -46,19 +85,6 @@
       "source_location": "L9"
     },
     {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_defaulttrackselector",
-      "label": "DefaultTrackSelector",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "norm_label": "defaulttrackselector",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
-      "source_location": "L8"
-    },
-    {
       "id": "extensions_extension_src_main_java_com_google_common_collect_immutablelist_immutablelist",
       "label": "ImmutableList",
       "_callable": true,
@@ -83,45 +109,6 @@
       "norm_label": "kayopatch",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
       "source_location": "L52"
-    },
-    {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption",
-      "label": "VideoTrackOption",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": "videotrackoption",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L147"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format_format",
-      "label": "Format",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": "format",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
-      "source_location": "L6"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup_trackgroup",
-      "label": "TrackGroup",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": "trackgroup",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
-      "source_location": "L8"
     },
     {
       "id": "patches_src_main_kotlin_app_template_patches_shared_constants_constants",
@@ -189,6 +176,19 @@
       "source_location": "L31"
     },
     {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_defaulttrackselector",
+      "label": "DefaultTrackSelector",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": "defaulttrackselector",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
+      "source_location": "L8"
+    },
+    {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_parameters",
       "label": "Parameters",
       "_callable": true,
@@ -200,19 +200,6 @@
       "norm_label": "parameters",
       "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
       "source_location": "L26"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionoverride_trackselectionoverride",
-      "label": "TrackSelectionOverride",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "Builder",
-      "file_type": "code",
-      "norm_label": "trackselectionoverride",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionOverride.java",
-      "source_location": "L9"
     },
     {
       "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_abstractdaznplayercontrolsonclickfingerprint",
@@ -462,6 +449,19 @@
       "source_location": "L313"
     },
     {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionoverride_trackselectionoverride",
+      "label": "TrackSelectionOverride",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": "trackselectionoverride",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionOverride.java",
+      "source_location": "L9"
+    },
+    {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionparameters_builder",
       "label": "Builder",
       "_callable": true,
@@ -540,40 +540,6 @@
       "source_location": "L144"
     },
     {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_applyselectedquality",
-      "label": ".applySelectedQuality()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "metadata": {
-        "unresolved_calls": [
-          {
-            "callee": "abs",
-            "receiver_type": "Math",
-            "lang": "java",
-            "line": "L1212"
-          },
-          {
-            "callee": "get",
-            "receiver_type": "WeakReference",
-            "lang": "java",
-            "line": "L1254"
-          },
-          {
-            "callee": "invoke",
-            "receiver_type": "Method",
-            "lang": "java",
-            "line": "L1258"
-          }
-        ]
-      },
-      "norm_label": ".applyselectedquality()",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1164"
-    },
-    {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractvideotracks",
       "label": ".extractVideoTracks()",
       "_callable": true,
@@ -596,44 +562,8 @@
       "source_location": "L1114"
     },
     {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontrackschanged",
-      "label": ".onTracksChanged()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "norm_label": ".ontrackschanged()",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L437"
-    },
-    {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontrackselectorinit",
-      "label": ".onTrackSelectorInit()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "norm_label": ".ontrackselectorinit()",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L248"
-    },
-    {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_shouldignorebitratelimit",
-      "label": ".shouldIgnoreBitrateLimit()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "norm_label": ".shouldignorebitratelimit()",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L460"
-    },
-    {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_updateallqualitybadges",
-      "label": ".updateAllQualityBadges()",
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption_getdisplaylabel",
+      "label": ".getDisplayLabel()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
@@ -642,16 +572,110 @@
       "metadata": {
         "unresolved_calls": [
           {
-            "callee": "post",
-            "receiver_type": "Handler",
+            "callee": "round",
+            "receiver_type": "Math",
             "lang": "java",
-            "line": "L1411"
+            "line": "L190"
+          },
+          {
+            "callee": "format",
+            "receiver_type": "String",
+            "lang": "java",
+            "line": "L200"
           }
         ]
       },
-      "norm_label": ".updateallqualitybadges()",
+      "norm_label": ".getdisplaylabel()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1410"
+      "source_location": "L177"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption_getshortbadgelabel",
+      "label": ".getShortBadgeLabel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "metadata": {
+        "unresolved_calls": [
+          {
+            "callee": "round",
+            "receiver_type": "Math",
+            "lang": "java",
+            "line": "L221"
+          },
+          {
+            "callee": "format",
+            "receiver_type": "String",
+            "lang": "java",
+            "line": "L235"
+          }
+        ]
+      },
+      "norm_label": ".getshortbadgelabel()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L219"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption_videotrackoption",
+      "label": ".VideoTrackOption()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": ".videotrackoption()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L158"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_exoplayer_exoplayer_getaudioformat",
+      "label": ".getAudioFormat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": ".getaudioformat()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/ExoPlayer.java",
+      "source_location": "L13"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format_format_format",
+      "label": ".Format()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": ".format()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
+      "source_location": "L21"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup_trackgroup_getformat",
+      "label": ".getFormat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": ".getformat()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
+      "source_location": "L19"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup_trackgroup_trackgroup",
+      "label": ".TrackGroup()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": ".trackgroup()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
+      "source_location": "L13"
     },
     {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_tracks_group_getmediatrackgroup",
@@ -762,28 +786,16 @@
       "source_location": "L11"
     },
     {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_defaulttrackselector_builduponparameters",
-      "label": ".buildUponParameters()",
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionparameters_builder_clearoverride",
+      "label": ".clearOverride()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
-      "norm_label": ".builduponparameters()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
-      "source_location": "L22"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_defaulttrackselector_setparameters",
-      "label": ".setParameters()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "norm_label": ".setparameters()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
-      "source_location": "L14"
+      "norm_label": ".clearoverride()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionParameters.java",
+      "source_location": "L62"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_buildandshowdiagnosticsdialog",
@@ -1850,146 +1862,6 @@
       "source_location": "L1428"
     },
     {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption_getdisplaylabel",
-      "label": ".getDisplayLabel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "KayoPatch",
-      "file_type": "code",
-      "metadata": {
-        "unresolved_calls": [
-          {
-            "callee": "round",
-            "receiver_type": "Math",
-            "lang": "java",
-            "line": "L190"
-          },
-          {
-            "callee": "format",
-            "receiver_type": "String",
-            "lang": "java",
-            "line": "L200"
-          }
-        ]
-      },
-      "norm_label": ".getdisplaylabel()",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L177"
-    },
-    {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption_getshortbadgelabel",
-      "label": ".getShortBadgeLabel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "metadata": {
-        "unresolved_calls": [
-          {
-            "callee": "round",
-            "receiver_type": "Math",
-            "lang": "java",
-            "line": "L221"
-          },
-          {
-            "callee": "format",
-            "receiver_type": "String",
-            "lang": "java",
-            "line": "L235"
-          }
-        ]
-      },
-      "norm_label": ".getshortbadgelabel()",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L219"
-    },
-    {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption_videotrackoption",
-      "label": ".VideoTrackOption()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": ".videotrackoption()",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L158"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format_format_format",
-      "label": ".Format()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": ".format()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
-      "source_location": "L21"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup_trackgroup_getformat",
-      "label": ".getFormat()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": ".getformat()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
-      "source_location": "L19"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup_trackgroup_trackgroup",
-      "label": ".TrackGroup()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": ".trackgroup()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
-      "source_location": "L13"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_builder_clearoverride",
-      "label": ".clearOverride()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": ".clearoverride()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
-      "source_location": "L84"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionoverride_trackselectionoverride_trackselectionoverride",
-      "label": ".TrackSelectionOverride()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": ".trackselectionoverride()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionOverride.java",
-      "source_location": "L12"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionparameters_builder_clearoverride",
-      "label": ".clearOverride()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": ".clearoverride()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionParameters.java",
-      "source_location": "L62"
-    },
-    {
       "id": "extensions_extension_src_main_java_app_template_extension_extension_examplepatch_examplepatch_showads",
       "label": ".showAds()",
       "_callable": true,
@@ -2072,18 +1944,6 @@
       "source_location": "L106"
     },
     {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_exoplayer_exoplayer_getaudioformat",
-      "label": ".getAudioFormat()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": ".getActiveStreamMetrics",
-      "file_type": "code",
-      "norm_label": ".getaudioformat()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/ExoPlayer.java",
-      "source_location": "L13"
-    },
-    {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_exoplayer_exoplayer_getcurrentposition",
       "label": ".getCurrentPosition()",
       "_callable": true,
@@ -2156,6 +2016,98 @@
       "source_location": "L14"
     },
     {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_applyselectedquality",
+      "label": ".applySelectedQuality()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "Builder",
+      "file_type": "code",
+      "metadata": {
+        "unresolved_calls": [
+          {
+            "callee": "abs",
+            "receiver_type": "Math",
+            "lang": "java",
+            "line": "L1212"
+          },
+          {
+            "callee": "get",
+            "receiver_type": "WeakReference",
+            "lang": "java",
+            "line": "L1254"
+          },
+          {
+            "callee": "invoke",
+            "receiver_type": "Method",
+            "lang": "java",
+            "line": "L1258"
+          }
+        ]
+      },
+      "norm_label": ".applyselectedquality()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1164"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontrackschanged",
+      "label": ".onTracksChanged()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": ".ontrackschanged()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L437"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontrackselectorinit",
+      "label": ".onTrackSelectorInit()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": ".ontrackselectorinit()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L248"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_shouldignorebitratelimit",
+      "label": ".shouldIgnoreBitrateLimit()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": ".shouldignorebitratelimit()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L460"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_updateallqualitybadges",
+      "label": ".updateAllQualityBadges()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "Builder",
+      "file_type": "code",
+      "metadata": {
+        "unresolved_calls": [
+          {
+            "callee": "post",
+            "receiver_type": "Handler",
+            "lang": "java",
+            "line": "L1411"
+          }
+        ]
+      },
+      "norm_label": ".updateallqualitybadges()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1410"
+    },
+    {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_builder_addoverride",
       "label": ".addOverride()",
       "_callable": true,
@@ -2178,6 +2130,18 @@
       "norm_label": ".build()",
       "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
       "source_location": "L99"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_builder_clearoverride",
+      "label": ".clearOverride()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": ".clearoverride()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
+      "source_location": "L84"
     },
     {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_builder_clearoverrides",
@@ -2324,6 +2288,18 @@
       "source_location": "L79"
     },
     {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_defaulttrackselector_builduponparameters",
+      "label": ".buildUponParameters()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": ".builduponparameters()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
+      "source_location": "L22"
+    },
+    {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_defaulttrackselector_getparameters",
       "label": ".getParameters()",
       "_callable": true,
@@ -2336,6 +2312,18 @@
       "source_location": "L10"
     },
     {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_defaulttrackselector_setparameters",
+      "label": ".setParameters()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": ".setparameters()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
+      "source_location": "L14"
+    },
+    {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_parameters_buildupon",
       "label": ".buildUpon()",
       "_callable": true,
@@ -2346,18 +2334,6 @@
       "norm_label": ".buildupon()",
       "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
       "source_location": "L27"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionoverride_trackselectionoverride_gettype",
-      "label": ".getType()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "Builder",
-      "file_type": "code",
-      "norm_label": ".gettype()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionOverride.java",
-      "source_location": "L20"
     },
     {
       "id": "github_scripts_generate_patches_readme_anchor",
@@ -2430,6 +2406,30 @@
       "norm_label": "versions_table()",
       "source_file": ".github/scripts/generate_patches_readme.py",
       "source_location": "L100"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionoverride_trackselectionoverride_gettype",
+      "label": ".getType()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": ".gettype()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionOverride.java",
+      "source_location": "L20"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionoverride_trackselectionoverride_trackselectionoverride",
+      "label": ".TrackSelectionOverride()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Builder",
+      "file_type": "code",
+      "norm_label": ".trackselectionoverride()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionOverride.java",
+      "source_location": "L12"
     },
     {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionparameters_builder_addoverride",
@@ -2716,7 +2716,7 @@
       "author": null,
       "captured_at": null,
       "community": 8,
-      "community_name": "1.0.0 (2026-10-23)",
+      "community_name": "CHANGELOG.md",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "fallback build verification",
@@ -2731,7 +2731,7 @@
       "author": null,
       "captured_at": null,
       "community": 8,
-      "community_name": "1.0.0 (2026-10-23)",
+      "community_name": "CHANGELOG.md",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "semantic release automation",
@@ -2746,7 +2746,7 @@
       "author": null,
       "captured_at": null,
       "community": 8,
-      "community_name": "1.0.0 (2026-10-23)",
+      "community_name": "CHANGELOG.md",
       "contributor": null,
       "file_type": "document",
       "norm_label": "dependabot configuration",
@@ -2761,7 +2761,7 @@
       "author": null,
       "captured_at": null,
       "community": 8,
-      "community_name": "1.0.0 (2026-10-23)",
+      "community_name": "CHANGELOG.md",
       "contributor": null,
       "file_type": "document",
       "norm_label": "release workflow",
@@ -2776,7 +2776,7 @@
       "author": null,
       "captured_at": null,
       "community": 8,
-      "community_name": "1.0.0 (2026-10-23)",
+      "community_name": "CHANGELOG.md",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "conventional changelog version pinning",
@@ -2784,6 +2784,28 @@
       "source_file": ".github/dependabot.yml",
       "source_location": "L16",
       "source_url": "https://github.com/conventional-changelog/conventional-changelog/issues/1495"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format",
+      "label": "Format.java",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": "format.java",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
+      "source_location": "L1"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup",
+      "label": "TrackGroup.java",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": "trackgroup.java",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
+      "source_location": "L1"
     },
     {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_tracks",
@@ -2797,14 +2819,14 @@
       "source_location": "L1"
     },
     {
-      "id": "extensions_extension_src_main_java_com_google_common_collect_immutablelist",
-      "label": "ImmutableList.java",
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector",
+      "label": "DefaultTrackSelector.java",
       "_origin": "ast",
       "community": 0,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
-      "norm_label": "immutablelist.java",
-      "source_file": "extensions/extension/src/main/java/com/google/common/collect/ImmutableList.java",
+      "norm_label": "defaulttrackselector.java",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
       "source_location": "L1"
     },
     {
@@ -2863,17 +2885,6 @@
       "source_location": ""
     },
     {
-      "id": "java_lang_ref_weakreference",
-      "label": "java.lang.ref.WeakReference",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "KayoPatch",
-      "file_type": "code",
-      "norm_label": "java.lang.ref.weakreference",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "keyevent",
       "label": "KeyEvent",
       "_origin": "ast",
@@ -2904,39 +2915,6 @@
       "file_type": "code",
       "norm_label": "kayopatch.kt",
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/KayoPatch.kt",
-      "source_location": "L1"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format",
-      "label": "Format.java",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": "format.java",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
-      "source_location": "L1"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup",
-      "label": "TrackGroup.java",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": "trackgroup.java",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
-      "source_location": "L1"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector",
-      "label": "DefaultTrackSelector.java",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": "defaulttrackselector.java",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java",
       "source_location": "L1"
     },
     {
@@ -3108,6 +3086,28 @@
       "norm_label": "trackselectionoverride.java",
       "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionOverride.java",
       "source_location": "L1"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_common_collect_immutablelist",
+      "label": "ImmutableList.java",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "KayoPatch.java",
+      "file_type": "code",
+      "norm_label": "immutablelist.java",
+      "source_file": "extensions/extension/src/main/java/com/google/common/collect/ImmutableList.java",
+      "source_location": "L1"
+    },
+    {
+      "id": "java_lang_ref_weakreference",
+      "label": "java.lang.ref.WeakReference",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "KayoPatch.java",
+      "file_type": "code",
+      "norm_label": "java.lang.ref.weakreference",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "agents_rules_graphify",
@@ -3467,7 +3467,7 @@
       "label": "CHANGELOG.md",
       "_origin": "ast",
       "community": 8,
-      "community_name": "1.0.0 (2026-10-23)",
+      "community_name": "CHANGELOG.md",
       "file_type": "document",
       "node_kind": "page",
       "norm_label": "changelog.md",
@@ -3479,10 +3479,22 @@
       "label": "1.0.0 (2026-10-23)",
       "_origin": "ast",
       "community": 8,
-      "community_name": "1.0.0 (2026-10-23)",
+      "community_name": "CHANGELOG.md",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "1.0.0 (2026-10-23)",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L7"
+    },
+    {
+      "id": "changelog_1_0_1_https_github_com_azizpatel786_kayo_morphe_patches_compare_v1_0_0_v1_0_1_2026_10_23",
+      "label": "[1.0.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-23)",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "CHANGELOG.md",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "[1.0.1](https://github.com/azizpatel786/kayo-morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-23)",
       "source_file": "CHANGELOG.md",
       "source_location": "L1"
     },
@@ -3491,7 +3503,7 @@
       "label": "\ud83d\udc1b Bug Fixes",
       "_origin": "ast",
       "community": 8,
-      "community_name": "1.0.0 (2026-10-23)",
+      "community_name": "CHANGELOG.md",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "\ud83d\udc1b bug fixes",
@@ -3499,16 +3511,28 @@
       "source_location": "L3"
     },
     {
+      "id": "changelog_bug_fixes_9",
+      "label": "\ud83d\udc1b Bug Fixes",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "CHANGELOG.md",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\ud83d\udc1b bug fixes",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L9"
+    },
+    {
       "id": "changelog_new_features",
       "label": "\u2728 New Features",
       "_origin": "ast",
       "community": 8,
-      "community_name": "1.0.0 (2026-10-23)",
+      "community_name": "CHANGELOG.md",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "\u2728 new features",
       "source_file": "CHANGELOG.md",
-      "source_location": "L8"
+      "source_location": "L14"
     },
     {
       "id": "jsonarray",
@@ -7129,7 +7153,7 @@
     },
     {
       "source": "changelog",
-      "target": "changelog_1_0_0_2026_10_23",
+      "target": "changelog_1_0_1_https_github_com_azizpatel786_kayo_morphe_patches_compare_v1_0_0_v1_0_1_2026_10_23",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -7139,14 +7163,14 @@
       "weight": 1.0
     },
     {
-      "source": "changelog_1_0_0_2026_10_23",
-      "target": "changelog_bug_fixes",
+      "source": "changelog",
+      "target": "changelog_1_0_0_2026_10_23",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CHANGELOG.md",
-      "source_location": "L3",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -7157,7 +7181,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CHANGELOG.md",
-      "source_location": "L8",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "changelog_1_0_0_2026_10_23",
+      "target": "changelog_bug_fixes_9",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CHANGELOG.md",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "changelog_1_0_1_https_github_com_azizpatel786_kayo_morphe_patches_compare_v1_0_0_v1_0_1_2026_10_23",
+      "target": "changelog_bug_fixes",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CHANGELOG.md",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -9535,5 +9581,5 @@
       "source_file": ".github/ISSUE_TEMPLATE/config.yml"
     }
   ],
-  "built_at_commit": "ac18028f89742bb26efec8f25bf9e35ebe6cc554"
+  "built_at_commit": "f1d4a05011c00b196e353c6b44e56d0f15c8fedb"
 }
