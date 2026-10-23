@@ -31,6 +31,9 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Install dependencies
         run: npm install
 
@@ -41,6 +44,8 @@ jobs:
         id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Attest
         if: steps.release.outputs.new_release_published == 'true'
