@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.1...v1.0.2) (2026-10-23)
+
+### 🐛 Bug Fixes
+
+* **patch:** make all fingerprints fully optional and prevent classFingerprint crash on Android TV ([c6f8c42](https://github.com/AzizPatel786/kayo-morphe-patches/commit/c6f8c42bbcdb72d1cc939b2244c2ee4349eb1232))
+
 ## [1.0.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-23)
 
 ### 🐛 Bug Fixes
