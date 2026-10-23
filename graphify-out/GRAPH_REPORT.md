@@ -1,17 +1,17 @@
 # Graph Report - Morphe Stuff  (2026-10-24)
 
 ## Corpus Check
-- 27 files · ~12,530 words
+- 27 files · ~12,566 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 6, .properties 2, .xml 1)
 
 ## Summary
-- 285 nodes · 448 edges · 23 communities (14 shown, 9 thin omitted)
+- 285 nodes · 447 edges · 23 communities (14 shown, 9 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 18 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f1d4a050`
+- Built from commit: `c3ef65d5`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -90,7 +90,7 @@ Nodes (18): anchor(), build_content(), patches_table(), pkg_emoji(), Render a ma
 
 ### Community 5 - "Fingerprints.kt"
 Cohesion: 0.13
-Nodes (26): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, opcode, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint (+18 more)
+Nodes (25): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, opcode, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint (+17 more)
 
 ### Community 6 - "Builder"
 Cohesion: 0.12
@@ -109,7 +109,7 @@ Cohesion: 0.11
 Nodes (21): file, gsonbuilder, JSONArray, JSONObject, loadpatchesfromjar, manifest, Patch, generatePatchList() (+13 more)
 
 ### Community 10 - "KayoPatch.kt"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): addinstruction, addinstructions, addinstructionswithlabels, bytecodepatch, compatibility_kayo_sports, compatibility_kayo_sports_tv, fieldreference, getinstruction (+2 more)
 
 ### Community 12 - "Constants.kt"
@@ -126,7 +126,7 @@ Nodes (3): Bug Report Template, Issue Template Configuration, Feature Request Te
 
 ## Knowledge Gaps
 - **24 isolated node(s):** `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec`, `@semantic-release/exec`, `@semantic-release/git` (+19 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 125 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 126 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions

@@ -264,7 +264,7 @@
       "file_type": "code",
       "norm_label": "drmtierserviceislowtierfingerprint",
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L256"
+      "source_location": "L255"
     },
     {
       "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_playbackcodecsserviceishevcsupportedfingerprint",
@@ -277,7 +277,7 @@
       "file_type": "code",
       "norm_label": "playbackcodecsserviceishevcsupportedfingerprint",
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L269"
+      "source_location": "L268"
     },
     {
       "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_playbackservicedelegatecapabilitiesfingerprint",
@@ -316,20 +316,7 @@
       "file_type": "code",
       "norm_label": "playerinterfaceattachexoplayerfingerprint",
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L296"
-    },
-    {
-      "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_playerinterfaceclassfingerprint",
-      "label": "PlayerInterfaceClassFingerprint",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "Fingerprints.kt",
-      "file_type": "code",
-      "norm_label": "playerinterfaceclassfingerprint",
-      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L284"
+      "source_location": "L283"
     },
     {
       "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_profilebasedtrackselectorconstructorfingerprint",
@@ -407,7 +394,7 @@
       "file_type": "code",
       "norm_label": "tvdrmplayersetmaxbitratefingerprint",
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L330"
+      "source_location": "L316"
     },
     {
       "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvmainactivitydispatchkeyeventfingerprint",
@@ -420,7 +407,7 @@
       "file_type": "code",
       "norm_label": "tvmainactivitydispatchkeyeventfingerprint",
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L366"
+      "source_location": "L352"
     },
     {
       "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvplayerviewsetplayerfingerprint",
@@ -433,7 +420,7 @@
       "file_type": "code",
       "norm_label": "tvplayerviewsetplayerfingerprint",
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L346"
+      "source_location": "L332"
     },
     {
       "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvvideocapabilitiespluginexecutefingerprint",
@@ -446,7 +433,7 @@
       "file_type": "code",
       "norm_label": "tvvideocapabilitiespluginexecutefingerprint",
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L313"
+      "source_location": "L299"
     },
     {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_trackselectionoverride_trackselectionoverride",
@@ -1860,6 +1847,18 @@
       "norm_label": ".updatequalitybadgetext()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
       "source_location": "L1428"
+    },
+    {
+      "id": "patches_src_main_kotlin_app_template_patches_kayo_kayopatch_safehook",
+      "label": "safeHook()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "KayoPatch.kt",
+      "file_type": "code",
+      "norm_label": "safehook()",
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/KayoPatch.kt",
+      "source_location": "L16"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_extension_examplepatch_examplepatch_showads",
@@ -5140,6 +5139,18 @@
       "weight": 1.0
     },
     {
+      "source": "patches_src_main_kotlin_app_template_patches_kayo_kayopatch",
+      "target": "patches_src_main_kotlin_app_template_patches_kayo_kayopatch_safehook",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/KayoPatch.kt",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
       "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
       "target": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_defaulttrackselector",
       "relation": "references",
@@ -7632,7 +7643,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L256",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
@@ -7643,18 +7654,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L269",
-      "weight": 1.0
-    },
-    {
-      "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints",
-      "target": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_playerinterfaceclassfingerprint",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L284",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -7665,7 +7665,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L296",
+      "source_location": "L283",
       "weight": 1.0
     },
     {
@@ -7676,7 +7676,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L313",
+      "source_location": "L299",
       "weight": 1.0
     },
     {
@@ -7687,7 +7687,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L330",
+      "source_location": "L316",
       "weight": 1.0
     },
     {
@@ -7698,7 +7698,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L346",
+      "source_location": "L332",
       "weight": 1.0
     },
     {
@@ -7720,7 +7720,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L366",
+      "source_location": "L352",
       "weight": 1.0
     },
     {
@@ -8017,7 +8017,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L256",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
@@ -8028,7 +8028,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L269",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -8061,18 +8061,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L296",
-      "weight": 1.0
-    },
-    {
-      "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_playerinterfaceclassfingerprint",
-      "target": "fingerprint",
-      "relation": "inherits",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L284",
+      "source_location": "L283",
       "weight": 1.0
     },
     {
@@ -8138,7 +8127,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L330",
+      "source_location": "L316",
       "weight": 1.0
     },
     {
@@ -8149,7 +8138,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L366",
+      "source_location": "L352",
       "weight": 1.0
     },
     {
@@ -8160,7 +8149,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L346",
+      "source_location": "L332",
       "weight": 1.0
     },
     {
@@ -8171,7 +8160,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
-      "source_location": "L313",
+      "source_location": "L299",
       "weight": 1.0
     },
     {
@@ -9581,5 +9570,5 @@
       "source_file": ".github/ISSUE_TEMPLATE/config.yml"
     }
   ],
-  "built_at_commit": "f1d4a05011c00b196e353c6b44e56d0f15c8fedb"
+  "built_at_commit": "c3ef65d52f2961ec6805d8fed7d894d324142307"
 }
