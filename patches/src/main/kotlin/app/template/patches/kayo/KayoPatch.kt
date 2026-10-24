@@ -227,13 +227,14 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             }
         }
 
-        // 13. Hook DrmPlayer.setMaxVideoBitrate to override/uncap max bitrate on Android TV
-        // and configure builder for 4K UHD video parameters
+        // 13. Hook DrmPlayer.setMaxVideoBitrate to override/uncap max bitrate on Android TV,
+        // capture DrmPlayer and bandwidth meter, and configure builder for 4K UHD video parameters
         safeHook("TvDrmPlayerSetMaxBitrate") {
             TvDrmPlayerSetMaxBitrateFingerprint.methodOrNull?.let { method ->
                 method.addInstructions(
                     0,
                     """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->onDrmPlayerAttached(Ljava/lang/Object;)V
                         invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->overrideTvMaxBitrate(I)I
                         move-result p1
                     """
@@ -257,6 +258,16 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                 method.addInstruction(
                     0,
                     "invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->onMedia3PlayerAttached(Ljava/lang/Object;)V"
+                )
+            }
+        }
+
+        // 14b. Hook ExoPlayerEventsListener.onTracksChanged to capture active Tracks and Player on Android TV
+        safeHook("TvExoPlayerEventsListenerOnTracksChanged") {
+            TvExoPlayerEventsListenerOnTracksChangedFingerprint.methodOrNull?.let { method ->
+                method.addInstruction(
+                    0,
+                    "invoke-static {p1, p0}, $EXTENSION_CLASS_DESCRIPTOR->onTvTracksChanged(Ljava/lang/Object;Ljava/lang/Object;)V"
                 )
             }
         }

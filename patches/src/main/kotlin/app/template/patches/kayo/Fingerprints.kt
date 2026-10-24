@@ -330,20 +330,20 @@ object TvDrmPlayerSetMaxBitrateFingerprint : Fingerprint(
  * Matches `PlayerView.setPlayer(ExoPlayer)` in Kayo TV (au.com.kayosports.tv).
  */
 object TvPlayerViewSetPlayerFingerprint : Fingerprint(
+    definingClass = "Lcom/dazn/plugins/media3/views/PlayerView;",
+    name = "setPlayer",
     returnType = "V",
-    parameters = listOf("Landroidx/media3/exoplayer/ExoPlayer;"),
-    filters = listOf(
-        fieldAccess(
-            opcode = Opcode.IPUT_OBJECT,
-            definingClass = "this",
-            type = "Landroidx/media3/exoplayer/ExoPlayer;"
-        ),
-        fieldAccess(
-            opcode = Opcode.IGET_BOOLEAN,
-            definingClass = "this",
-            name = "surfaceReady"
-        )
-    )
+    parameters = listOf("Landroidx/media3/exoplayer/ExoPlayer;")
+)
+
+/**
+ * Matches `ExoPlayerEventsListener.onTracksChanged(Tracks)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvExoPlayerEventsListenerOnTracksChangedFingerprint : Fingerprint(
+    definingClass = "Lcom/dazn/plugins/media3/ExoPlayerEventsListener;",
+    name = "onTracksChanged",
+    returnType = "V",
+    parameters = listOf("Landroidx/media3/common/Tracks;")
 )
 
 /**

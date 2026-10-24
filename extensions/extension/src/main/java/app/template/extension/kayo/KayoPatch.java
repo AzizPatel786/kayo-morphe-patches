@@ -80,6 +80,7 @@ public final class KayoPatch {
     private static volatile boolean prefsLoaded = false;
 
     private static volatile WeakReference<Object> currentMedia3PlayerRef;
+    private static volatile WeakReference<Object> currentBandwidthMeterRef;
     private static volatile Object currentMedia3Tracks;
     private static volatile VideoTrackOption lastObservedMedia3Track;
     private static long lastCenterClickTime = 0;
@@ -101,6 +102,7 @@ public final class KayoPatch {
         public final int height;
         public final float frameRate;
         public final int bitrate;
+        public final long estimatedBandwidth;
         public final String codecs;
         public final String mimeType;
         public final String playbackState;
@@ -109,13 +111,28 @@ public final class KayoPatch {
         public final boolean is1080p;
         public final String tierLabel;
 
+        // Audio Metrics
+        public final String audioCodec;
+        public final int audioChannels;
+        public final int audioSampleRate;
+        public final int audioBitrate;
+        public final String audioLanguage;
+        public final String audioMimeType;
+
         public StreamMetrics(
                 int width,
                 int height,
                 float frameRate,
                 int bitrate,
+                long estimatedBandwidth,
                 String codecs,
                 String mimeType,
+                String audioCodec,
+                int audioChannels,
+                int audioSampleRate,
+                int audioBitrate,
+                String audioLanguage,
+                String audioMimeType,
                 String playbackState,
                 long bufferedDurationMs
         ) {
@@ -123,8 +140,15 @@ public final class KayoPatch {
             this.height = height;
             this.frameRate = frameRate;
             this.bitrate = bitrate;
+            this.estimatedBandwidth = estimatedBandwidth;
             this.codecs = codecs != null ? codecs : "";
             this.mimeType = mimeType != null ? mimeType : "";
+            this.audioCodec = audioCodec != null ? audioCodec : "";
+            this.audioChannels = audioChannels;
+            this.audioSampleRate = audioSampleRate;
+            this.audioBitrate = audioBitrate;
+            this.audioLanguage = audioLanguage != null ? audioLanguage : "";
+            this.audioMimeType = audioMimeType != null ? audioMimeType : "";
             this.playbackState = playbackState != null ? playbackState : "Active";
             this.bufferedDurationMs = bufferedDurationMs;
 
@@ -144,6 +168,101 @@ public final class KayoPatch {
             } else {
                 this.tierLabel = "Probing...";
             }
+        }
+
+        public String getAudioDescription() {
+            if (audioChannels <= 0 && audioCodec.isEmpty()) {
+                return "N/A";
+            }
+            StringBuilder sb = new StringBuilder();
+            if (audioChannels >= 6) {
+                sb.append("5.1 Surround");
+            } else if (audioChannels == 2) {
+                sb.append("Stereo");
+            } else if (audioChannels == 1) {
+                sb.append("Mono");
+            } else if (audioChannels > 0) {
+                sb.append(audioChannels).append(" ch");
+            }
+
+            if (audioBitrate > 0) {
+                int kbps = audioBitrate / 1000;
+                if (sb.length() > 0) sb.append(" @ ");
+                sb.append(kbps).append(" kbps");
+            }
+
+            if (!audioCodec.isEmpty()) {
+                String c = audioCodec;
+                if (c.contains("ec-3") || c.contains("eac3")) {
+                    c = "E-AC-3 (Dolby Digital+)";
+                } else if (c.contains("ac-3") || c.contains("ac3")) {
+                    c = "AC-3 (Dolby Digital)";
+                } else if (c.contains("mp4a.40.2") || c.contains("aac")) {
+                    c = "AAC";
+                }
+                if (sb.length() > 0) sb.append(" [").append(c).append("]");
+                else sb.append(c);
+            }
+
+            return sb.toString();
+        }
+    }
+
+    /**
+     * Represents a single selectable audio track option.
+     */
+    public static final class AudioTrackOption {
+        final int trackIndex;
+        final boolean isSelected;
+        final int channelCount;
+        final int sampleRate;
+        final int bitrate;
+        final String codecs;
+        final String language;
+        final String label;
+        final String mimeType;
+
+        AudioTrackOption(int trackIndex, boolean isSelected, int channelCount, int sampleRate, int bitrate, String codecs, String language, String label, String mimeType) {
+            this.trackIndex = trackIndex;
+            this.isSelected = isSelected;
+            this.channelCount = channelCount;
+            this.sampleRate = sampleRate;
+            this.bitrate = bitrate;
+            this.codecs = codecs != null ? codecs : "";
+            this.language = language != null ? language : "";
+            this.label = label != null ? label : "";
+            this.mimeType = mimeType != null ? mimeType : "";
+        }
+
+        public String getDisplayLabel() {
+            StringBuilder sb = new StringBuilder();
+            if (!language.isEmpty()) {
+                sb.append(language.toUpperCase(Locale.US)).append(" ");
+            }
+            if (channelCount >= 6) {
+                sb.append("5.1 Surround ");
+            } else if (channelCount == 2) {
+                sb.append("Stereo ");
+            } else if (channelCount > 0) {
+                sb.append(channelCount).append("ch ");
+            }
+
+            if (bitrate > 0) {
+                sb.append("@ ").append(bitrate / 1000).append(" kbps ");
+            }
+
+            if (!codecs.isEmpty()) {
+                String c = codecs;
+                if (c.contains("ec-3") || c.contains("eac3")) c = "E-AC-3";
+                else if (c.contains("ac-3") || c.contains("ac3")) c = "AC-3";
+                else if (c.contains("mp4a") || c.contains("aac")) c = "AAC";
+                sb.append("(").append(c).append(") ");
+            }
+
+            if (isSelected) {
+                sb.append("[ACTIVE]");
+            }
+            return sb.toString().trim();
         }
     }
 
@@ -541,6 +660,56 @@ public final class KayoPatch {
     }
 
     /**
+     * TV hook: Captures DrmPlayer instance from DrmPlayer.setMaxVideoBitrate(I)V
+     * and extracts playerInstance, bandwidthMeter, and trackSelector.
+     */
+    public static void onDrmPlayerAttached(Object drmPlayer) {
+        if (drmPlayer == null) {
+            return;
+        }
+        try {
+            Class<?> c = drmPlayer.getClass();
+            Field fPlayer = c.getDeclaredField("playerInstance");
+            fPlayer.setAccessible(true);
+            Object player = fPlayer.get(drmPlayer);
+            if (player != null) {
+                onMedia3PlayerAttached(player);
+            }
+
+            Field fMeter = c.getDeclaredField("bandwidthMeter");
+            fMeter.setAccessible(true);
+            Object meter = fMeter.get(drmPlayer);
+            if (meter != null) {
+                currentBandwidthMeterRef = new WeakReference<>(meter);
+                android.util.Log.i("MorpheKayo", "Captured bandwidthMeter from DrmPlayer");
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error in onDrmPlayerAttached", t);
+        }
+    }
+
+    /**
+     * TV hook: Intercepts ExoPlayerEventsListener.onTracksChanged(Tracks)
+     * to update tracks, player, and live stats directly as soon as rendition starts.
+     */
+    public static void onTvTracksChanged(Object tracks, Object listener) {
+        if (tracks != null) {
+            onMedia3TracksChanged(tracks);
+        }
+        if (listener != null) {
+            try {
+                Field fPlayer = listener.getClass().getDeclaredField("player");
+                fPlayer.setAccessible(true);
+                Object drmPlayer = fPlayer.get(listener);
+                if (drmPlayer != null) {
+                    onDrmPlayerAttached(drmPlayer);
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
+    /**
      * TV hook: Captures active Media3 ExoPlayer instance from PlayerView.setPlayer(ExoPlayer).
      */
     public static void onMedia3PlayerAttached(final Object player) {
@@ -674,6 +843,56 @@ public final class KayoPatch {
             }
         });
 
+        return options;
+    }
+
+    private static List<AudioTrackOption> extractMedia3AudioTracks(Object media3Tracks) {
+        List<AudioTrackOption> options = new ArrayList<>();
+        if (media3Tracks == null) {
+            return options;
+        }
+        try {
+            Method getGroups = media3Tracks.getClass().getMethod("getGroups");
+            List<?> groups = (List<?>) getGroups.invoke(media3Tracks);
+            if (groups == null) {
+                return options;
+            }
+
+            for (Object group : groups) {
+                if (group == null) continue;
+                Method getType = group.getClass().getMethod("getType");
+                int type = (Integer) getType.invoke(group);
+                if (type != 1) { // 1 = C.TRACK_TYPE_AUDIO
+                    continue;
+                }
+
+                Field lenField = group.getClass().getField("length");
+                int length = lenField.getInt(group);
+
+                Method getTrackFormat = group.getClass().getMethod("getTrackFormat", int.class);
+                Method isTrackSelected = group.getClass().getMethod("isTrackSelected", int.class);
+
+                for (int i = 0; i < length; i++) {
+                    Object fmt = getTrackFormat.invoke(group, i);
+                    if (fmt == null) continue;
+                    boolean isSelected = (Boolean) isTrackSelected.invoke(group, i);
+                    Class<?> fClass = fmt.getClass();
+                    int channels = getIntField(fClass, fmt, "channelCount", 0);
+                    int sRate = getIntField(fClass, fmt, "sampleRate", 0);
+                    int br = getIntField(fClass, fmt, "bitrate", 0);
+                    if (br <= 0) br = getIntField(fClass, fmt, "averageBitrate", 0);
+                    if (br <= 0) br = getIntField(fClass, fmt, "peakBitrate", 0);
+                    String codecs = getStringField(fClass, fmt, "codecs", "");
+                    String lang = getStringField(fClass, fmt, "language", "");
+                    String label = getStringField(fClass, fmt, "label", "");
+                    String mime = getStringField(fClass, fmt, "sampleMimeType", "");
+
+                    options.add(new AudioTrackOption(i, isSelected, channels, sRate, br, codecs, lang, label, mime));
+                }
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error extracting Media3 audio tracks", t);
+        }
         return options;
     }
 
@@ -964,6 +1183,17 @@ public final class KayoPatch {
         String codecs = "";
         String mimeType = "";
 
+        String audioCodec = "";
+        int audioChannels = 0;
+        int audioSampleRate = 0;
+        int audioBitrate = 0;
+        String audioLanguage = "";
+        String audioMimeType = "";
+
+        long estimatedBandwidth = 0;
+        String stateStr = "Active";
+        long bufferedMs = 0;
+
         if (format != null) {
             width = format.width > 0 ? format.width : 0;
             height = format.height > 0 ? format.height : 0;
@@ -974,11 +1204,36 @@ public final class KayoPatch {
             mimeType = format.sampleMimeType != null ? format.sampleMimeType : "";
         }
 
-        String stateStr = "Active";
-        long bufferedMs = 0;
-
         if (player != null) {
             try {
+                try {
+                    Format af = player.getAudioFormat();
+                    if (af != null) {
+                        audioChannels = getIntField(af.getClass(), af, "channelCount", 0);
+                        audioSampleRate = getIntField(af.getClass(), af, "sampleRate", 0);
+                        audioBitrate = af.bitrate > 0 ? af.bitrate : (af.averageBitrate > 0 ? af.averageBitrate : af.peakBitrate);
+                        audioCodec = af.codecs != null ? af.codecs : "";
+                        audioMimeType = af.sampleMimeType != null ? af.sampleMimeType : "";
+                        audioLanguage = af.language != null ? af.language : "";
+                    }
+                } catch (Throwable ignored) {
+                }
+
+                if (audioChannels <= 0 && currentTracks != null) {
+                    List<AudioTrackOption> aOpts = extractAudioTracks(currentTracks);
+                    for (AudioTrackOption ao : aOpts) {
+                        if (ao.isSelected) {
+                            audioChannels = ao.channelCount;
+                            audioSampleRate = ao.sampleRate;
+                            audioBitrate = ao.bitrate;
+                            audioCodec = ao.codecs;
+                            audioLanguage = ao.language;
+                            audioMimeType = ao.mimeType;
+                            break;
+                        }
+                    }
+                }
+
                 int state = player.getPlaybackState();
                 boolean isPlaying = player.isPlaying();
                 bufferedMs = player.getTotalBufferedDuration();
@@ -1034,6 +1289,52 @@ public final class KayoPatch {
                         mimeType = getStringField(fmtClass, media3Format, "sampleMimeType", "");
                     }
 
+                    Object media3AudioFmt = null;
+                    try {
+                        Method getAudioFormatMethod = media3Player.getClass().getMethod("getAudioFormat");
+                        media3AudioFmt = getAudioFormatMethod.invoke(media3Player);
+                    } catch (Throwable ignored) {
+                    }
+
+                    if (media3AudioFmt == null) {
+                        try {
+                            Field fAudioFormat = media3Player.getClass().getField("audioFormat");
+                            media3AudioFmt = fAudioFormat.get(media3Player);
+                        } catch (Throwable ignored) {
+                        }
+                    }
+
+                    if (media3AudioFmt != null) {
+                        Class<?> afClass = media3AudioFmt.getClass();
+                        audioChannels = getIntField(afClass, media3AudioFmt, "channelCount", 0);
+                        audioSampleRate = getIntField(afClass, media3AudioFmt, "sampleRate", 0);
+                        audioBitrate = getIntField(afClass, media3AudioFmt, "bitrate", 0);
+                        if (audioBitrate <= 0) {
+                            audioBitrate = getIntField(afClass, media3AudioFmt, "averageBitrate", 0);
+                        }
+                        if (audioBitrate <= 0) {
+                            audioBitrate = getIntField(afClass, media3AudioFmt, "peakBitrate", 0);
+                        }
+                        audioCodec = getStringField(afClass, media3AudioFmt, "codecs", "");
+                        audioLanguage = getStringField(afClass, media3AudioFmt, "language", "");
+                        audioMimeType = getStringField(afClass, media3AudioFmt, "sampleMimeType", "");
+                    }
+
+                    if (audioChannels <= 0 && currentMedia3Tracks != null) {
+                        List<AudioTrackOption> aOpts = extractMedia3AudioTracks(currentMedia3Tracks);
+                        for (AudioTrackOption ao : aOpts) {
+                            if (ao.isSelected) {
+                                audioChannels = ao.channelCount;
+                                audioSampleRate = ao.sampleRate;
+                                audioBitrate = ao.bitrate;
+                                audioCodec = ao.codecs;
+                                audioLanguage = ao.language;
+                                audioMimeType = ao.mimeType;
+                                break;
+                            }
+                        }
+                    }
+
                     if (height <= 0 && lastObservedMedia3Track != null) {
                         width = lastObservedMedia3Track.width;
                         height = lastObservedMedia3Track.height;
@@ -1080,7 +1381,32 @@ public final class KayoPatch {
             }
         }
 
-        return new StreamMetrics(width, height, frameRate, bitrate, codecs, mimeType, stateStr, bufferedMs);
+        Object bwMeter = currentBandwidthMeterRef != null ? currentBandwidthMeterRef.get() : null;
+        if (bwMeter != null) {
+            try {
+                Method m = bwMeter.getClass().getMethod("getBitrateEstimate");
+                estimatedBandwidth = (Long) m.invoke(bwMeter);
+            } catch (Throwable ignored) {
+            }
+        }
+
+        return new StreamMetrics(
+                width,
+                height,
+                frameRate,
+                bitrate,
+                estimatedBandwidth,
+                codecs,
+                mimeType,
+                audioCodec,
+                audioChannels,
+                audioSampleRate,
+                audioBitrate,
+                audioLanguage,
+                audioMimeType,
+                stateStr,
+                bufferedMs
+        );
     }
 
     /**
@@ -1112,6 +1438,11 @@ public final class KayoPatch {
             sb.append("Bitrate:  Probing...\n");
         }
 
+        if (m.estimatedBandwidth > 0) {
+            double bwMbps = m.estimatedBandwidth / 1_000_000.0;
+            sb.append(String.format(Locale.US, "Speed:    %.2f Mbps (Bandwidth)\n", bwMbps));
+        }
+
         if (!m.codecs.isEmpty()) {
             String shortCodec = m.codecs;
             if (shortCodec.contains("hev") || shortCodec.contains("hvc")) {
@@ -1120,6 +1451,11 @@ public final class KayoPatch {
                 shortCodec = "AVC (" + shortCodec + ")";
             }
             sb.append("Codec:    ").append(shortCodec).append("\n");
+        }
+
+        String audioDesc = m.getAudioDescription();
+        if (!"N/A".equals(audioDesc)) {
+            sb.append("Audio:    ").append(audioDesc).append("\n");
         }
 
         double bufSec = m.bufferedDurationMs / 1000.0;
@@ -1424,7 +1760,7 @@ public final class KayoPatch {
         sb.append("   LIVE STREAM DIAGNOSTICS     \n");
         sb.append("===============================\n\n");
 
-        sb.append("[ ACTIVE RENDITION ]\n");
+        sb.append("[ VIDEO RENDITION ]\n");
         sb.append("Quality Tier:   ").append(m.tierLabel).append("\n");
         if (m.width > 0 && m.height > 0) {
             sb.append("Resolution:     ").append(m.width).append(" x ").append(m.height).append("\n");
@@ -1443,9 +1779,14 @@ public final class KayoPatch {
         if (m.bitrate > 0) {
             double mbps = m.bitrate / 1_000_000.0;
             int kbps = (int) (m.bitrate / 1_000);
-            sb.append(String.format(Locale.US, "Bitrate:        %.2f Mbps (%d kbps)\n", mbps, kbps));
+            sb.append(String.format(Locale.US, "Stream Bitrate: %.2f Mbps (%d kbps)\n", mbps, kbps));
         } else {
-            sb.append("Bitrate:        Probing...\n");
+            sb.append("Stream Bitrate: Probing...\n");
+        }
+
+        if (m.estimatedBandwidth > 0) {
+            double bwMbps = m.estimatedBandwidth / 1_000_000.0;
+            sb.append(String.format(Locale.US, "Net Bandwidth:  %.2f Mbps\n", bwMbps));
         }
 
         if (!m.codecs.isEmpty()) {
@@ -1453,6 +1794,28 @@ public final class KayoPatch {
         }
         if (!m.mimeType.isEmpty()) {
             sb.append("MIME Type:      ").append(m.mimeType).append("\n");
+        }
+
+        sb.append("\n[ AUDIO RENDITION ]\n");
+        sb.append("Audio Quality:  ").append(m.getAudioDescription()).append("\n");
+        if (m.audioChannels > 0) {
+            String chStr = (m.audioChannels >= 6) ? "5.1 Surround (6 ch)" : ((m.audioChannels == 2) ? "Stereo (2 ch)" : m.audioChannels + " channels");
+            sb.append("Channels:       ").append(chStr).append("\n");
+        }
+        if (m.audioSampleRate > 0) {
+            sb.append(String.format(Locale.US, "Sample Rate:    %.1f kHz (%d Hz)\n", m.audioSampleRate / 1000.0, m.audioSampleRate));
+        }
+        if (m.audioBitrate > 0) {
+            sb.append("Audio Bitrate:  ").append(m.audioBitrate / 1000).append(" kbps\n");
+        }
+        if (!m.audioCodec.isEmpty()) {
+            sb.append("Audio Codec:    ").append(m.audioCodec).append("\n");
+        }
+        if (!m.audioLanguage.isEmpty()) {
+            sb.append("Language:       ").append(m.audioLanguage).append("\n");
+        }
+        if (!m.audioMimeType.isEmpty()) {
+            sb.append("Audio MIME:     ").append(m.audioMimeType).append("\n");
         }
 
         sb.append("\n[ PLAYBACK & BUFFER ]\n");
@@ -1465,13 +1828,13 @@ public final class KayoPatch {
             sb.append("Quality Mode:   Locked to ").append(selectedHeight).append("p\n");
         }
 
-        sb.append("\n[ MANIFEST RENDITIONS ]\n");
+        sb.append("\n[ MANIFEST VIDEO RENDITIONS ]\n");
         List<VideoTrackOption> tracks = extractVideoTracks(currentTracks);
         if (tracks.isEmpty() && currentMedia3Tracks != null) {
             tracks = extractMedia3VideoTracks(currentMedia3Tracks);
         }
         if (tracks.isEmpty()) {
-            sb.append("(No renditions reported yet)\n");
+            sb.append("(No video renditions reported yet)\n");
         } else {
             for (VideoTrackOption t : tracks) {
                 boolean isCur = t.isCurrentlyPlaying;
@@ -1500,6 +1863,20 @@ public final class KayoPatch {
                     sb.append("[CURRENT]");
                 }
                 sb.append("\n");
+            }
+        }
+
+        sb.append("\n[ MANIFEST AUDIO TRACKS ]\n");
+        List<AudioTrackOption> aTracks = extractAudioTracks(currentTracks);
+        if (aTracks.isEmpty() && currentMedia3Tracks != null) {
+            aTracks = extractMedia3AudioTracks(currentMedia3Tracks);
+        }
+        if (aTracks.isEmpty()) {
+            sb.append("(No audio tracks reported yet)\n");
+        } else {
+            for (AudioTrackOption at : aTracks) {
+                sb.append(at.isSelected ? "[*] " : "[ ] ");
+                sb.append(at.getDisplayLabel()).append("\n");
             }
         }
 
@@ -1564,6 +1941,51 @@ public final class KayoPatch {
             }
         });
 
+        return options;
+    }
+
+    private static List<AudioTrackOption> extractAudioTracks(Tracks tracks) {
+        List<AudioTrackOption> options = new ArrayList<>();
+        if (tracks == null) {
+            return options;
+        }
+        try {
+            List<Tracks.Group> groups = tracks.getGroups();
+            if (groups == null) {
+                return options;
+            }
+
+            for (int g = 0; g < groups.size(); g++) {
+                Tracks.Group group = groups.get(g);
+                if (group == null || group.getType() != 1) { // 1 = C.TRACK_TYPE_AUDIO
+                    continue;
+                }
+
+                int length = group.length;
+                for (int i = 0; i < length; i++) {
+                    Format format = group.getTrackFormat(i);
+                    if (format == null) {
+                        continue;
+                    }
+                    boolean isSelected = group.isTrackSelected(i);
+                    int br = format.bitrate > 0 ? format.bitrate : (format.averageBitrate > 0 ? format.averageBitrate : format.peakBitrate);
+                    int channels = getIntField(format.getClass(), format, "channelCount", 0);
+                    int sRate = getIntField(format.getClass(), format, "sampleRate", 0);
+                    options.add(new AudioTrackOption(
+                            i,
+                            isSelected,
+                            channels,
+                            sRate,
+                            br,
+                            format.codecs,
+                            format.language,
+                            format.label,
+                            format.sampleMimeType
+                    ));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
         return options;
     }
 
