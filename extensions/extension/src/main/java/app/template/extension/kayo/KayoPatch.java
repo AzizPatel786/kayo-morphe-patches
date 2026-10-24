@@ -804,6 +804,348 @@ public final class KayoPatch {
         }
     }
 
+    private static Object getFieldAny(Object target, String fieldName) {
+        if (target == null) return null;
+        Class<?> c = target.getClass();
+        while (c != null && c != Object.class) {
+            try {
+                Field f = c.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                return f.get(target);
+            } catch (NoSuchFieldException e) {
+                c = c.getSuperclass();
+            } catch (Throwable t) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * TV hook: Overrides DefaultTrackSelector.selectTracksForType to restrict the selected
+     * track definition to only the chosen rendition when video quality is locked.
+     */
+    public static android.util.Pair overrideSelectTracksResult(android.util.Pair pair, int trackType) {
+        if (pair == null || pair.first == null) {
+            return pair;
+        }
+        if (trackType != VIDEO_TRACK_TYPE) {
+            return pair;
+        }
+        if (selectedHeight == QUALITY_AUTO) {
+            return pair;
+        }
+        try {
+            Object definition = pair.first;
+            Object group = getFieldAny(definition, "group");
+            if (group == null) {
+                return pair;
+            }
+            Object[] formats = (Object[]) getFieldAny(group, "formats");
+            if (formats == null || formats.length == 0) {
+                return pair;
+            }
+
+            int bestIndex = -1;
+            int bestHeight = -1;
+            int bestBitrate = -1;
+            int maxAvailableHeight = -1;
+            int maxAvailableIndex = -1;
+            int maxAvailableBitrate = -1;
+
+            for (int i = 0; i < formats.length; i++) {
+                Object fmt = formats[i];
+                if (fmt == null) continue;
+                Class<?> fmtClass = fmt.getClass();
+                int h = getIntField(fmtClass, fmt, "height", 0);
+                int b = getIntField(fmtClass, fmt, "bitrate", 0);
+                if (b <= 0) b = getIntField(fmtClass, fmt, "peakBitrate", 0);
+                if (b <= 0) b = getIntField(fmtClass, fmt, "averageBitrate", 0);
+
+                if (h > maxAvailableHeight || (h == maxAvailableHeight && b > maxAvailableBitrate)) {
+                    maxAvailableHeight = h;
+                    maxAvailableIndex = i;
+                    maxAvailableBitrate = b;
+                }
+
+                if (h == selectedHeight) {
+                    if (bestIndex == -1) {
+                        bestIndex = i;
+                        bestHeight = h;
+                        bestBitrate = b;
+                    } else if (selectedBitrate > 0 && Math.abs(b - selectedBitrate) < Math.abs(bestBitrate - selectedBitrate)) {
+                        bestIndex = i;
+                        bestBitrate = b;
+                    } else if (selectedBitrate <= 0 && b > bestBitrate) {
+                        bestIndex = i;
+                        bestBitrate = b;
+                    }
+                }
+            }
+
+            if (bestIndex == -1 && selectedHeight >= 2160 && maxAvailableIndex >= 0) {
+                bestIndex = maxAvailableIndex;
+            }
+            if (bestIndex == -1) {
+                int closestDiff = Integer.MAX_VALUE;
+                for (int i = 0; i < formats.length; i++) {
+                    Object fmt = formats[i];
+                    if (fmt == null) continue;
+                    Class<?> fmtClass = fmt.getClass();
+                    int h = getIntField(fmtClass, fmt, "height", 0);
+                    if (h <= 0) continue;
+                    int diff = Math.abs(h - selectedHeight);
+                    if (diff < closestDiff) {
+                        closestDiff = diff;
+                        bestIndex = i;
+                    }
+                }
+            }
+
+            if (bestIndex >= 0) {
+                Object newDef = null;
+                for (java.lang.reflect.Constructor<?> ctor : definition.getClass().getConstructors()) {
+                    Class<?>[] pTypes = ctor.getParameterTypes();
+                    try {
+                        if (pTypes.length == 3 && pTypes[0] == int.class && pTypes[2] == int[].class) {
+                            newDef = ctor.newInstance(0, group, new int[]{bestIndex});
+                            break;
+                        } else if (pTypes.length == 2 && pTypes[1] == int[].class) {
+                            newDef = ctor.newInstance(group, new int[]{bestIndex});
+                            break;
+                        } else if (pTypes.length == 3 && pTypes[1] == int[].class && pTypes[2] == int.class) {
+                            newDef = ctor.newInstance(group, new int[]{bestIndex}, 0);
+                            break;
+                        }
+                    } catch (Throwable ignored) {}
+                }
+                if (newDef != null) {
+                    android.util.Log.i("MorpheKayo", "overrideSelectTracksResult: locked track definition to index " + bestIndex + " (" + formats[bestIndex] + ")");
+                    return android.util.Pair.create(newDef, pair.second);
+                }
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error in overrideSelectTracksResult", t);
+        }
+        return pair;
+    }
+
+    /**
+     * TV hook: Overrides AdaptiveTrackSelection.getSelectedIndex and determineIdealSelectedIndex
+     * to return the exact track index matching the locked video quality.
+     */
+    public static int overrideSelectedIndex(Object trackSelection) {
+        if (trackSelection == null || selectedHeight == QUALITY_AUTO) {
+            return -1;
+        }
+        try {
+            Object[] formats = (Object[]) getFieldAny(trackSelection, "formats");
+            if (formats == null || formats.length == 0) {
+                return -1;
+            }
+
+            boolean isVideo = false;
+            for (Object fmt : formats) {
+                if (fmt != null) {
+                    int h = getIntField(fmt.getClass(), fmt, "height", 0);
+                    if (h > 0) {
+                        isVideo = true;
+                        break;
+                    }
+                }
+            }
+            if (!isVideo) {
+                return -1;
+            }
+
+            int bestIndex = -1;
+            int bestHeight = -1;
+            int bestBitrate = -1;
+            int maxAvailableHeight = -1;
+            int maxAvailableIndex = -1;
+            int maxAvailableBitrate = -1;
+
+            for (int i = 0; i < formats.length; i++) {
+                Object fmt = formats[i];
+                if (fmt == null) continue;
+                Class<?> fmtClass = fmt.getClass();
+                int h = getIntField(fmtClass, fmt, "height", 0);
+                int b = getIntField(fmtClass, fmt, "bitrate", 0);
+                if (b <= 0) b = getIntField(fmtClass, fmt, "peakBitrate", 0);
+                if (b <= 0) b = getIntField(fmtClass, fmt, "averageBitrate", 0);
+
+                if (h > maxAvailableHeight || (h == maxAvailableHeight && b > maxAvailableBitrate)) {
+                    maxAvailableHeight = h;
+                    maxAvailableIndex = i;
+                    maxAvailableBitrate = b;
+                }
+
+                if (h == selectedHeight) {
+                    if (bestIndex == -1) {
+                        bestIndex = i;
+                        bestHeight = h;
+                        bestBitrate = b;
+                    } else if (selectedBitrate > 0 && Math.abs(b - selectedBitrate) < Math.abs(bestBitrate - selectedBitrate)) {
+                        bestIndex = i;
+                        bestBitrate = b;
+                    } else if (selectedBitrate <= 0 && b > bestBitrate) {
+                        bestIndex = i;
+                        bestBitrate = b;
+                    }
+                }
+            }
+
+            if (bestIndex == -1 && selectedHeight >= 2160 && maxAvailableIndex >= 0) {
+                bestIndex = maxAvailableIndex;
+            }
+            if (bestIndex == -1) {
+                int closestDiff = Integer.MAX_VALUE;
+                for (int i = 0; i < formats.length; i++) {
+                    Object fmt = formats[i];
+                    if (fmt == null) continue;
+                    Class<?> fmtClass = fmt.getClass();
+                    int h = getIntField(fmtClass, fmt, "height", 0);
+                    if (h <= 0) continue;
+                    int diff = Math.abs(h - selectedHeight);
+                    if (diff < closestDiff) {
+                        closestDiff = diff;
+                        bestIndex = i;
+                    }
+                }
+            }
+
+            return bestIndex;
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    public static int overrideIdealSelectedIndex(Object trackSelection) {
+        return overrideSelectedIndex(trackSelection);
+    }
+
+    /**
+     * TV hook: Intercepts AdaptiveTrackSelection.updateSelectedTrack to bypass buffer hysteresis
+     * checks when quality is locked, setting selectedIndex and reason immediately.
+     */
+    public static boolean onUpdateSelectedTrack(Object trackSelection) {
+        if (selectedHeight == QUALITY_AUTO || trackSelection == null) {
+            return false;
+        }
+        int bestIdx = overrideSelectedIndex(trackSelection);
+        if (bestIdx >= 0) {
+            try {
+                Field fIdx = null;
+                Field fReason = null;
+                Class<?> c = trackSelection.getClass();
+                while (c != null && c != Object.class) {
+                    if (fIdx == null) {
+                        try {
+                            fIdx = c.getDeclaredField("selectedIndex");
+                            fIdx.setAccessible(true);
+                        } catch (NoSuchFieldException ignored) {}
+                    }
+                    if (fReason == null) {
+                        try {
+                            fReason = c.getDeclaredField("reason");
+                            fReason.setAccessible(true);
+                        } catch (NoSuchFieldException ignored) {}
+                    }
+                    c = c.getSuperclass();
+                }
+                if (fIdx != null) {
+                    fIdx.setInt(trackSelection, bestIdx);
+                }
+                if (fReason != null) {
+                    fReason.setInt(trackSelection, 1); // REASON_MANUAL
+                }
+                return true;
+            } catch (Throwable ignored) {
+            }
+        }
+        return false;
+    }
+
+    private static List<VideoTrackOption> extractVideoTracksFromSelection(Object sel) {
+        List<VideoTrackOption> options = new ArrayList<>();
+        if (sel == null) return options;
+        try {
+            Object group = getFieldAny(sel, "group");
+            if (group == null) return options;
+            int type = getIntField(group.getClass(), group, "type", -1);
+            if (type != VIDEO_TRACK_TYPE) return options;
+
+            Object[] formats = (Object[]) getFieldAny(group, "formats");
+            if (formats == null) return options;
+
+            int activeIdx = -1;
+            try {
+                Method m = sel.getClass().getMethod("getSelectedIndex");
+                activeIdx = (Integer) m.invoke(sel);
+            } catch (Throwable ignored) {
+                activeIdx = getIntField(sel.getClass(), sel, "selectedIndex", -1);
+            }
+
+            for (int i = 0; i < formats.length; i++) {
+                Object fmt = formats[i];
+                if (fmt == null) continue;
+                Class<?> fClass = fmt.getClass();
+                int width = getIntField(fClass, fmt, "width", 0);
+                int height = getIntField(fClass, fmt, "height", 0);
+                float frameRate = getFloatField(fClass, fmt, "frameRate", 0f);
+                int bitrate = getIntField(fClass, fmt, "bitrate", 0);
+                if (bitrate <= 0) bitrate = getIntField(fClass, fmt, "peakBitrate", 0);
+                if (bitrate <= 0) bitrate = getIntField(fClass, fmt, "averageBitrate", 0);
+                String codecs = getStringField(fClass, fmt, "codecs", "");
+                boolean isCur = (i == activeIdx);
+                options.add(new VideoTrackOption(i, isCur, true, width, height, frameRate, bitrate, codecs));
+            }
+        } catch (Throwable ignored) {
+        }
+        return options;
+    }
+
+    private static List<AudioTrackOption> extractAudioTracksFromSelection(Object sel) {
+        List<AudioTrackOption> options = new ArrayList<>();
+        if (sel == null) return options;
+        try {
+            Object group = getFieldAny(sel, "group");
+            if (group == null) return options;
+            int type = getIntField(group.getClass(), group, "type", -1);
+            if (type != 1) return options; // 1 = Audio
+
+            Object[] formats = (Object[]) getFieldAny(group, "formats");
+            if (formats == null) return options;
+
+            int activeIdx = -1;
+            try {
+                Method m = sel.getClass().getMethod("getSelectedIndex");
+                activeIdx = (Integer) m.invoke(sel);
+            } catch (Throwable ignored) {
+                activeIdx = getIntField(sel.getClass(), sel, "selectedIndex", -1);
+            }
+
+            for (int i = 0; i < formats.length; i++) {
+                Object fmt = formats[i];
+                if (fmt == null) continue;
+                Class<?> fClass = fmt.getClass();
+                int channelCount = getIntField(fClass, fmt, "channelCount", 0);
+                int sampleRate = getIntField(fClass, fmt, "sampleRate", 0);
+                int bitrate = getIntField(fClass, fmt, "bitrate", 0);
+                if (bitrate <= 0) bitrate = getIntField(fClass, fmt, "averageBitrate", 0);
+                if (bitrate <= 0) bitrate = getIntField(fClass, fmt, "peakBitrate", 0);
+                String codecs = getStringField(fClass, fmt, "codecs", "");
+                String language = getStringField(fClass, fmt, "language", "");
+                String label = getStringField(fClass, fmt, "label", "");
+                String sampleMimeType = getStringField(fClass, fmt, "sampleMimeType", "");
+                boolean isCur = (i == activeIdx);
+                options.add(new AudioTrackOption(i, isCur, channelCount, sampleRate, bitrate, codecs, language, label, sampleMimeType));
+            }
+        } catch (Throwable ignored) {
+        }
+        return options;
+    }
+
     /**
      * TV hook: Intercepts ExoPlayerEventsListener.onTracksChanged(Tracks)
      * to update tracks, player, and live stats directly as soon as rendition starts.
@@ -924,15 +1266,12 @@ public final class KayoPatch {
             return options;
         }
         try {
-            List<?> groups = null;
-            try {
-                Field fGroups = media3Tracks.getClass().getField("groups");
-                groups = (List<?>) fGroups.get(media3Tracks);
-            } catch (Throwable ignored) {
+            List<?> groups = (List<?>) getFieldAny(media3Tracks, "groups");
+            if (groups == null) {
                 try {
                     Method getGroups = media3Tracks.getClass().getMethod("getGroups");
                     groups = (List<?>) getGroups.invoke(media3Tracks);
-                } catch (Throwable ignored2) {
+                } catch (Throwable ignored) {
                 }
             }
             if (groups == null) {
@@ -942,20 +1281,13 @@ public final class KayoPatch {
             for (Object group : groups) {
                 if (group == null) continue;
 
-                Object mediaTrackGroup = null;
-                try {
-                    Field fMTG = group.getClass().getField("mediaTrackGroup");
-                    mediaTrackGroup = fMTG.get(group);
-                } catch (Throwable ignored) {
-                }
-
+                Object mediaTrackGroup = getFieldAny(group, "mediaTrackGroup");
                 int type = -1;
                 if (mediaTrackGroup != null) {
-                    try {
-                        Field fType = mediaTrackGroup.getClass().getField("type");
-                        type = fType.getInt(mediaTrackGroup);
-                    } catch (Throwable ignored) {
-                    }
+                    type = getIntField(mediaTrackGroup.getClass(), mediaTrackGroup, "type", -1);
+                }
+                if (type == -1) {
+                    type = getIntField(group.getClass(), group, "type", -1);
                 }
                 if (type == -1) {
                     try {
@@ -968,41 +1300,24 @@ public final class KayoPatch {
                     continue;
                 }
 
-                int length = 0;
-                try {
-                    Field lenField = group.getClass().getField("length");
-                    length = lenField.getInt(group);
-                } catch (Throwable ignored) {
-                    if (mediaTrackGroup != null) {
-                        try {
-                            Field lenField = mediaTrackGroup.getClass().getField("length");
-                            length = lenField.getInt(mediaTrackGroup);
-                        } catch (Throwable ignored2) {
-                        }
-                    }
+                int length = getIntField(group.getClass(), group, "length", 0);
+                if (length <= 0 && mediaTrackGroup != null) {
+                    length = getIntField(mediaTrackGroup.getClass(), mediaTrackGroup, "length", 0);
                 }
 
-                boolean[] trackSelected = null;
-                try {
-                    Field fSelected = group.getClass().getField("trackSelected");
-                    trackSelected = (boolean[]) fSelected.get(group);
-                } catch (Throwable ignored) {
-                }
-
-                int[] trackSupport = null;
-                try {
-                    Field fSupport = group.getClass().getField("trackSupport");
-                    trackSupport = (int[]) fSupport.get(group);
-                } catch (Throwable ignored) {
-                }
+                boolean[] trackSelected = (boolean[]) getFieldAny(group, "trackSelected");
+                int[] trackSupport = (int[]) getFieldAny(group, "trackSupport");
 
                 Object[] formats = null;
                 if (mediaTrackGroup != null) {
-                    try {
-                        Field fFormats = mediaTrackGroup.getClass().getField("formats");
-                        formats = (Object[]) fFormats.get(mediaTrackGroup);
-                    } catch (Throwable ignored) {
-                    }
+                    formats = (Object[]) getFieldAny(mediaTrackGroup, "formats");
+                }
+                if (formats == null) {
+                    formats = (Object[]) getFieldAny(group, "formats");
+                }
+
+                if (formats != null && length <= 0) {
+                    length = formats.length;
                 }
 
                 for (int i = 0; i < length; i++) {
@@ -1084,15 +1399,12 @@ public final class KayoPatch {
             return options;
         }
         try {
-            List<?> groups = null;
-            try {
-                Field fGroups = media3Tracks.getClass().getField("groups");
-                groups = (List<?>) fGroups.get(media3Tracks);
-            } catch (Throwable ignored) {
+            List<?> groups = (List<?>) getFieldAny(media3Tracks, "groups");
+            if (groups == null) {
                 try {
                     Method getGroups = media3Tracks.getClass().getMethod("getGroups");
                     groups = (List<?>) getGroups.invoke(media3Tracks);
-                } catch (Throwable ignored2) {
+                } catch (Throwable ignored) {
                 }
             }
             if (groups == null) {
@@ -1102,20 +1414,13 @@ public final class KayoPatch {
             for (Object group : groups) {
                 if (group == null) continue;
 
-                Object mediaTrackGroup = null;
-                try {
-                    Field fMTG = group.getClass().getField("mediaTrackGroup");
-                    mediaTrackGroup = fMTG.get(group);
-                } catch (Throwable ignored) {
-                }
-
+                Object mediaTrackGroup = getFieldAny(group, "mediaTrackGroup");
                 int type = -1;
                 if (mediaTrackGroup != null) {
-                    try {
-                        Field fType = mediaTrackGroup.getClass().getField("type");
-                        type = fType.getInt(mediaTrackGroup);
-                    } catch (Throwable ignored) {
-                    }
+                    type = getIntField(mediaTrackGroup.getClass(), mediaTrackGroup, "type", -1);
+                }
+                if (type == -1) {
+                    type = getIntField(group.getClass(), group, "type", -1);
                 }
                 if (type == -1) {
                     try {
@@ -1128,34 +1433,23 @@ public final class KayoPatch {
                     continue;
                 }
 
-                int length = 0;
-                try {
-                    Field lenField = group.getClass().getField("length");
-                    length = lenField.getInt(group);
-                } catch (Throwable ignored) {
-                    if (mediaTrackGroup != null) {
-                        try {
-                            Field lenField = mediaTrackGroup.getClass().getField("length");
-                            length = lenField.getInt(mediaTrackGroup);
-                        } catch (Throwable ignored2) {
-                        }
-                    }
+                int length = getIntField(group.getClass(), group, "length", 0);
+                if (length <= 0 && mediaTrackGroup != null) {
+                    length = getIntField(mediaTrackGroup.getClass(), mediaTrackGroup, "length", 0);
                 }
 
-                boolean[] trackSelected = null;
-                try {
-                    Field fSelected = group.getClass().getField("trackSelected");
-                    trackSelected = (boolean[]) fSelected.get(group);
-                } catch (Throwable ignored) {
-                }
+                boolean[] trackSelected = (boolean[]) getFieldAny(group, "trackSelected");
 
                 Object[] formats = null;
                 if (mediaTrackGroup != null) {
-                    try {
-                        Field fFormats = mediaTrackGroup.getClass().getField("formats");
-                        formats = (Object[]) fFormats.get(mediaTrackGroup);
-                    } catch (Throwable ignored) {
-                    }
+                    formats = (Object[]) getFieldAny(mediaTrackGroup, "formats");
+                }
+                if (formats == null) {
+                    formats = (Object[]) getFieldAny(group, "formats");
+                }
+
+                if (formats != null && length <= 0) {
+                    length = formats.length;
                 }
 
                 for (int i = 0; i < length; i++) {
@@ -1201,6 +1495,7 @@ public final class KayoPatch {
         }
         return options;
     }
+
 
     private static void setFieldSafe(Class<?> clazz, Object target, String fieldName, Object value) {
         Class<?> c = clazz;
@@ -2174,6 +2469,93 @@ public final class KayoPatch {
         b.show();
     }
 
+    private static List<VideoTrackOption> getAvailableVideoOptions() {
+        List<VideoTrackOption> videoOptions = extractVideoTracks(currentTracks);
+        if (!videoOptions.isEmpty()) {
+            return videoOptions;
+        }
+        if (currentMedia3Tracks != null) {
+            videoOptions = extractMedia3VideoTracks(currentMedia3Tracks);
+            if (!videoOptions.isEmpty()) {
+                return videoOptions;
+            }
+        }
+        Object p = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+        if (p != null) {
+            try {
+                Object pbInfo = getFieldAny(p, "playbackInfo");
+                if (pbInfo != null) {
+                    Object res = getFieldAny(pbInfo, "trackSelectorResult");
+                    if (res != null) {
+                        Object tr = getFieldAny(res, "tracks");
+                        if (tr != null) {
+                            currentMedia3Tracks = tr;
+                            videoOptions = extractMedia3VideoTracks(tr);
+                            if (!videoOptions.isEmpty()) {
+                                return videoOptions;
+                            }
+                        }
+                        Object[] selections = (Object[]) getFieldAny(res, "selections");
+                        if (selections != null) {
+                            for (Object sel : selections) {
+                                if (sel == null) continue;
+                                videoOptions = extractVideoTracksFromSelection(sel);
+                                if (!videoOptions.isEmpty()) {
+                                    return videoOptions;
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        return videoOptions;
+    }
+
+    private static List<AudioTrackOption> getAvailableAudioOptions() {
+        List<AudioTrackOption> aTracks = extractAudioTracks(currentTracks);
+        if (!aTracks.isEmpty()) {
+            return aTracks;
+        }
+        if (currentMedia3Tracks != null) {
+            aTracks = extractMedia3AudioTracks(currentMedia3Tracks);
+            if (!aTracks.isEmpty()) {
+                return aTracks;
+            }
+        }
+        Object p = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+        if (p != null) {
+            try {
+                Object pbInfo = getFieldAny(p, "playbackInfo");
+                if (pbInfo != null) {
+                    Object res = getFieldAny(pbInfo, "trackSelectorResult");
+                    if (res != null) {
+                        Object tr = getFieldAny(res, "tracks");
+                        if (tr != null) {
+                            aTracks = extractMedia3AudioTracks(tr);
+                            if (!aTracks.isEmpty()) {
+                                return aTracks;
+                            }
+                        }
+                        Object[] selections = (Object[]) getFieldAny(res, "selections");
+                        if (selections != null) {
+                            for (Object sel : selections) {
+                                if (sel == null) continue;
+                                aTracks = extractAudioTracksFromSelection(sel);
+                                if (!aTracks.isEmpty()) {
+                                    return aTracks;
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        return aTracks;
+    }
+
     private static String buildDiagnosticsReportString(StreamMetrics m) {
         StringBuilder sb = new StringBuilder();
 
@@ -2250,33 +2632,17 @@ public final class KayoPatch {
         }
 
         sb.append("\n[ MANIFEST VIDEO RENDITIONS ]\n");
-        List<VideoTrackOption> tracks = extractVideoTracks(currentTracks);
-        if (tracks.isEmpty() && currentMedia3Tracks == null) {
-            Object p = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
-            if (p != null) {
-                try {
-                    Field fInfo = p.getClass().getField("playbackInfo");
-                    Object pbInfo = fInfo.get(p);
-                    if (pbInfo != null) {
-                        Field fRes = pbInfo.getClass().getField("trackSelectorResult");
-                        Object res = fRes.get(pbInfo);
-                        if (res != null) {
-                            Field fTr = res.getClass().getField("tracks");
-                            currentMedia3Tracks = fTr.get(res);
-                        }
-                    }
-                } catch (Throwable ignored) {
-                }
-            }
-        }
-        if (tracks.isEmpty() && currentMedia3Tracks != null) {
-            tracks = extractMedia3VideoTracks(currentMedia3Tracks);
-        }
+        List<VideoTrackOption> tracks = getAvailableVideoOptions();
         if (tracks.isEmpty()) {
             sb.append("(No video renditions reported yet)\n");
         } else {
             for (VideoTrackOption t : tracks) {
                 boolean isCur = t.isCurrentlyPlaying;
+                if (!isCur && m.height > 0 && t.height == m.height) {
+                    if (m.bitrate <= 0 || Math.abs(t.bitrate - m.bitrate) < 250_000) {
+                        isCur = true;
+                    }
+                }
                 sb.append(isCur ? "[*] " : "[ ] ");
                 if (t.height >= 2160) {
                     sb.append(t.height).append("p (4K UHD) ");
@@ -2306,15 +2672,16 @@ public final class KayoPatch {
         }
 
         sb.append("\n[ MANIFEST AUDIO TRACKS ]\n");
-        List<AudioTrackOption> aTracks = extractAudioTracks(currentTracks);
-        if (aTracks.isEmpty() && currentMedia3Tracks != null) {
-            aTracks = extractMedia3AudioTracks(currentMedia3Tracks);
-        }
+        List<AudioTrackOption> aTracks = getAvailableAudioOptions();
         if (aTracks.isEmpty()) {
             sb.append("(No audio tracks reported yet)\n");
         } else {
             for (AudioTrackOption at : aTracks) {
-                sb.append(at.isSelected ? "[*] " : "[ ] ");
+                boolean isCurAudio = at.isSelected;
+                if (!isCurAudio && m.audioBitrate > 0 && Math.abs(at.bitrate - m.audioBitrate) < 50_000) {
+                    isCurAudio = true;
+                }
+                sb.append(isCurAudio ? "[*] " : "[ ] ");
                 sb.append(at.getDisplayLabel()).append("\n");
             }
         }
@@ -2739,28 +3106,7 @@ public final class KayoPatch {
     private static void buildAndShowDialog(final Context context, final Runnable onOpenOriginalTrackSelector) {
         loadPrefsIfNeeded(context);
 
-        List<VideoTrackOption> videoOptions = extractVideoTracks(currentTracks);
-        if (videoOptions.isEmpty() && currentMedia3Tracks == null) {
-            Object p = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
-            if (p != null) {
-                try {
-                    Field fInfo = p.getClass().getField("playbackInfo");
-                    Object pbInfo = fInfo.get(p);
-                    if (pbInfo != null) {
-                        Field fRes = pbInfo.getClass().getField("trackSelectorResult");
-                        Object res = fRes.get(pbInfo);
-                        if (res != null) {
-                            Field fTr = res.getClass().getField("tracks");
-                            currentMedia3Tracks = fTr.get(res);
-                        }
-                    }
-                } catch (Throwable ignored) {
-                }
-            }
-        }
-        if (videoOptions.isEmpty() && currentMedia3Tracks != null) {
-            videoOptions = extractMedia3VideoTracks(currentMedia3Tracks);
-        }
+        List<VideoTrackOption> videoOptions = getAvailableVideoOptions();
         final boolean hasLiveTracks = !videoOptions.isEmpty();
 
         final List<String> labels = new ArrayList<>();
@@ -2841,13 +3187,12 @@ public final class KayoPatch {
 
                 if (currentTrackSelector != null) {
                     applySelectedQuality(currentTrackSelector, currentTracks);
-                } else {
-                    Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
-                    if (media3Player != null) {
-                        applyMedia3Quality(media3Player, chosenHeight, chosenBitrate);
-                    }
-                    updateAllQualityBadges();
                 }
+                Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+                if (media3Player != null) {
+                    applyMedia3Quality(media3Player, chosenHeight, chosenBitrate);
+                }
+                updateAllQualityBadges();
 
                 String toastMsg = (chosenHeight == QUALITY_AUTO)
                         ? "Video quality set to Auto (Adaptive)"

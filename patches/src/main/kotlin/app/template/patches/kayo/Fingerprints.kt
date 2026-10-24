@@ -420,6 +420,84 @@ object TvLoadArgumentsParserFingerprint : Fingerprint(
     parameters = listOf("Lorg/json/JSONObject;")
 )
 
+/**
+ * Matches `DefaultTrackSelector.selectTracksForType(...)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvDefaultTrackSelectorSelectTracksForTypeFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/DefaultTrackSelector;",
+    name = "selectTracksForType",
+    returnType = "Landroid/util/Pair;",
+    parameters = listOf(
+        "I",
+        "Landroidx/media3/exoplayer/trackselection/MappingTrackSelector\$MappedTrackInfo;",
+        "[[[I",
+        "Landroidx/media3/exoplayer/trackselection/DefaultTrackSelector\$TrackInfo\$Factory;",
+        "Ljava/util/Comparator;"
+    ),
+    filters = listOf(
+        methodCall(
+            definingClass = "Landroid/util/Pair;",
+            name = "create"
+        )
+    )
+)
+
+/**
+ * Matches `AdaptiveTrackSelection.<init>(TrackGroup, int[], BandwidthMeter, long, long, long, float, ImmutableList)`
+ * in Kayo TV (au.com.kayosports.tv).
+ */
+object TvAdaptiveTrackSelectionConstructorFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/AdaptiveTrackSelection;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf(
+        "Landroidx/media3/common/TrackGroup;",
+        "[I",
+        "Landroidx/media3/exoplayer/upstream/BandwidthMeter;",
+        "J",
+        "J",
+        "J",
+        "F",
+        "Lcom/google/common/collect/ImmutableList;"
+    )
+)
+
+/**
+ * Matches `AdaptiveTrackSelection.determineIdealSelectedIndex(long)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvAdaptiveTrackSelectionDetermineIdealSelectedIndexFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/AdaptiveTrackSelection;",
+    name = "determineIdealSelectedIndex",
+    returnType = "I",
+    parameters = listOf("J")
+)
+
+/**
+ * Matches `AdaptiveTrackSelection.getSelectedIndex()` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvAdaptiveTrackSelectionGetSelectedIndexFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/AdaptiveTrackSelection;",
+    name = "getSelectedIndex",
+    returnType = "I",
+    parameters = listOf()
+)
+
+/**
+ * Matches `AdaptiveTrackSelection.updateSelectedTrack(...)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvAdaptiveTrackSelectionUpdateSelectedTrackFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/AdaptiveTrackSelection;",
+    name = "updateSelectedTrack",
+    returnType = "V",
+    parameters = listOf(
+        "J",
+        "J",
+        "J",
+        "Ljava/util/List;",
+        "[Landroidx/media3/exoplayer/source/chunk/MediaChunkIterator;"
+    )
+)
+
 
 
 

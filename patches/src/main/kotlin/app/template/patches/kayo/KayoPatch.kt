@@ -11,6 +11,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
+import com.android.tools.smali.dexlib2.Opcode
 
 private const val EXTENSION_CLASS_DESCRIPTOR = "Lapp/template/extension/kayo/KayoPatch;"
 
@@ -353,5 +354,85 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                 )
             }
         }
+
+        // 21. Hook DefaultTrackSelector.selectTracksForType to enforce single-track selection when quality is locked
+        safeHook("TvDefaultTrackSelectorSelectTracksForType") {
+            TvDefaultTrackSelectorSelectTracksForTypeFingerprint.methodOrNull?.let { method ->
+                val pairCreateIdx = method.implementation?.instructions?.indexOfFirst { insn ->
+                    insn.opcode == Opcode.INVOKE_STATIC && insn.toString().contains("Pair;->create")
+                } ?: -1
+                if (pairCreateIdx >= 0) {
+                    method.addInstructions(
+                        pairCreateIdx + 2,
+                        """
+                            invoke-static {v0, p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectTracksResult(Landroid/util/Pair;I)Landroid/util/Pair;
+                            move-result-object v0
+                        """
+                    )
+                }
+            }
+        }
+
+        // 22. Hook AdaptiveTrackSelection constructor to eliminate 10s buffer hysteresis requirement
+        safeHook("TvAdaptiveTrackSelectionConstructor") {
+            TvAdaptiveTrackSelectionConstructorFingerprint.methodOrNull?.let { method ->
+                method.addInstruction(
+                    0,
+                    "const-wide/16 p4, 0x0"
+                )
+            }
+        }
+
+        // 23. Hook AdaptiveTrackSelection.determineIdealSelectedIndex to enforce ideal rendition index
+        safeHook("TvAdaptiveTrackSelectionDetermineIdealSelectedIndex") {
+            TvAdaptiveTrackSelectionDetermineIdealSelectedIndexFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideIdealSelectedIndex(Ljava/lang/Object;)I
+                        move-result v0
+                        if-ltz v0, :cond_orig_ideal
+                        return v0
+                        :cond_orig_ideal
+                        nop
+                    """
+                )
+            }
+        }
+
+        // 24. Hook AdaptiveTrackSelection.getSelectedIndex to enforce rendition index
+        safeHook("TvAdaptiveTrackSelectionGetSelectedIndex") {
+            TvAdaptiveTrackSelectionGetSelectedIndexFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectedIndex(Ljava/lang/Object;)I
+                        move-result v0
+                        if-ltz v0, :cond_orig_selected
+                        return v0
+                        :cond_orig_selected
+                        nop
+                    """
+                )
+            }
+        }
+
+        // 25. Hook AdaptiveTrackSelection.updateSelectedTrack to bypass hysteresis check when locked
+        safeHook("TvAdaptiveTrackSelectionUpdateSelectedTrack") {
+            TvAdaptiveTrackSelectionUpdateSelectedTrackFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->onUpdateSelectedTrack(Ljava/lang/Object;)Z
+                        move-result v0
+                        if-eqz v0, :cond_orig_update
+                        return-void
+                        :cond_orig_update
+                        nop
+                    """
+                )
+            }
+        }
     }
 }
+
