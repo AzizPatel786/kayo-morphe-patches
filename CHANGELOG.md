@@ -1,3 +1,9 @@
+## [1.0.4](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.3...v1.0.4) (2026-10-24)
+
+### 🐛 Bug Fixes
+
+* **tv:** add audio metrics, live bandwidth tracking, and fix player view hook ([9257098](https://github.com/AzizPatel786/kayo-morphe-patches/commit/92570986abc1fe508b13b4ce135c34221504e601))
+
 ## [1.0.3](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.2...v1.0.3) (2026-10-24)
 
 ### 🐛 Bug Fixes
