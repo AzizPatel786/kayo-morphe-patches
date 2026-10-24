@@ -1,3 +1,9 @@
+## [1.0.3](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.2...v1.0.3) (2026-10-24)
+
+### 🐛 Bug Fixes
+
+* **tv:** lock 4k uhd track selection on media3 and spoof physical display size ([bf29996](https://github.com/AzizPatel786/kayo-morphe-patches/commit/bf29996c4061c864a48c3f1551563fafa832e5f0))
+
 ## [1.0.2](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.1...v1.0.2) (2026-10-23)
 
 ### 🐛 Bug Fixes
