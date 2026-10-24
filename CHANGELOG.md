@@ -1,3 +1,9 @@
+## [1.0.5](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.4...v1.0.5) (2026-10-24)
+
+### 🐛 Bug Fixes
+
+* **tv:** unlock 4k uhd, force widevine l1, bypass l3 downgrade, and fix manifest track extraction ([82a76b7](https://github.com/AzizPatel786/kayo-morphe-patches/commit/82a76b7c56ca9918f9d573d2f9197b5cee065ef6))
+
 ## [1.0.4](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.3...v1.0.4) (2026-10-24)
 
 ### 🐛 Bug Fixes
