@@ -577,8 +577,8 @@ public final class KayoPatch {
         try {
             Class<?> bClass = builder.getClass();
             setFieldSafe(bClass, builder, "isViewportSizeLimitedByPhysicalDisplaySize", false);
-            setFieldSafe(bClass, builder, "viewportWidth", Integer.MAX_VALUE);
-            setFieldSafe(bClass, builder, "viewportHeight", Integer.MAX_VALUE);
+            setFieldSafe(bClass, builder, "viewportWidth", 3840);
+            setFieldSafe(bClass, builder, "viewportHeight", 2160);
             setFieldSafe(bClass, builder, "exceedVideoConstraintsIfNecessary", true);
             setFieldSafe(bClass, builder, "exceedRendererCapabilitiesIfNecessary", true);
             setFieldSafe(bClass, builder, "allowVideoNonSeamlessAdaptiveness", true);
@@ -595,22 +595,125 @@ public final class KayoPatch {
                 setFieldSafe(bClass, builder, "maxVideoBitrate", (selectedBitrate > 0) ? selectedBitrate : Integer.MAX_VALUE);
                 setFieldSafe(bClass, builder, "maxVideoFrameRate", Integer.MAX_VALUE);
             }
+
+            if (selectedHeight >= 2160) {
+                try {
+                    Class<?> immList = Class.forName("com.google.common.collect.ImmutableList");
+                    Method mOf = immList.getMethod("of", Object.class, Object.class);
+                    Object prefMimes = mOf.invoke(null, "video/hevc", "video/avc");
+                    setFieldSafe(bClass, builder, "preferredVideoMimeTypes", prefMimes);
+                } catch (Throwable ignored) {
+                }
+            }
+
+            boostBandwidthEstimate();
             android.util.Log.i("MorpheKayo", "configureTvTrackParametersBuilder applied: height=" + selectedHeight + ", bitrate=" + selectedBitrate);
         } catch (Throwable t) {
             android.util.Log.e("MorpheKayo", "Error in configureTvTrackParametersBuilder", t);
         }
     }
 
+    private static void boostBandwidthEstimate() {
+        Object bwMeter = currentBandwidthMeterRef != null ? currentBandwidthMeterRef.get() : null;
+        if (bwMeter != null) {
+            try {
+                Field fEst = bwMeter.getClass().getField("bitrateEstimate");
+                fEst.setLong(bwMeter, 100_000_000L); // 100 Mbps
+            } catch (Throwable ignored) {
+            }
+        }
+        try {
+            Class<?> dbmClass = Class.forName("androidx.media3.exoplayer.upstream.DefaultBandwidthMeter");
+            Field fSingleton = dbmClass.getField("singletonInstance");
+            Object singleton = fSingleton.get(null);
+            if (singleton != null) {
+                Field fEst = dbmClass.getField("bitrateEstimate");
+                fEst.setLong(singleton, 100_000_000L);
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
     /**
-     * TV hook: Applies resolution and bitrate selection directly to the active Media3 ExoPlayer instance.
+     * TV hook: Sanitizes LoadArguments JSON so that useWidevineL3 is false and maxVideoBitrate is unconstrained.
      */
-    public static void applyMedia3Quality(Object player, int targetHeight, int targetBitrate) {
-        if (player == null) {
+    public static void sanitizeLoadArgumentsJson(org.json.JSONObject json) {
+        if (json == null) {
             return;
         }
         try {
-            Method getParams = player.getClass().getMethod("getTrackSelectionParameters");
-            Object params = getParams.invoke(player);
+            json.put("useWidevineL3", false);
+            json.put("maxVideoBitrate", Integer.MAX_VALUE);
+            android.util.Log.i("MorpheKayo", "Sanitized LoadArguments JSON: useWidevineL3=false, maxVideoBitrate=MAX");
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /**
+     * TV hook: Sanitizes LoadArguments so that useWidevineL3 is false and maxVideoBitrate is unconstrained.
+     */
+    public static void sanitizeLoadArguments(Object loadArguments) {
+        if (loadArguments == null) {
+            return;
+        }
+        try {
+            Class<?> clazz = loadArguments.getClass();
+            setFieldSafe(clazz, loadArguments, "useWidevineL3", false);
+            setFieldSafe(clazz, loadArguments, "maxVideoBitrate", Integer.MAX_VALUE);
+            android.util.Log.i("MorpheKayo", "Sanitized LoadArguments: useWidevineL3=false, maxVideoBitrate=MAX");
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /**
+     * TV hook: Applies resolution and bitrate selection directly to the active Media3 ExoPlayer instance.
+     */
+    public static void applyMedia3Quality(final Object player, final int targetHeight, final int targetBitrate) {
+        if (player == null) {
+            return;
+        }
+        Looper appLooper = null;
+        try {
+            Field fLooper = player.getClass().getField("applicationLooper");
+            appLooper = (Looper) fLooper.get(player);
+        } catch (Throwable ignored) {
+        }
+        if (appLooper == null) {
+            appLooper = Looper.getMainLooper();
+        }
+        if (Looper.myLooper() != appLooper) {
+            new Handler(appLooper).post(new Runnable() {
+                @Override
+                public void run() {
+                    applyMedia3Quality(player, targetHeight, targetBitrate);
+                }
+            });
+            return;
+        }
+
+        try {
+            Object selector = null;
+            try {
+                Field fSel = player.getClass().getField("trackSelector");
+                selector = fSel.get(player);
+            } catch (Throwable ignored) {
+            }
+
+            Object params = null;
+            if (selector != null) {
+                try {
+                    Method getParams = selector.getClass().getMethod("getParameters");
+                    params = getParams.invoke(selector);
+                } catch (Throwable ignored) {
+                }
+            }
+            if (params == null) {
+                try {
+                    Method getParams = player.getClass().getMethod("getTrackSelectionParameters");
+                    params = getParams.invoke(player);
+                } catch (Throwable ignored) {
+                }
+            }
             if (params == null) {
                 return;
             }
@@ -626,10 +729,23 @@ public final class KayoPatch {
             Method buildMethod = builder.getClass().getMethod("build");
             Object newParams = buildMethod.invoke(builder);
 
+            if (selector != null) {
+                try {
+                    for (Method m : selector.getClass().getMethods()) {
+                        if (m.getName().equals("setParameters") && m.getParameterTypes().length == 1) {
+                            m.invoke(selector, newParams);
+                            android.util.Log.i("MorpheKayo", "applyMedia3Quality applied to selector: height=" + targetHeight);
+                            break;
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+
             for (Method m : player.getClass().getMethods()) {
                 if (m.getName().equals("setTrackSelectionParameters") && m.getParameterTypes().length == 1) {
                     m.invoke(player, newParams);
-                    android.util.Log.i("MorpheKayo", "applyMedia3Quality successfully set parameters: height=" + targetHeight);
+                    android.util.Log.i("MorpheKayo", "applyMedia3Quality successfully set parameters on player: height=" + targetHeight);
                     break;
                 }
             }
@@ -719,6 +835,33 @@ public final class KayoPatch {
         currentMedia3PlayerRef = new WeakReference<>(player);
         android.util.Log.i("MorpheKayo", "Media3 ExoPlayer attached: " + player.getClass().getName());
 
+        try {
+            Field fMeter = player.getClass().getField("bandwidthMeter");
+            Object meter = fMeter.get(player);
+            if (meter != null) {
+                currentBandwidthMeterRef = new WeakReference<>(meter);
+                android.util.Log.i("MorpheKayo", "Captured bandwidthMeter from Media3 player");
+            }
+        } catch (Throwable ignored) {
+        }
+
+        try {
+            Field fInfo = player.getClass().getField("playbackInfo");
+            Object pbInfo = fInfo.get(player);
+            if (pbInfo != null) {
+                Field fResult = pbInfo.getClass().getField("trackSelectorResult");
+                Object res = fResult.get(pbInfo);
+                if (res != null) {
+                    Field fTr = res.getClass().getField("tracks");
+                    Object trTracks = fTr.get(res);
+                    if (trTracks != null) {
+                        onMedia3TracksChanged(trTracks);
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
         // Immediately apply saved quality settings
         applyMedia3Quality(player, selectedHeight, selectedBitrate);
 
@@ -781,34 +924,123 @@ public final class KayoPatch {
             return options;
         }
         try {
-            Method getGroups = media3Tracks.getClass().getMethod("getGroups");
-            List<?> groups = (List<?>) getGroups.invoke(media3Tracks);
+            List<?> groups = null;
+            try {
+                Field fGroups = media3Tracks.getClass().getField("groups");
+                groups = (List<?>) fGroups.get(media3Tracks);
+            } catch (Throwable ignored) {
+                try {
+                    Method getGroups = media3Tracks.getClass().getMethod("getGroups");
+                    groups = (List<?>) getGroups.invoke(media3Tracks);
+                } catch (Throwable ignored2) {
+                }
+            }
             if (groups == null) {
                 return options;
             }
 
             for (Object group : groups) {
                 if (group == null) continue;
-                Method getType = group.getClass().getMethod("getType");
-                int type = (Integer) getType.invoke(group);
+
+                Object mediaTrackGroup = null;
+                try {
+                    Field fMTG = group.getClass().getField("mediaTrackGroup");
+                    mediaTrackGroup = fMTG.get(group);
+                } catch (Throwable ignored) {
+                }
+
+                int type = -1;
+                if (mediaTrackGroup != null) {
+                    try {
+                        Field fType = mediaTrackGroup.getClass().getField("type");
+                        type = fType.getInt(mediaTrackGroup);
+                    } catch (Throwable ignored) {
+                    }
+                }
+                if (type == -1) {
+                    try {
+                        Method getType = group.getClass().getMethod("getType");
+                        type = (Integer) getType.invoke(group);
+                    } catch (Throwable ignored) {
+                    }
+                }
                 if (type != VIDEO_TRACK_TYPE) {
                     continue;
                 }
 
-                Field lenField = group.getClass().getField("length");
-                int length = lenField.getInt(group);
+                int length = 0;
+                try {
+                    Field lenField = group.getClass().getField("length");
+                    length = lenField.getInt(group);
+                } catch (Throwable ignored) {
+                    if (mediaTrackGroup != null) {
+                        try {
+                            Field lenField = mediaTrackGroup.getClass().getField("length");
+                            length = lenField.getInt(mediaTrackGroup);
+                        } catch (Throwable ignored2) {
+                        }
+                    }
+                }
 
-                Method getTrackFormat = group.getClass().getMethod("getTrackFormat", int.class);
-                Method isTrackSelected = group.getClass().getMethod("isTrackSelected", int.class);
-                Method isTrackSupported = group.getClass().getMethod("isTrackSupported", int.class);
+                boolean[] trackSelected = null;
+                try {
+                    Field fSelected = group.getClass().getField("trackSelected");
+                    trackSelected = (boolean[]) fSelected.get(group);
+                } catch (Throwable ignored) {
+                }
+
+                int[] trackSupport = null;
+                try {
+                    Field fSupport = group.getClass().getField("trackSupport");
+                    trackSupport = (int[]) fSupport.get(group);
+                } catch (Throwable ignored) {
+                }
+
+                Object[] formats = null;
+                if (mediaTrackGroup != null) {
+                    try {
+                        Field fFormats = mediaTrackGroup.getClass().getField("formats");
+                        formats = (Object[]) fFormats.get(mediaTrackGroup);
+                    } catch (Throwable ignored) {
+                    }
+                }
 
                 for (int i = 0; i < length; i++) {
-                    Object formatObj = getTrackFormat.invoke(group, i);
+                    Object formatObj = null;
+                    if (formats != null && i < formats.length) {
+                        formatObj = formats[i];
+                    } else {
+                        try {
+                            Method getTrackFormat = group.getClass().getMethod("getTrackFormat", int.class);
+                            formatObj = getTrackFormat.invoke(group, i);
+                        } catch (Throwable ignored) {
+                        }
+                    }
                     if (formatObj == null) {
                         continue;
                     }
-                    boolean isSelected = (Boolean) isTrackSelected.invoke(group, i);
-                    boolean isSupported = (Boolean) isTrackSupported.invoke(group, i);
+
+                    boolean isSelected = false;
+                    if (trackSelected != null && i < trackSelected.length) {
+                        isSelected = trackSelected[i];
+                    } else {
+                        try {
+                            Method isTrackSelected = group.getClass().getMethod("isTrackSelected", int.class);
+                            isSelected = (Boolean) isTrackSelected.invoke(group, i);
+                        } catch (Throwable ignored) {
+                        }
+                    }
+
+                    boolean isSupported = true;
+                    if (trackSupport != null && i < trackSupport.length) {
+                        isSupported = trackSupport[i] == 4 || trackSupport[i] == 3 || trackSupport[i] == 2;
+                    } else {
+                        try {
+                            Method isTrackSupported = group.getClass().getMethod("isTrackSupported", int.class);
+                            isSupported = (Boolean) isTrackSupported.invoke(group, i);
+                        } catch (Throwable ignored) {
+                        }
+                    }
 
                     Class<?> fClass = formatObj.getClass();
                     int width = getIntField(fClass, formatObj, "width", 0);
@@ -852,30 +1084,104 @@ public final class KayoPatch {
             return options;
         }
         try {
-            Method getGroups = media3Tracks.getClass().getMethod("getGroups");
-            List<?> groups = (List<?>) getGroups.invoke(media3Tracks);
+            List<?> groups = null;
+            try {
+                Field fGroups = media3Tracks.getClass().getField("groups");
+                groups = (List<?>) fGroups.get(media3Tracks);
+            } catch (Throwable ignored) {
+                try {
+                    Method getGroups = media3Tracks.getClass().getMethod("getGroups");
+                    groups = (List<?>) getGroups.invoke(media3Tracks);
+                } catch (Throwable ignored2) {
+                }
+            }
             if (groups == null) {
                 return options;
             }
 
             for (Object group : groups) {
                 if (group == null) continue;
-                Method getType = group.getClass().getMethod("getType");
-                int type = (Integer) getType.invoke(group);
+
+                Object mediaTrackGroup = null;
+                try {
+                    Field fMTG = group.getClass().getField("mediaTrackGroup");
+                    mediaTrackGroup = fMTG.get(group);
+                } catch (Throwable ignored) {
+                }
+
+                int type = -1;
+                if (mediaTrackGroup != null) {
+                    try {
+                        Field fType = mediaTrackGroup.getClass().getField("type");
+                        type = fType.getInt(mediaTrackGroup);
+                    } catch (Throwable ignored) {
+                    }
+                }
+                if (type == -1) {
+                    try {
+                        Method getType = group.getClass().getMethod("getType");
+                        type = (Integer) getType.invoke(group);
+                    } catch (Throwable ignored) {
+                    }
+                }
                 if (type != 1) { // 1 = C.TRACK_TYPE_AUDIO
                     continue;
                 }
 
-                Field lenField = group.getClass().getField("length");
-                int length = lenField.getInt(group);
+                int length = 0;
+                try {
+                    Field lenField = group.getClass().getField("length");
+                    length = lenField.getInt(group);
+                } catch (Throwable ignored) {
+                    if (mediaTrackGroup != null) {
+                        try {
+                            Field lenField = mediaTrackGroup.getClass().getField("length");
+                            length = lenField.getInt(mediaTrackGroup);
+                        } catch (Throwable ignored2) {
+                        }
+                    }
+                }
 
-                Method getTrackFormat = group.getClass().getMethod("getTrackFormat", int.class);
-                Method isTrackSelected = group.getClass().getMethod("isTrackSelected", int.class);
+                boolean[] trackSelected = null;
+                try {
+                    Field fSelected = group.getClass().getField("trackSelected");
+                    trackSelected = (boolean[]) fSelected.get(group);
+                } catch (Throwable ignored) {
+                }
+
+                Object[] formats = null;
+                if (mediaTrackGroup != null) {
+                    try {
+                        Field fFormats = mediaTrackGroup.getClass().getField("formats");
+                        formats = (Object[]) fFormats.get(mediaTrackGroup);
+                    } catch (Throwable ignored) {
+                    }
+                }
 
                 for (int i = 0; i < length; i++) {
-                    Object fmt = getTrackFormat.invoke(group, i);
+                    Object fmt = null;
+                    if (formats != null && i < formats.length) {
+                        fmt = formats[i];
+                    } else {
+                        try {
+                            Method getTrackFormat = group.getClass().getMethod("getTrackFormat", int.class);
+                            fmt = getTrackFormat.invoke(group, i);
+                        } catch (Throwable ignored) {
+                        }
+                    }
                     if (fmt == null) continue;
-                    boolean isSelected = (Boolean) isTrackSelected.invoke(group, i);
+
+                    boolean isSelected = false;
+                    if (trackSelected != null && i < trackSelected.length) {
+                        isSelected = trackSelected[i];
+                    } else {
+                        try {
+                            Method isTrackSelected = group.getClass().getMethod("isTrackSelected", int.class);
+                            isSelected = (Boolean) isTrackSelected.invoke(group, i);
+                        } catch (Throwable ignored) {
+                        }
+                    }
+
                     Class<?> fClass = fmt.getClass();
                     int channels = getIntField(fClass, fmt, "channelCount", 0);
                     int sRate = getIntField(fClass, fmt, "sampleRate", 0);
@@ -919,6 +1225,38 @@ public final class KayoPatch {
                 Field f = c.getDeclaredField(fieldName);
                 f.setAccessible(true);
                 return f.getInt(target);
+            } catch (NoSuchFieldException e) {
+                c = c.getSuperclass();
+            } catch (Throwable ignored) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    private static long getLongField(Class<?> clazz, Object target, String fieldName, long defaultVal) {
+        Class<?> c = clazz;
+        while (c != null && c != Object.class) {
+            try {
+                Field f = c.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                return f.getLong(target);
+            } catch (NoSuchFieldException e) {
+                c = c.getSuperclass();
+            } catch (Throwable ignored) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    private static boolean getBooleanField(Class<?> clazz, Object target, String fieldName, boolean defaultVal) {
+        Class<?> c = clazz;
+        while (c != null && c != Object.class) {
+            try {
+                Field f = c.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                return f.getBoolean(target);
             } catch (NoSuchFieldException e) {
                 c = c.getSuperclass();
             } catch (Throwable ignored) {
@@ -1353,28 +1691,92 @@ public final class KayoPatch {
                     }
 
                     try {
-                        Method getPlaybackState = media3Player.getClass().getMethod("getPlaybackState");
-                        int state = (Integer) getPlaybackState.invoke(media3Player);
-                        Method isPlayingMethod = media3Player.getClass().getMethod("isPlaying");
-                        boolean isPlaying = (Boolean) isPlayingMethod.invoke(media3Player);
-                        Method getBuffered = media3Player.getClass().getMethod("getTotalBufferedDuration");
-                        bufferedMs = (Long) getBuffered.invoke(media3Player);
+                        Field fInfo = media3Player.getClass().getField("playbackInfo");
+                        Object pbInfo = fInfo.get(media3Player);
+                        if (pbInfo != null) {
+                            Class<?> pbClass = pbInfo.getClass();
+                            int pbState = getIntField(pbClass, pbInfo, "playbackState", -1);
+                            boolean playWhenReady = getBooleanField(pbClass, pbInfo, "playWhenReady", true);
+                            switch (pbState) {
+                                case 2: // STATE_BUFFERING
+                                    stateStr = "Buffering";
+                                    break;
+                                case 3: // STATE_READY
+                                    stateStr = playWhenReady ? "Playing" : "Paused";
+                                    break;
+                                case 4: // STATE_ENDED
+                                    stateStr = "Ended";
+                                    break;
+                                case 1: // STATE_IDLE
+                                    stateStr = "Idle";
+                                    break;
+                            }
 
-                        switch (state) {
-                            case 2: // STATE_BUFFERING
-                                stateStr = "Buffering";
-                                break;
-                            case 3: // STATE_READY
-                                stateStr = isPlaying ? "Playing" : "Paused";
-                                break;
-                            case 4: // STATE_ENDED
-                                stateStr = "Ended";
-                                break;
-                            case 1: // STATE_IDLE
-                                stateStr = "Idle";
-                                break;
+                            long totalBufferedUs = getLongField(pbClass, pbInfo, "totalBufferedDurationUs", 0L);
+                            if (totalBufferedUs > 0) {
+                                bufferedMs = totalBufferedUs / 1000L;
+                            } else {
+                                long bufPosUs = getLongField(pbClass, pbInfo, "bufferedPositionUs", 0L);
+                                long posUs = getLongField(pbClass, pbInfo, "positionUs", 0L);
+                                if (bufPosUs > posUs) {
+                                    bufferedMs = (bufPosUs - posUs) / 1000L;
+                                }
+                            }
+
+                            if (currentMedia3Tracks == null) {
+                                try {
+                                    Field fResult = pbClass.getField("trackSelectorResult");
+                                    Object res = fResult.get(pbInfo);
+                                    if (res != null) {
+                                        Field fTr = res.getClass().getField("tracks");
+                                        Object trTracks = fTr.get(res);
+                                        if (trTracks != null) {
+                                            currentMedia3Tracks = trTracks;
+                                        }
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
                         }
                     } catch (Throwable ignored) {
+                    }
+
+                    if ("Active".equals(stateStr) || bufferedMs <= 0) {
+                        try {
+                            Method getPlaybackState = media3Player.getClass().getMethod("getPlaybackState");
+                            int state = (Integer) getPlaybackState.invoke(media3Player);
+                            Method isPlayingMethod = media3Player.getClass().getMethod("isPlaying");
+                            boolean isPlaying = (Boolean) isPlayingMethod.invoke(media3Player);
+                            Method getBuffered = media3Player.getClass().getMethod("getTotalBufferedDuration");
+                            bufferedMs = (Long) getBuffered.invoke(media3Player);
+
+                            switch (state) {
+                                case 2: // STATE_BUFFERING
+                                    stateStr = "Buffering";
+                                    break;
+                                case 3: // STATE_READY
+                                    stateStr = isPlaying ? "Playing" : "Paused";
+                                    break;
+                                case 4: // STATE_ENDED
+                                    stateStr = "Ended";
+                                    break;
+                                case 1: // STATE_IDLE
+                                    stateStr = "Idle";
+                                    break;
+                            }
+                        } catch (Throwable ignored) {
+                        }
+                    }
+
+                    if (currentBandwidthMeterRef == null || currentBandwidthMeterRef.get() == null) {
+                        try {
+                            Field fMeter = media3Player.getClass().getField("bandwidthMeter");
+                            Object meter = fMeter.get(media3Player);
+                            if (meter != null) {
+                                currentBandwidthMeterRef = new WeakReference<>(meter);
+                            }
+                        } catch (Throwable ignored) {
+                        }
                     }
                 } catch (Throwable ignored) {
                 }
@@ -1384,8 +1786,27 @@ public final class KayoPatch {
         Object bwMeter = currentBandwidthMeterRef != null ? currentBandwidthMeterRef.get() : null;
         if (bwMeter != null) {
             try {
-                Method m = bwMeter.getClass().getMethod("getBitrateEstimate");
-                estimatedBandwidth = (Long) m.invoke(bwMeter);
+                Field fEst = bwMeter.getClass().getField("bitrateEstimate");
+                estimatedBandwidth = fEst.getLong(bwMeter);
+            } catch (Throwable ignored) {
+            }
+            if (estimatedBandwidth <= 0) {
+                try {
+                    Method m = bwMeter.getClass().getMethod("getBitrateEstimate");
+                    estimatedBandwidth = (Long) m.invoke(bwMeter);
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        if (estimatedBandwidth <= 0) {
+            try {
+                Class<?> dbmClass = Class.forName("androidx.media3.exoplayer.upstream.DefaultBandwidthMeter");
+                Field fSingleton = dbmClass.getField("singletonInstance");
+                Object singleton = fSingleton.get(null);
+                if (singleton != null) {
+                    Field fEst = dbmClass.getField("bitrateEstimate");
+                    estimatedBandwidth = fEst.getLong(singleton);
+                }
             } catch (Throwable ignored) {
             }
         }
@@ -1830,6 +2251,24 @@ public final class KayoPatch {
 
         sb.append("\n[ MANIFEST VIDEO RENDITIONS ]\n");
         List<VideoTrackOption> tracks = extractVideoTracks(currentTracks);
+        if (tracks.isEmpty() && currentMedia3Tracks == null) {
+            Object p = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+            if (p != null) {
+                try {
+                    Field fInfo = p.getClass().getField("playbackInfo");
+                    Object pbInfo = fInfo.get(p);
+                    if (pbInfo != null) {
+                        Field fRes = pbInfo.getClass().getField("trackSelectorResult");
+                        Object res = fRes.get(pbInfo);
+                        if (res != null) {
+                            Field fTr = res.getClass().getField("tracks");
+                            currentMedia3Tracks = fTr.get(res);
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        }
         if (tracks.isEmpty() && currentMedia3Tracks != null) {
             tracks = extractMedia3VideoTracks(currentMedia3Tracks);
         }
@@ -2301,6 +2740,24 @@ public final class KayoPatch {
         loadPrefsIfNeeded(context);
 
         List<VideoTrackOption> videoOptions = extractVideoTracks(currentTracks);
+        if (videoOptions.isEmpty() && currentMedia3Tracks == null) {
+            Object p = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+            if (p != null) {
+                try {
+                    Field fInfo = p.getClass().getField("playbackInfo");
+                    Object pbInfo = fInfo.get(p);
+                    if (pbInfo != null) {
+                        Field fRes = pbInfo.getClass().getField("trackSelectorResult");
+                        Object res = fRes.get(pbInfo);
+                        if (res != null) {
+                            Field fTr = res.getClass().getField("tracks");
+                            currentMedia3Tracks = fTr.get(res);
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        }
         if (videoOptions.isEmpty() && currentMedia3Tracks != null) {
             videoOptions = extractMedia3VideoTracks(currentMedia3Tracks);
         }

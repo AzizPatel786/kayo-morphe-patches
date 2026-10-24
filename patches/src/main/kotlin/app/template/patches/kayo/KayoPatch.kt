@@ -304,5 +304,54 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                 )
             }
         }
+
+        // 17. Hook DaznDrmSessionManager constructor to force useWidevineL3 = false (guaranteeing Widevine L1)
+        safeHook("TvDaznDrmSessionManagerConstructor") {
+            TvDaznDrmSessionManagerConstructorFingerprint.methodOrNull?.let { method ->
+                method.addInstruction(
+                    0,
+                    "const/4 p3, 0x0"
+                )
+            }
+        }
+
+        // 18. Hook Util.getCurrentDisplayModeSize to report 3840x2160 (4K UHD) display mode size
+        safeHook("TvMedia3UtilGetCurrentDisplayModeSize") {
+            TvMedia3UtilGetCurrentDisplayModeSizeFingerprint.methodOrNull?.let { method ->
+                method.addInstructions(
+                    0,
+                    """
+                        new-instance v0, Landroid/graphics/Point;
+                        const/16 v1, 0x0f00
+                        const/16 v2, 0x0870
+                        invoke-direct {v0, v1, v2}, Landroid/graphics/Point;-><init>(II)V
+                        return-object v0
+                    """
+                )
+            }
+        }
+
+        // 19. Hook DefaultBandwidthMeter.getInitialBitrateEstimateForNetworkType to return 100 Mbps
+        safeHook("TvDefaultBandwidthMeterGetInitialEstimate") {
+            TvDefaultBandwidthMeterGetInitialEstimateFingerprint.methodOrNull?.let { method ->
+                method.addInstructions(
+                    0,
+                    """
+                        const-wide/32 v0, 0x05f5e100
+                        return-wide v0
+                    """
+                )
+            }
+        }
+
+        // 20. Hook ResultKt.parse(JSONObject)LoadArguments to sanitize useWidevineL3 and maxVideoBitrate
+        safeHook("TvLoadArgumentsParser") {
+            TvLoadArgumentsParserFingerprint.methodOrNull?.let { method ->
+                method.addInstruction(
+                    0,
+                    "invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->sanitizeLoadArgumentsJson(Lorg/json/JSONObject;)V"
+                )
+            }
+        }
     }
 }

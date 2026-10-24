@@ -374,5 +374,52 @@ object TvVideoPluginGetPhysicalDisplaySizeFingerprint : Fingerprint(
     )
 )
 
+/**
+ * Matches `DaznDrmSessionManager.<init>` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvDaznDrmSessionManagerConstructorFingerprint : Fingerprint(
+    definingClass = "Lcom/dazn/plugins/media3/drm/DaznDrmSessionManager;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf(
+        "Lcom/dazn/plugins/texttospeech/AccessibilityMonitor;",
+        "Ljava/util/UUID;",
+        "Z",
+        "Z",
+        "Z"
+    )
+)
+
+/**
+ * Matches `Util.getCurrentDisplayModeSize(Context)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvMedia3UtilGetCurrentDisplayModeSizeFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/common/util/Util;",
+    name = "getCurrentDisplayModeSize",
+    returnType = "Landroid/graphics/Point;",
+    parameters = listOf("Landroid/content/Context;")
+)
+
+/**
+ * Matches `DefaultBandwidthMeter.getInitialBitrateEstimateForNetworkType(I)J` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvDefaultBandwidthMeterGetInitialEstimateFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/upstream/DefaultBandwidthMeter;",
+    name = "getInitialBitrateEstimateForNetworkType",
+    returnType = "J",
+    parameters = listOf("I")
+)
+
+/**
+ * Matches `ResultKt.parse(JSONObject)LoadArguments` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvLoadArgumentsParserFingerprint : Fingerprint(
+    definingClass = "Lkotlin/ResultKt;",
+    name = "parse",
+    returnType = "Lcom/dazn/plugins/media3/loadarguments/LoadArguments;",
+    parameters = listOf("Lorg/json/JSONObject;")
+)
+
+
 
 
