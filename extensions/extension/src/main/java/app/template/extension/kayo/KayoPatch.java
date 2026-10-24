@@ -32,6 +32,10 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionOverride;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -76,6 +80,8 @@ public final class KayoPatch {
     private static volatile boolean prefsLoaded = false;
 
     private static volatile WeakReference<Object> currentMedia3PlayerRef;
+    private static volatile Object currentMedia3Tracks;
+    private static volatile VideoTrackOption lastObservedMedia3Track;
     private static long lastCenterClickTime = 0;
 
     private static final List<WeakReference<TextView>> qualityBadgeViews = new ArrayList<>();
@@ -154,7 +160,9 @@ public final class KayoPatch {
         final float frameRate;
         final boolean isCurrentlyPlaying;
         final boolean isSupported;
+        final String codecs;
 
+        // ExoPlayer v2 constructor
         VideoTrackOption(
                 TrackGroup trackGroup,
                 int trackIndex,
@@ -165,13 +173,38 @@ public final class KayoPatch {
             this.trackGroup = trackGroup;
             this.trackIndex = trackIndex;
             this.format = format;
-            this.width = format.width > 0 ? format.width : 0;
-            this.height = format.height > 0 ? format.height : 0;
-            this.bitrate = format.bitrate > 0 ? format.bitrate
-                    : (format.peakBitrate > 0 ? format.peakBitrate : format.averageBitrate);
-            this.frameRate = format.frameRate > 0 ? format.frameRate : 0f;
+            this.width = format != null && format.width > 0 ? format.width : 0;
+            this.height = format != null && format.height > 0 ? format.height : 0;
+            this.bitrate = format != null && format.bitrate > 0 ? format.bitrate
+                    : (format != null && format.peakBitrate > 0 ? format.peakBitrate
+                    : (format != null && format.averageBitrate > 0 ? format.averageBitrate : 0));
+            this.frameRate = format != null && format.frameRate > 0 ? format.frameRate : 0f;
             this.isCurrentlyPlaying = isCurrentlyPlaying;
             this.isSupported = isSupported;
+            this.codecs = format != null && format.codecs != null ? format.codecs : "";
+        }
+
+        // Generic / Media3 constructor
+        VideoTrackOption(
+                int trackIndex,
+                boolean isCurrentlyPlaying,
+                boolean isSupported,
+                int width,
+                int height,
+                float frameRate,
+                int bitrate,
+                String codecs
+        ) {
+            this.trackGroup = null;
+            this.trackIndex = trackIndex;
+            this.format = null;
+            this.width = width;
+            this.height = height;
+            this.frameRate = frameRate;
+            this.bitrate = bitrate;
+            this.isCurrentlyPlaying = isCurrentlyPlaying;
+            this.isSupported = isSupported;
+            this.codecs = codecs != null ? codecs : "";
         }
 
         String getDisplayLabel() {
@@ -200,11 +233,13 @@ public final class KayoPatch {
                 sb.append(String.format(Locale.US, "  -  %.2f Mbps", mbps));
             }
 
-            if (format.codecs != null) {
-                if (format.codecs.contains("hev") || format.codecs.contains("hvc")) {
+            if (codecs != null && !codecs.isEmpty()) {
+                if (codecs.contains("hev") || codecs.contains("hvc")) {
                     sb.append(" (HEVC)");
+                } else if (codecs.contains("avc")) {
+                    sb.append(" (AVC)");
                 }
-                if (format.codecs.contains("hdr") || format.codecs.contains("dovi") || format.codecs.contains("dvhe")) {
+                if (codecs.contains("hdr") || codecs.contains("dovi") || codecs.contains("dvhe")) {
                     sb.append(" [HDR]");
                 }
             }
@@ -329,12 +364,159 @@ public final class KayoPatch {
                     invokeCallbackSuccess(callback, result);
                     return true;
                 }
+                case "GET_VIDEO_CODECS": {
+                    String mimeType = (args != null && args.length() > 0) ? args.optString(0, "video/hevc") : "video/hevc";
+                    boolean secureOnly = (args != null && args.length() > 1) && args.optBoolean(1, false);
+
+                    org.json.JSONObject response = new org.json.JSONObject();
+                    org.json.JSONArray codecs = new org.json.JSONArray();
+
+                    // Secure 4K60 HEVC decoder
+                    org.json.JSONObject codecSecure = new org.json.JSONObject();
+                    codecSecure.put("name", "c2.android.hevc.decoder.secure");
+                    codecSecure.put("secure", true);
+                    codecSecure.put("hardwareAccelerated", true);
+                    codecSecure.put("adaptive", true);
+                    codecSecure.put("tunneled", true);
+                    codecSecure.put("maxWidth", 3840);
+                    codecSecure.put("maxHeight", 2160);
+                    codecSecure.put("maxFrameRate", 60);
+                    codecSecure.put("maxBitrate", 60000000);
+
+                    org.json.JSONArray pl = new org.json.JSONArray();
+                    org.json.JSONObject pl1 = new org.json.JSONObject();
+                    pl1.put("profile", 1); // Main Profile
+                    pl1.put("level", 16384); // Level 5.1
+                    pl.put(pl1);
+                    org.json.JSONObject pl2 = new org.json.JSONObject();
+                    pl2.put("profile", 2); // Main 10 Profile
+                    pl2.put("level", 16384); // Level 5.1
+                    pl.put(pl2);
+                    codecSecure.put("profileLevels", pl);
+                    codecs.put(codecSecure);
+
+                    if (!secureOnly) {
+                        org.json.JSONObject codecNonSecure = new org.json.JSONObject(codecSecure.toString());
+                        codecNonSecure.put("name", "c2.android.hevc.decoder");
+                        codecNonSecure.put("secure", false);
+                        codecs.put(codecNonSecure);
+                    }
+
+                    if ("video/avc".equals(mimeType)) {
+                        org.json.JSONObject avcSecure = new org.json.JSONObject();
+                        avcSecure.put("name", "c2.android.avc.decoder.secure");
+                        avcSecure.put("secure", true);
+                        avcSecure.put("hardwareAccelerated", true);
+                        avcSecure.put("adaptive", true);
+                        avcSecure.put("tunneled", true);
+                        avcSecure.put("maxWidth", 3840);
+                        avcSecure.put("maxHeight", 2160);
+                        avcSecure.put("maxFrameRate", 60);
+                        avcSecure.put("maxBitrate", 50000000);
+                        codecs.put(avcSecure);
+                    }
+
+                    response.put("codecs", codecs);
+                    invokeCallbackSuccess(callback, response);
+                    android.util.Log.i("MorpheKayo", "Spoofed GET_VIDEO_CODECS for " + mimeType);
+                    return true;
+                }
                 default:
                     return false;
             }
         } catch (Throwable t) {
             android.util.Log.e("MorpheKayo", "Error in onVideoCapabilitiesExecute", t);
             return false;
+        }
+    }
+
+    /**
+     * TV hook: Returns spoofed 4K UHD display resolution (3840x2160) for
+     * VideoPlugin.getPhysicalDisplaySize() so Kayo TV's web layer requests 4K UHD stream renditions.
+     */
+    public static org.json.JSONObject getPhysicalDisplaySizeSpoof() {
+        try {
+            org.json.JSONObject result = new org.json.JSONObject();
+            result.put("x", 3840);
+            result.put("y", 2160);
+            android.util.Log.i("MorpheKayo", "getPhysicalDisplaySizeSpoof returned 3840x2160 (4K UHD)");
+            return result;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    /**
+     * TV hook: Configures DefaultTrackSelector.Parameters.Builder (or TrackSelectionParameters.Builder)
+     * for 4K UHD playback by unlimiting viewport constraints, setting max video resolution, and
+     * allowing video adaptiveness.
+     */
+    public static void configureTvTrackParametersBuilder(Object builder) {
+        if (builder == null) {
+            return;
+        }
+        try {
+            Class<?> bClass = builder.getClass();
+            setFieldSafe(bClass, builder, "isViewportSizeLimitedByPhysicalDisplaySize", false);
+            setFieldSafe(bClass, builder, "viewportWidth", Integer.MAX_VALUE);
+            setFieldSafe(bClass, builder, "viewportHeight", Integer.MAX_VALUE);
+            setFieldSafe(bClass, builder, "exceedVideoConstraintsIfNecessary", true);
+            setFieldSafe(bClass, builder, "exceedRendererCapabilitiesIfNecessary", true);
+            setFieldSafe(bClass, builder, "allowVideoNonSeamlessAdaptiveness", true);
+
+            if (selectedHeight == QUALITY_AUTO) {
+                setFieldSafe(bClass, builder, "maxVideoWidth", Integer.MAX_VALUE);
+                setFieldSafe(bClass, builder, "maxVideoHeight", Integer.MAX_VALUE);
+                setFieldSafe(bClass, builder, "maxVideoBitrate", Integer.MAX_VALUE);
+                setFieldSafe(bClass, builder, "maxVideoFrameRate", Integer.MAX_VALUE);
+            } else {
+                int w = (selectedHeight >= 2160) ? 3840 : (selectedHeight >= 1080 ? 1920 : (selectedHeight >= 720 ? 1280 : Integer.MAX_VALUE));
+                setFieldSafe(bClass, builder, "maxVideoWidth", w);
+                setFieldSafe(bClass, builder, "maxVideoHeight", selectedHeight);
+                setFieldSafe(bClass, builder, "maxVideoBitrate", (selectedBitrate > 0) ? selectedBitrate : Integer.MAX_VALUE);
+                setFieldSafe(bClass, builder, "maxVideoFrameRate", Integer.MAX_VALUE);
+            }
+            android.util.Log.i("MorpheKayo", "configureTvTrackParametersBuilder applied: height=" + selectedHeight + ", bitrate=" + selectedBitrate);
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error in configureTvTrackParametersBuilder", t);
+        }
+    }
+
+    /**
+     * TV hook: Applies resolution and bitrate selection directly to the active Media3 ExoPlayer instance.
+     */
+    public static void applyMedia3Quality(Object player, int targetHeight, int targetBitrate) {
+        if (player == null) {
+            return;
+        }
+        try {
+            Method getParams = player.getClass().getMethod("getTrackSelectionParameters");
+            Object params = getParams.invoke(player);
+            if (params == null) {
+                return;
+            }
+
+            Method buildUpon = params.getClass().getMethod("buildUpon");
+            Object builder = buildUpon.invoke(params);
+            if (builder == null) {
+                return;
+            }
+
+            configureTvTrackParametersBuilder(builder);
+
+            Method buildMethod = builder.getClass().getMethod("build");
+            Object newParams = buildMethod.invoke(builder);
+
+            for (Method m : player.getClass().getMethods()) {
+                if (m.getName().equals("setTrackSelectionParameters") && m.getParameterTypes().length == 1) {
+                    m.invoke(player, newParams);
+                    android.util.Log.i("MorpheKayo", "applyMedia3Quality successfully set parameters: height=" + targetHeight);
+                    break;
+                }
+            }
+            updateAllQualityBadges();
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error in applyMedia3Quality", t);
         }
     }
 
@@ -361,11 +543,203 @@ public final class KayoPatch {
     /**
      * TV hook: Captures active Media3 ExoPlayer instance from PlayerView.setPlayer(ExoPlayer).
      */
-    public static void onMedia3PlayerAttached(Object player) {
-        if (player != null) {
-            currentMedia3PlayerRef = new WeakReference<>(player);
-            android.util.Log.i("MorpheKayo", "Media3 ExoPlayer attached: " + player.getClass().getName());
+    public static void onMedia3PlayerAttached(final Object player) {
+        if (player == null) {
+            return;
         }
+        currentMedia3PlayerRef = new WeakReference<>(player);
+        android.util.Log.i("MorpheKayo", "Media3 ExoPlayer attached: " + player.getClass().getName());
+
+        // Immediately apply saved quality settings
+        applyMedia3Quality(player, selectedHeight, selectedBitrate);
+
+        // Register Player.Listener via dynamic proxy to capture tracks and video format changes
+        try {
+            Class<?> listenerClass = Class.forName("androidx.media3.common.Player$Listener");
+            Object listenerProxy = Proxy.newProxyInstance(
+                    player.getClass().getClassLoader(),
+                    new Class<?>[]{listenerClass},
+                    new InvocationHandler() {
+                        @Override
+                        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                            String name = method.getName();
+                            if ("onTracksChanged".equals(name) && args != null && args.length > 0) {
+                                onMedia3TracksChanged(args[0]);
+                            } else if ("onVideoSizeChanged".equals(name) && args != null && args.length > 0) {
+                                onMedia3VideoSizeChanged(args[0]);
+                            }
+                            return null;
+                        }
+                    }
+            );
+            Method addListener = player.getClass().getMethod("addListener", listenerClass);
+            addListener.invoke(player, listenerProxy);
+            android.util.Log.i("MorpheKayo", "Registered Player.Listener proxy on Media3 player");
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Failed to register Player.Listener proxy", t);
+        }
+    }
+
+    private static void onMedia3TracksChanged(Object media3Tracks) {
+        currentMedia3Tracks = media3Tracks;
+        android.util.Log.i("MorpheKayo", "Media3 onTracksChanged received");
+        List<VideoTrackOption> opts = extractMedia3VideoTracks(media3Tracks);
+        VideoTrackOption playing = findCurrentlyPlayingTrack(opts);
+        if (playing != null) {
+            lastObservedMedia3Track = playing;
+            android.util.Log.i("MorpheKayo", "Media3 active playing track: " + playing.getDisplayLabel());
+        }
+        updateAllQualityBadges();
+    }
+
+    private static void onMedia3VideoSizeChanged(Object videoSize) {
+        if (videoSize == null) return;
+        try {
+            Class<?> vsClass = videoSize.getClass();
+            int width = getIntField(vsClass, videoSize, "width", 0);
+            int height = getIntField(vsClass, videoSize, "height", 0);
+            if (width > 0 && height > 0) {
+                android.util.Log.i("MorpheKayo", "Media3 video size changed: " + width + "x" + height);
+                updateAllQualityBadges();
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static List<VideoTrackOption> extractMedia3VideoTracks(Object media3Tracks) {
+        List<VideoTrackOption> options = new ArrayList<>();
+        if (media3Tracks == null) {
+            return options;
+        }
+        try {
+            Method getGroups = media3Tracks.getClass().getMethod("getGroups");
+            List<?> groups = (List<?>) getGroups.invoke(media3Tracks);
+            if (groups == null) {
+                return options;
+            }
+
+            for (Object group : groups) {
+                if (group == null) continue;
+                Method getType = group.getClass().getMethod("getType");
+                int type = (Integer) getType.invoke(group);
+                if (type != VIDEO_TRACK_TYPE) {
+                    continue;
+                }
+
+                Field lenField = group.getClass().getField("length");
+                int length = lenField.getInt(group);
+
+                Method getTrackFormat = group.getClass().getMethod("getTrackFormat", int.class);
+                Method isTrackSelected = group.getClass().getMethod("isTrackSelected", int.class);
+                Method isTrackSupported = group.getClass().getMethod("isTrackSupported", int.class);
+
+                for (int i = 0; i < length; i++) {
+                    Object formatObj = getTrackFormat.invoke(group, i);
+                    if (formatObj == null) {
+                        continue;
+                    }
+                    boolean isSelected = (Boolean) isTrackSelected.invoke(group, i);
+                    boolean isSupported = (Boolean) isTrackSupported.invoke(group, i);
+
+                    Class<?> fClass = formatObj.getClass();
+                    int width = getIntField(fClass, formatObj, "width", 0);
+                    int height = getIntField(fClass, formatObj, "height", 0);
+                    float frameRate = getFloatField(fClass, formatObj, "frameRate", 0f);
+                    int bitrate = getIntField(fClass, formatObj, "bitrate", 0);
+                    if (bitrate <= 0) {
+                        bitrate = getIntField(fClass, formatObj, "peakBitrate", 0);
+                    }
+                    if (bitrate <= 0) {
+                        bitrate = getIntField(fClass, formatObj, "averageBitrate", 0);
+                    }
+                    String codecs = getStringField(fClass, formatObj, "codecs", "");
+
+                    options.add(new VideoTrackOption(i, isSelected, isSupported, width, height, frameRate, bitrate, codecs));
+                }
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error extracting Media3 video tracks", t);
+        }
+
+        Collections.sort(options, new Comparator<VideoTrackOption>() {
+            @Override
+            public int compare(VideoTrackOption a, VideoTrackOption b) {
+                if (b.height != a.height) {
+                    return Integer.compare(b.height, a.height);
+                }
+                if (Float.compare(b.frameRate, a.frameRate) != 0) {
+                    return Float.compare(b.frameRate, a.frameRate);
+                }
+                return Integer.compare(b.bitrate, a.bitrate);
+            }
+        });
+
+        return options;
+    }
+
+    private static void setFieldSafe(Class<?> clazz, Object target, String fieldName, Object value) {
+        Class<?> c = clazz;
+        while (c != null && c != Object.class) {
+            try {
+                Field f = c.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                f.set(target, value);
+                return;
+            } catch (NoSuchFieldException e) {
+                c = c.getSuperclass();
+            } catch (Throwable ignored) {
+                return;
+            }
+        }
+    }
+
+    private static int getIntField(Class<?> clazz, Object target, String fieldName, int defaultVal) {
+        Class<?> c = clazz;
+        while (c != null && c != Object.class) {
+            try {
+                Field f = c.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                return f.getInt(target);
+            } catch (NoSuchFieldException e) {
+                c = c.getSuperclass();
+            } catch (Throwable ignored) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    private static float getFloatField(Class<?> clazz, Object target, String fieldName, float defaultVal) {
+        Class<?> c = clazz;
+        while (c != null && c != Object.class) {
+            try {
+                Field f = c.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                return f.getFloat(target);
+            } catch (NoSuchFieldException e) {
+                c = c.getSuperclass();
+            } catch (Throwable ignored) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
+    }
+
+    private static String getStringField(Class<?> clazz, Object target, String fieldName, String defaultVal) {
+        Class<?> c = clazz;
+        while (c != null && c != Object.class) {
+            try {
+                Field f = c.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                Object obj = f.get(target);
+                return obj != null ? obj.toString() : defaultVal;
+            } catch (NoSuchFieldException e) {
+                c = c.getSuperclass();
+            } catch (Throwable ignored) {
+                return defaultVal;
+            }
+        }
+        return defaultVal;
     }
 
     /**
@@ -629,47 +1003,77 @@ public final class KayoPatch {
             Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
             if (media3Player != null) {
                 try {
-                    java.lang.reflect.Method getVideoFormatMethod = media3Player.getClass().getMethod("getVideoFormat");
-                    Object media3Format = getVideoFormatMethod.invoke(media3Player);
-                    if (media3Format != null) {
-                        Class<?> fmtClass = media3Format.getClass();
-                        java.lang.reflect.Field fWidth = fmtClass.getField("width");
-                        java.lang.reflect.Field fHeight = fmtClass.getField("height");
-                        java.lang.reflect.Field fFrameRate = fmtClass.getField("frameRate");
-                        java.lang.reflect.Field fBitrate = fmtClass.getField("bitrate");
-                        java.lang.reflect.Field fCodecs = fmtClass.getField("codecs");
-                        java.lang.reflect.Field fMime = fmtClass.getField("sampleMimeType");
-
-                        width = fWidth.getInt(media3Format);
-                        height = fHeight.getInt(media3Format);
-                        frameRate = fFrameRate.getFloat(media3Format);
-                        bitrate = fBitrate.getInt(media3Format);
-                        Object c = fCodecs.get(media3Format);
-                        codecs = c != null ? c.toString() : "";
-                        Object m = fMime.get(media3Format);
-                        mimeType = m != null ? m.toString() : "";
+                    Object media3Format = null;
+                    try {
+                        Method getVideoFormatMethod = media3Player.getClass().getMethod("getVideoFormat");
+                        media3Format = getVideoFormatMethod.invoke(media3Player);
+                    } catch (Throwable ignored) {
                     }
 
-                    java.lang.reflect.Method getPlaybackState = media3Player.getClass().getMethod("getPlaybackState");
-                    int state = (Integer) getPlaybackState.invoke(media3Player);
-                    java.lang.reflect.Method isPlayingMethod = media3Player.getClass().getMethod("isPlaying");
-                    boolean isPlaying = (Boolean) isPlayingMethod.invoke(media3Player);
-                    java.lang.reflect.Method getBuffered = media3Player.getClass().getMethod("getTotalBufferedDuration");
-                    bufferedMs = (Long) getBuffered.invoke(media3Player);
+                    if (media3Format == null) {
+                        try {
+                            Field fVideoFormat = media3Player.getClass().getField("videoFormat");
+                            media3Format = fVideoFormat.get(media3Player);
+                        } catch (Throwable ignored) {
+                        }
+                    }
 
-                    switch (state) {
-                        case 2: // STATE_BUFFERING
-                            stateStr = "Buffering";
-                            break;
-                        case 3: // STATE_READY
-                            stateStr = isPlaying ? "Playing" : "Paused";
-                            break;
-                        case 4: // STATE_ENDED
-                            stateStr = "Ended";
-                            break;
-                        case 1: // STATE_IDLE
-                            stateStr = "Idle";
-                            break;
+                    if (media3Format != null) {
+                        Class<?> fmtClass = media3Format.getClass();
+                        width = getIntField(fmtClass, media3Format, "width", 0);
+                        height = getIntField(fmtClass, media3Format, "height", 0);
+                        frameRate = getFloatField(fmtClass, media3Format, "frameRate", 0f);
+                        bitrate = getIntField(fmtClass, media3Format, "bitrate", 0);
+                        if (bitrate <= 0) {
+                            bitrate = getIntField(fmtClass, media3Format, "peakBitrate", 0);
+                        }
+                        if (bitrate <= 0) {
+                            bitrate = getIntField(fmtClass, media3Format, "averageBitrate", 0);
+                        }
+                        codecs = getStringField(fmtClass, media3Format, "codecs", "");
+                        mimeType = getStringField(fmtClass, media3Format, "sampleMimeType", "");
+                    }
+
+                    if (height <= 0 && lastObservedMedia3Track != null) {
+                        width = lastObservedMedia3Track.width;
+                        height = lastObservedMedia3Track.height;
+                        frameRate = lastObservedMedia3Track.frameRate;
+                        bitrate = lastObservedMedia3Track.bitrate;
+                        codecs = lastObservedMedia3Track.codecs;
+                    } else if (height <= 0 && currentMedia3Tracks != null) {
+                        VideoTrackOption active = findCurrentlyPlayingTrack(extractMedia3VideoTracks(currentMedia3Tracks));
+                        if (active != null) {
+                            width = active.width;
+                            height = active.height;
+                            frameRate = active.frameRate;
+                            bitrate = active.bitrate;
+                            codecs = active.codecs;
+                        }
+                    }
+
+                    try {
+                        Method getPlaybackState = media3Player.getClass().getMethod("getPlaybackState");
+                        int state = (Integer) getPlaybackState.invoke(media3Player);
+                        Method isPlayingMethod = media3Player.getClass().getMethod("isPlaying");
+                        boolean isPlaying = (Boolean) isPlayingMethod.invoke(media3Player);
+                        Method getBuffered = media3Player.getClass().getMethod("getTotalBufferedDuration");
+                        bufferedMs = (Long) getBuffered.invoke(media3Player);
+
+                        switch (state) {
+                            case 2: // STATE_BUFFERING
+                                stateStr = "Buffering";
+                                break;
+                            case 3: // STATE_READY
+                                stateStr = isPlaying ? "Playing" : "Paused";
+                                break;
+                            case 4: // STATE_ENDED
+                                stateStr = "Ended";
+                                break;
+                            case 1: // STATE_IDLE
+                                stateStr = "Idle";
+                                break;
+                        }
+                    } catch (Throwable ignored) {
                     }
                 } catch (Throwable ignored) {
                 }
@@ -1063,6 +1467,9 @@ public final class KayoPatch {
 
         sb.append("\n[ MANIFEST RENDITIONS ]\n");
         List<VideoTrackOption> tracks = extractVideoTracks(currentTracks);
+        if (tracks.isEmpty() && currentMedia3Tracks != null) {
+            tracks = extractMedia3VideoTracks(currentMedia3Tracks);
+        }
         if (tracks.isEmpty()) {
             sb.append("(No renditions reported yet)\n");
         } else {
@@ -1083,12 +1490,11 @@ public final class KayoPatch {
                     double mb = t.bitrate / 1_000_000.0;
                     sb.append(String.format(Locale.US, "- %.2f Mbps ", mb));
                 }
-                if (t.format != null && t.format.codecs != null) {
-                    if (t.format.codecs.contains("hev") || t.format.codecs.contains("hvc")) {
-                        sb.append("(HEVC) ");
-                    } else if (t.format.codecs.contains("avc")) {
-                        sb.append("(AVC) ");
-                    }
+                String codecStr = (t.codecs != null && !t.codecs.isEmpty()) ? t.codecs : (t.format != null && t.format.codecs != null ? t.format.codecs : "");
+                if (codecStr.contains("hev") || codecStr.contains("hvc")) {
+                    sb.append("(HEVC) ");
+                } else if (codecStr.contains("avc")) {
+                    sb.append("(AVC) ");
                 }
                 if (isCur) {
                     sb.append("[CURRENT]");
@@ -1162,124 +1568,95 @@ public final class KayoPatch {
     }
 
     private static void applySelectedQuality(DefaultTrackSelector selector, Tracks tracks) {
-        if (selector == null) {
-            return;
-        }
+        if (selector != null) {
+            try {
+                DefaultTrackSelector.Parameters.Builder builder = selector.buildUponParameters();
 
-        try {
-            DefaultTrackSelector.Parameters.Builder builder = selector.buildUponParameters();
+                if (selectedHeight == QUALITY_AUTO) {
+                    // Restore adaptive streaming across all video tracks
+                    builder.clearOverridesOfType(VIDEO_TRACK_TYPE)
+                            .clearVideoSizeConstraints()
+                            .clearViewportSizeConstraints()
+                            .setMinVideoBitrate(0)
+                            .setMaxVideoBitrate(Integer.MAX_VALUE)
+                            .setExceedVideoConstraintsIfNecessary(true)
+                            .setExceedRendererCapabilitiesIfNecessary(true)
+                            .setForceHighestSupportedBitrate(false);
+                    selector.setParameters(builder.build());
+                    updateAllQualityBadges();
+                } else {
+                    List<VideoTrackOption> videoOptions = extractVideoTracks(tracks);
+                    VideoTrackOption bestMatch = null;
 
-            if (selectedHeight == QUALITY_AUTO) {
-                // Restore adaptive streaming across all video tracks
-                builder.clearOverridesOfType(VIDEO_TRACK_TYPE)
-                        .clearVideoSizeConstraints()
-                        .clearViewportSizeConstraints()
-                        .setMinVideoBitrate(0)
-                        .setMaxVideoBitrate(Integer.MAX_VALUE)
-                        .setExceedVideoConstraintsIfNecessary(true)
-                        .setExceedRendererCapabilitiesIfNecessary(true)
-                        .setForceHighestSupportedBitrate(false);
-                selector.setParameters(builder.build());
-                updateAllQualityBadges();
-                return;
-            }
-
-            List<VideoTrackOption> videoOptions = extractVideoTracks(tracks);
-            VideoTrackOption bestMatch = null;
-
-            // 1. Try exact height + bitrate match
-            for (VideoTrackOption opt : videoOptions) {
-                if (opt.height == selectedHeight && (selectedBitrate <= 0 || opt.bitrate == selectedBitrate)) {
-                    bestMatch = opt;
-                    break;
-                }
-            }
-
-            // 2. Fallback: same height with highest bitrate
-            if (bestMatch == null) {
-                for (VideoTrackOption opt : videoOptions) {
-                    if (opt.height == selectedHeight) {
-                        bestMatch = opt;
-                        break;
+                    // 1. Try exact height + bitrate match
+                    for (VideoTrackOption opt : videoOptions) {
+                        if (opt.height == selectedHeight && (selectedBitrate <= 0 || opt.bitrate == selectedBitrate)) {
+                            bestMatch = opt;
+                            break;
+                        }
                     }
-                }
-            }
 
-            // 3. Fallback: closest available resolution if stream doesn't have exact height
-            if (bestMatch == null && !videoOptions.isEmpty()) {
-                int minDiff = Integer.MAX_VALUE;
-                for (VideoTrackOption opt : videoOptions) {
-                    int diff = Math.abs(opt.height - selectedHeight);
-                    if (diff < minDiff) {
-                        minDiff = diff;
-                        bestMatch = opt;
+                    // 2. Fallback: same height with highest bitrate
+                    if (bestMatch == null) {
+                        for (VideoTrackOption opt : videoOptions) {
+                            if (opt.height == selectedHeight) {
+                                bestMatch = opt;
+                                break;
+                            }
+                        }
                     }
+
+                    // 3. Fallback: closest available resolution if stream doesn't have exact height
+                    if (bestMatch == null && !videoOptions.isEmpty()) {
+                        int minDiff = Integer.MAX_VALUE;
+                        for (VideoTrackOption opt : videoOptions) {
+                            int diff = Math.abs(opt.height - selectedHeight);
+                            if (diff < minDiff) {
+                                minDiff = diff;
+                                bestMatch = opt;
+                            }
+                        }
+                    }
+
+                    builder.clearOverridesOfType(VIDEO_TRACK_TYPE)
+                            .clearViewportSizeConstraints()
+                            .setExceedVideoConstraintsIfNecessary(true)
+                            .setExceedRendererCapabilitiesIfNecessary(true);
+
+                    if (bestMatch != null && bestMatch.trackGroup != null) {
+                        TrackSelectionOverride override = new TrackSelectionOverride(
+                                bestMatch.trackGroup,
+                                bestMatch.trackIndex
+                        );
+                        builder.setOverrideForType(override);
+
+                        int targetBitrate = bestMatch.bitrate > 0 ? bestMatch.bitrate : Integer.MAX_VALUE;
+                        int targetWidth = bestMatch.width > 0 ? bestMatch.width : Integer.MAX_VALUE;
+                        int targetHeight = bestMatch.height > 0 ? bestMatch.height : selectedHeight;
+
+                        builder.setMinVideoSize(bestMatch.width > 0 ? bestMatch.width : 0, targetHeight)
+                                .setMaxVideoSize(targetWidth, targetHeight)
+                                .setMinVideoBitrate(bestMatch.bitrate > 0 ? bestMatch.bitrate : 0)
+                                .setMaxVideoBitrate(targetBitrate);
+                    } else {
+                        // Tracks not populated yet; constrain by height
+                        builder.setMinVideoSize(0, selectedHeight)
+                                .setMaxVideoSize(Integer.MAX_VALUE, selectedHeight)
+                                .setMinVideoBitrate(selectedBitrate > 0 ? selectedBitrate : 0)
+                                .setMaxVideoBitrate(selectedBitrate > 0 ? selectedBitrate : Integer.MAX_VALUE);
+                    }
+
+                    selector.setParameters(builder.build());
+                    updateAllQualityBadges();
                 }
+            } catch (Throwable ignored) {
             }
-
-            builder.clearOverridesOfType(VIDEO_TRACK_TYPE)
-                    .clearViewportSizeConstraints()
-                    .setExceedVideoConstraintsIfNecessary(true)
-                    .setExceedRendererCapabilitiesIfNecessary(true);
-
-            if (bestMatch != null && bestMatch.trackGroup != null) {
-                TrackSelectionOverride override = new TrackSelectionOverride(
-                        bestMatch.trackGroup,
-                        bestMatch.trackIndex
-                );
-                builder.setOverrideForType(override);
-
-                int targetBitrate = bestMatch.bitrate > 0 ? bestMatch.bitrate : Integer.MAX_VALUE;
-                int targetWidth = bestMatch.width > 0 ? bestMatch.width : Integer.MAX_VALUE;
-                int targetHeight = bestMatch.height > 0 ? bestMatch.height : selectedHeight;
-
-                builder.setMinVideoSize(bestMatch.width > 0 ? bestMatch.width : 0, targetHeight)
-                        .setMaxVideoSize(targetWidth, targetHeight)
-                        .setMinVideoBitrate(bestMatch.bitrate > 0 ? bestMatch.bitrate : 0)
-                        .setMaxVideoBitrate(targetBitrate);
-            } else {
-                // Tracks not populated yet; constrain by height
-                builder.setMinVideoSize(0, selectedHeight)
-                        .setMaxVideoSize(Integer.MAX_VALUE, selectedHeight)
-                        .setMinVideoBitrate(selectedBitrate > 0 ? selectedBitrate : 0)
-                        .setMaxVideoBitrate(selectedBitrate > 0 ? selectedBitrate : Integer.MAX_VALUE);
-            }
-
-            selector.setParameters(builder.build());
-            updateAllQualityBadges();
-        } catch (Throwable ignored) {
         }
 
         // Android TV Media3 player track selector support
         Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
         if (media3Player != null) {
-            try {
-                java.lang.reflect.Method getTrackSelector = media3Player.getClass().getMethod("getTrackSelector");
-                Object tvSelector = getTrackSelector.invoke(media3Player);
-                if (tvSelector != null) {
-                    java.lang.reflect.Method getParams = tvSelector.getClass().getMethod("getParameters");
-                    Object params = getParams.invoke(tvSelector);
-                    java.lang.reflect.Method buildUpon = params.getClass().getMethod("buildUpon");
-                    Object builder = buildUpon.invoke(params);
-                    Class<?> builderClass = builder.getClass();
-
-                    if (selectedHeight == QUALITY_AUTO) {
-                        builderClass.getMethod("setMaxVideoSize", int.class, int.class).invoke(builder, Integer.MAX_VALUE, Integer.MAX_VALUE);
-                        builderClass.getMethod("setMaxVideoBitrate", int.class).invoke(builder, Integer.MAX_VALUE);
-                    } else {
-                        builderClass.getMethod("setMaxVideoSize", int.class, int.class).invoke(builder, Integer.MAX_VALUE, selectedHeight);
-                        if (selectedBitrate > 0) {
-                            builderClass.getMethod("setMaxVideoBitrate", int.class).invoke(builder, selectedBitrate);
-                        }
-                    }
-
-                    java.lang.reflect.Method buildMethod = builderClass.getMethod("build");
-                    Object newParams = buildMethod.invoke(builder);
-                    java.lang.reflect.Method setParams = tvSelector.getClass().getMethod("setParameters", newParams.getClass());
-                    setParams.invoke(tvSelector, newParams);
-                }
-            } catch (Throwable ignored) {
-            }
+            applyMedia3Quality(media3Player, selectedHeight, selectedBitrate);
         }
     }
 
@@ -1431,6 +1808,12 @@ public final class KayoPatch {
         }
         if (selectedHeight == QUALITY_AUTO) {
             VideoTrackOption playing = findCurrentlyPlayingTrack(extractVideoTracks(currentTracks));
+            if (playing == null && currentMedia3Tracks != null) {
+                playing = findCurrentlyPlayingTrack(extractMedia3VideoTracks(currentMedia3Tracks));
+            }
+            if (playing == null && lastObservedMedia3Track != null) {
+                playing = lastObservedMedia3Track;
+            }
             if (playing != null && playing.height > 0) {
                 if (playing.height >= 2160) {
                     badge.setText("AUTO (4K)");
@@ -1495,7 +1878,10 @@ public final class KayoPatch {
     private static void buildAndShowDialog(final Context context, final Runnable onOpenOriginalTrackSelector) {
         loadPrefsIfNeeded(context);
 
-        final List<VideoTrackOption> videoOptions = extractVideoTracks(currentTracks);
+        List<VideoTrackOption> videoOptions = extractVideoTracks(currentTracks);
+        if (videoOptions.isEmpty() && currentMedia3Tracks != null) {
+            videoOptions = extractMedia3VideoTracks(currentMedia3Tracks);
+        }
         final boolean hasLiveTracks = !videoOptions.isEmpty();
 
         final List<String> labels = new ArrayList<>();
@@ -1503,6 +1889,9 @@ public final class KayoPatch {
         final List<Integer> bitrates = new ArrayList<>();
 
         VideoTrackOption activeTrack = findCurrentlyPlayingTrack(videoOptions);
+        if (activeTrack == null && lastObservedMedia3Track != null) {
+            activeTrack = lastObservedMedia3Track;
+        }
         String autoLabel = "Auto (Adaptive)";
         if (activeTrack != null && activeTrack.height > 0) {
             double mbps = activeTrack.bitrate > 0 ? activeTrack.bitrate / 1_000_000.0 : 0;
@@ -1574,6 +1963,10 @@ public final class KayoPatch {
                 if (currentTrackSelector != null) {
                     applySelectedQuality(currentTrackSelector, currentTracks);
                 } else {
+                    Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+                    if (media3Player != null) {
+                        applyMedia3Quality(media3Player, chosenHeight, chosenBitrate);
+                    }
                     updateAllQualityBadges();
                 }
 

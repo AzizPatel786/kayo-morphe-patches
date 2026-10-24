@@ -10,6 +10,7 @@
   "8": "CHANGELOG.md",
   "9": "PatchListGenerator.kt",
   "10": "KayoPatch.kt",
+  "11": ".applySelectedQuality",
   "12": "Constants.kt",
   "13": "ExamplePatch",
   "14": "gradlew",

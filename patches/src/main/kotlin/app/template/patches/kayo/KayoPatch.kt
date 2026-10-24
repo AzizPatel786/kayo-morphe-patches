@@ -9,6 +9,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_KAYO_SPORTS
 import app.template.patches.shared.Constants.COMPATIBILITY_KAYO_SPORTS_TV
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 
 private const val EXTENSION_CLASS_DESCRIPTOR = "Lapp/template/extension/kayo/KayoPatch;"
@@ -227,6 +228,7 @@ val inPlayerQualityMenuPatch = bytecodePatch(
         }
 
         // 13. Hook DrmPlayer.setMaxVideoBitrate to override/uncap max bitrate on Android TV
+        // and configure builder for 4K UHD video parameters
         safeHook("TvDrmPlayerSetMaxBitrate") {
             TvDrmPlayerSetMaxBitrateFingerprint.methodOrNull?.let { method ->
                 method.addInstructions(
@@ -236,6 +238,16 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                         move-result p1
                     """
                 )
+
+                val fp = TvDrmPlayerSetMaxBitrateFingerprint
+                if (fp.instructionMatches.size >= 2) {
+                    val iputIndex = fp.instructionMatches[1].index
+                    val builderRegister = method.getInstruction<TwoRegisterInstruction>(iputIndex).registerB
+                    method.addInstruction(
+                        iputIndex + 1,
+                        "invoke-static {v$builderRegister}, $EXTENSION_CLASS_DESCRIPTOR->configureTvTrackParametersBuilder(Ljava/lang/Object;)V"
+                    )
+                }
             }
         }
 
@@ -263,6 +275,20 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                         return v0
                         :cond_native_key
                         nop
+                    """
+                )
+            }
+        }
+
+        // 16. Hook VideoPlugin.getPhysicalDisplaySize to return 3840x2160 (4K UHD)
+        safeHook("TvVideoPluginGetPhysicalDisplaySize") {
+            TvVideoPluginGetPhysicalDisplaySizeFingerprint.methodOrNull?.let { method ->
+                method.addInstructions(
+                    0,
+                    """
+                        invoke-static {}, $EXTENSION_CLASS_DESCRIPTOR->getPhysicalDisplaySizeSpoof()Lorg/json/JSONObject;
+                        move-result-object v0
+                        return-object v0
                     """
                 )
             }

@@ -361,4 +361,18 @@ object TvMainActivityDispatchKeyEventFingerprint : Fingerprint(
     )
 )
 
+/**
+ * Matches `VideoPlugin.getPhysicalDisplaySize()Lorg/json/JSONObject;` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvVideoPluginGetPhysicalDisplaySizeFingerprint : Fingerprint(
+    returnType = "Lorg/json/JSONObject;",
+    parameters = listOf(),
+    filters = listOf(
+        string("getPhysicalDisplaySize failed"),
+        string("x"),
+        string("y")
+    )
+)
+
+
 
