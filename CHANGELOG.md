@@ -1,3 +1,9 @@
+## [1.0.6](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.5...v1.0.6) (2026-10-24)
+
+### 🐛 Bug Fixes
+
+* **tv:** lock rendition in selectTracksForType, bypass buffer hysteresis, and fix manifest track diagnostics ([90ba75c](https://github.com/AzizPatel786/kayo-morphe-patches/commit/90ba75c7bf1b99f0d23c419700fb5ba16c71cd5a))
+
 ## [1.0.5](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.4...v1.0.5) (2026-10-24)
 
 ### 🐛 Bug Fixes
