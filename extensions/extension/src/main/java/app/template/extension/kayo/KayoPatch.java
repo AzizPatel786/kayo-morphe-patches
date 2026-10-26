@@ -84,6 +84,12 @@ public final class KayoPatch {
     private static volatile Object currentMedia3Tracks;
     private static volatile VideoTrackOption lastObservedMedia3Track;
     private static long lastCenterClickTime = 0;
+    private static long lastCenterKeyDownTime = 0L;
+    private static volatile WeakReference<Activity> currentTvActivityRef;
+    private static volatile WeakReference<View> currentTvPlayerViewRef;
+    private static volatile WeakReference<View> tvQualityButtonOverlayRef;
+    private static volatile WeakReference<TextView> tvQualityButtonTextRef;
+    private static Runnable tvButtonFadeRunnable;
 
     private static final List<WeakReference<TextView>> qualityBadgeViews = new ArrayList<>();
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -1165,6 +1171,44 @@ public final class KayoPatch {
             } catch (Throwable ignored) {
             }
         }
+        Activity act = currentTvActivityRef != null ? currentTvActivityRef.get() : null;
+        if (act != null) {
+            ensureTvQualityButtonAttached(act);
+        }
+    }
+
+    /**
+     * TV hook: Captures active PlayerView and Media3 ExoPlayer instance from PlayerView.setPlayer(ExoPlayer).
+     * Attaches and initializes the Android TV in-player Quality button.
+     */
+    public static void onTvPlayerViewSetPlayer(final View playerView, final Object player) {
+        if (playerView != null) {
+            currentTvPlayerViewRef = new WeakReference<>(playerView);
+            Activity act = findActivity(playerView.getContext());
+            if (act != null) {
+                currentTvActivityRef = new WeakReference<>(act);
+            }
+        }
+        if (player != null) {
+            onMedia3PlayerAttached(player);
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Activity act = currentTvActivityRef != null ? currentTvActivityRef.get() : null;
+                    if (act == null && playerView != null) {
+                        act = findActivity(playerView.getContext());
+                        if (act != null) {
+                            currentTvActivityRef = new WeakReference<>(act);
+                        }
+                    }
+                    if (act != null) {
+                        ensureTvQualityButtonAttached(act);
+                    }
+                }
+            });
+        } else {
+            hideTvQualityButton();
+        }
     }
 
     /**
@@ -1595,40 +1639,115 @@ public final class KayoPatch {
     }
 
     /**
-     * TV hook: Handles Android TV remote keys (Info, Menu, Color keys, D-pad Center double tap)
-     * in MainActivity.dispatchKeyEvent(KeyEvent).
+     * TV hook: Handles Android TV remote keys (D-pad focus navigation, Info, Menu, Color keys,
+     * D-pad Center double tap & long press) in MainActivity.dispatchKeyEvent(KeyEvent).
      */
     public static boolean onTvKeyEvent(Activity activity, android.view.KeyEvent event) {
-        if (event == null || event.getAction() != android.view.KeyEvent.ACTION_DOWN) {
+        if (event == null || activity == null) {
             return false;
         }
+        currentTvActivityRef = new WeakReference<>(activity);
+        int action = event.getAction();
         int keyCode = event.getKeyCode();
 
-        // 1. Diagnostics HUD toggle: Remote Info (165), Red (183), Yellow (185), Green (184), Blue (186)
-        if (keyCode == android.view.KeyEvent.KEYCODE_INFO ||
-                keyCode == android.view.KeyEvent.KEYCODE_PROG_RED ||
-                keyCode == android.view.KeyEvent.KEYCODE_PROG_YELLOW ||
-                keyCode == android.view.KeyEvent.KEYCODE_PROG_GREEN ||
-                keyCode == android.view.KeyEvent.KEYCODE_PROG_BLUE) {
-            toggleDiagnosticsOverlay(activity);
-            return true;
-        }
+        boolean isVideo = isTvVideoPlaying();
 
-        // 2. Menu button (KEYCODE_MENU = 82): opens the Quality selector menu
-        if (keyCode == android.view.KeyEvent.KEYCODE_MENU) {
-            showQualityDialog(activity, null);
-            return true;
-        }
+        if (action == android.view.KeyEvent.ACTION_DOWN) {
+            // Wake up and show TV Quality button whenever remote is touched during playback
+            if (isVideo) {
+                View existingBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+                if (existingBtn == null) {
+                    ensureTvQualityButtonAttached(activity);
+                } else {
+                    existingBtn.setVisibility(View.VISIBLE);
+                    existingBtn.setAlpha(1.0f);
+                    scheduleTvButtonFade();
+                }
+            }
 
-        // 3. Double-tap Center / Enter to toggle Diagnostics HUD
-        if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER || keyCode == android.view.KeyEvent.KEYCODE_ENTER) {
-            long now = System.currentTimeMillis();
-            if (now - lastCenterClickTime < 400) {
-                lastCenterClickTime = 0;
+            // 1. If TV Quality Button is currently focused:
+            View tvBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+            if (tvBtn != null && tvBtn.isShown() && tvBtn.hasFocus()) {
+                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
+                        keyCode == android.view.KeyEvent.KEYCODE_ENTER ||
+                        keyCode == android.view.KeyEvent.KEYCODE_BUTTON_A) {
+                    showQualityDialog(activity, null);
+                    return true;
+                }
+                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_DOWN) {
+                    tvBtn.clearFocus();
+                    View wv = findWebView(activity);
+                    if (wv != null) {
+                        wv.requestFocus();
+                    }
+                    return true;
+                }
+                if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
+                    tvBtn.clearFocus();
+                    View wv = findWebView(activity);
+                    if (wv != null) {
+                        wv.requestFocus();
+                    }
+                    return true;
+                }
+                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_LEFT ||
+                        keyCode == android.view.KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    return true; // Consume lateral keys while button is focused
+                }
+            }
+
+            // 2. If TV Quality Button is visible but not focused, navigate up to it on DPAD_UP:
+            if (tvBtn != null && tvBtn.isShown() && !tvBtn.hasFocus() && isVideo) {
+                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP) {
+                    tvBtn.requestFocus();
+                    updateTvButtonFocusState(activity, tvBtn, true);
+                    return true;
+                }
+            }
+
+            // 3. Remote Menu Button (KEYCODE_MENU = 82, KEYCODE_SETTINGS = 176): Directly opens Quality menu
+            if (keyCode == android.view.KeyEvent.KEYCODE_MENU ||
+                    keyCode == android.view.KeyEvent.KEYCODE_SETTINGS) {
+                showQualityDialog(activity, null);
+                return true;
+            }
+
+            // 4. Remote Info and Color Keys: Toggle Diagnostics HUD overlay
+            if (keyCode == android.view.KeyEvent.KEYCODE_INFO ||
+                    keyCode == android.view.KeyEvent.KEYCODE_PROG_RED ||
+                    keyCode == android.view.KeyEvent.KEYCODE_PROG_YELLOW ||
+                    keyCode == android.view.KeyEvent.KEYCODE_PROG_GREEN ||
+                    keyCode == android.view.KeyEvent.KEYCODE_PROG_BLUE) {
                 toggleDiagnosticsOverlay(activity);
                 return true;
             }
-            lastCenterClickTime = now;
+
+            // 5. Center/Enter Key: Double-tap detection for Diagnostics HUD and track downTime for long-press
+            if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
+                    keyCode == android.view.KeyEvent.KEYCODE_ENTER) {
+                long now = System.currentTimeMillis();
+                lastCenterKeyDownTime = now;
+                if (now - lastCenterClickTime < 400) {
+                    lastCenterClickTime = 0;
+                    lastCenterKeyDownTime = 0;
+                    toggleDiagnosticsOverlay(activity);
+                    return true;
+                }
+                lastCenterClickTime = now;
+            }
+        } else if (action == android.view.KeyEvent.ACTION_UP) {
+            // Long-press Center/Enter (held >= 600ms) on remote: Opens Quality menu directly
+            if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
+                    keyCode == android.view.KeyEvent.KEYCODE_ENTER) {
+                if (lastCenterKeyDownTime > 0) {
+                    long heldDuration = System.currentTimeMillis() - lastCenterKeyDownTime;
+                    lastCenterKeyDownTime = 0;
+                    if (heldDuration >= 600 && isVideo) {
+                        showQualityDialog(activity, null);
+                        return true;
+                    }
+                }
+            }
         }
 
         return false;
@@ -3026,6 +3145,7 @@ public final class KayoPatch {
                         }
                     }
                 }
+                updateTvQualityButtonText();
             }
         });
     }
@@ -3309,7 +3429,277 @@ public final class KayoPatch {
         return null;
     }
 
+    // =========================================================================
+    // Android TV In-Player Quality Button & Focus Navigation
+    // =========================================================================
+
+    private static final int TV_QUALITY_BUTTON_VIEW_ID = 0x7f0b9995;
+    private static final int TV_QUALITY_BUTTON_TEXT_VIEW_ID = 0x7f0b9994;
+
+    public static boolean isTvVideoPlaying() {
+        if (currentMedia3PlayerRef == null || currentMedia3PlayerRef.get() == null) {
+            return false;
+        }
+        Object player = currentMedia3PlayerRef.get();
+        try {
+            Method getPlaybackState = player.getClass().getMethod("getPlaybackState");
+            int state = (Integer) getPlaybackState.invoke(player);
+            // 2 = STATE_BUFFERING, 3 = STATE_READY
+            return state == 2 || state == 3;
+        } catch (Throwable ignored) {
+            return true;
+        }
+    }
+
+    public static void ensureTvQualityButtonAttached(final Activity activity) {
+        if (activity == null || activity.isFinishing()) {
+            return;
+        }
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ViewGroup root = (ViewGroup) activity.findViewById(android.R.id.content);
+                    if (root == null) {
+                        View decor = activity.getWindow() != null ? activity.getWindow().getDecorView() : null;
+                        if (decor instanceof ViewGroup) {
+                            root = (ViewGroup) decor;
+                        }
+                    }
+                    if (root == null) {
+                        return;
+                    }
+
+                    View existingBtn = root.findViewById(TV_QUALITY_BUTTON_VIEW_ID);
+                    if (existingBtn != null) {
+                        tvQualityButtonOverlayRef = new WeakReference<>(existingBtn);
+                        TextView existingTv = existingBtn.findViewById(TV_QUALITY_BUTTON_TEXT_VIEW_ID);
+                        if (existingTv != null) {
+                            tvQualityButtonTextRef = new WeakReference<>(existingTv);
+                        }
+                        existingBtn.setVisibility(View.VISIBLE);
+                        existingBtn.setAlpha(1.0f);
+                        updateTvQualityButtonText();
+                        scheduleTvButtonFade();
+                        return;
+                    }
+
+                    // Create TV Quality Button Layout
+                    final FrameLayout buttonContainer = new FrameLayout(activity);
+                    buttonContainer.setId(TV_QUALITY_BUTTON_VIEW_ID);
+                    buttonContainer.setFocusable(true);
+                    buttonContainer.setFocusableInTouchMode(true);
+                    buttonContainer.setClickable(true);
+                    buttonContainer.setBackground(createTvButtonBackground(activity, false));
+
+                    FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    lp.gravity = Gravity.TOP | Gravity.END;
+                    lp.topMargin = dpToPx(activity, 32);
+                    lp.rightMargin = dpToPx(activity, 48);
+                    buttonContainer.setLayoutParams(lp);
+
+                    // Inner TextView
+                    final TextView tv = new TextView(activity);
+                    tv.setId(TV_QUALITY_BUTTON_TEXT_VIEW_ID);
+                    tv.setTextColor(Color.parseColor("#EEEEEE"));
+                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+                    tv.setTypeface(Typeface.DEFAULT_BOLD);
+                    tv.setShadowLayer(4f, 1f, 1f, Color.BLACK);
+
+                    int padH = dpToPx(activity, 16);
+                    int padV = dpToPx(activity, 8);
+                    tv.setPadding(padH, padV, padH, padV);
+                    buttonContainer.addView(tv);
+
+                    buttonContainer.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                        @Override
+                        public void onFocusChange(View v, boolean hasFocus) {
+                            updateTvButtonFocusState(activity, v, hasFocus);
+                        }
+                    });
+
+                    buttonContainer.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showQualityDialog(activity, null);
+                        }
+                    });
+
+                    root.addView(buttonContainer);
+                    tvQualityButtonOverlayRef = new WeakReference<View>(buttonContainer);
+                    tvQualityButtonTextRef = new WeakReference<>(tv);
+
+                    updateTvQualityButtonText();
+                    scheduleTvButtonFade();
+                    android.util.Log.i("MorpheKayo", "TV Quality Button attached to view hierarchy");
+                } catch (Throwable t) {
+                    android.util.Log.e("MorpheKayo", "Error attaching TV Quality Button", t);
+                }
+            }
+        });
+    }
+
+    private static void updateTvButtonFocusState(Context context, View button, boolean hasFocus) {
+        if (button == null) return;
+        button.setBackground(createTvButtonBackground(context, hasFocus));
+        TextView tv = tvQualityButtonTextRef != null ? tvQualityButtonTextRef.get() : null;
+        if (tv != null) {
+            tv.setTextColor(hasFocus ? Color.WHITE : Color.parseColor("#EEEEEE"));
+        }
+        if (hasFocus) {
+            button.setAlpha(1.0f);
+            button.animate().scaleX(1.10f).scaleY(1.10f).setDuration(150).start();
+            cancelTvButtonFade();
+            updateTvQualityButtonText();
+        } else {
+            button.animate().scaleX(1.0f).scaleY(1.0f).setDuration(150).start();
+            updateTvQualityButtonText();
+            scheduleTvButtonFade();
+        }
+    }
+
+    private static GradientDrawable createTvButtonBackground(Context context, boolean focused) {
+        GradientDrawable gd = new GradientDrawable();
+        gd.setShape(GradientDrawable.RECTANGLE);
+        gd.setCornerRadius(dpToPx(context, 18));
+        if (focused) {
+            gd.setColor(Color.parseColor("#FF2B2B2B"));
+            gd.setStroke(dpToPx(context, 3.0f), Color.parseColor("#00E676")); // High-vis Morphe green border
+        } else {
+            gd.setColor(Color.parseColor("#CC181818")); // Semi-transparent dark
+            gd.setStroke(dpToPx(context, 1.5f), Color.parseColor("#44FFFFFF"));
+        }
+        return gd;
+    }
+
+    public static void updateTvQualityButtonText() {
+        if (tvQualityButtonTextRef == null) return;
+        final TextView tv = tvQualityButtonTextRef.get();
+        if (tv == null) return;
+
+        final View btn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+        final boolean focused = btn != null && btn.hasFocus();
+
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String prefix = focused ? "⚙ QUALITY: " : "⚙ ";
+                    if (selectedHeight == QUALITY_AUTO) {
+                        VideoTrackOption playing = findCurrentlyPlayingTrack(getAvailableVideoOptions());
+                        if (playing == null && lastObservedMedia3Track != null) {
+                            playing = lastObservedMedia3Track;
+                        }
+                        if (playing != null && playing.height >= 2160) {
+                            tv.setText(prefix + "AUTO (4K)");
+                        } else if (playing != null && playing.height > 0) {
+                            tv.setText(prefix + "AUTO (" + playing.height + "p)");
+                        } else {
+                            tv.setText(prefix + "AUTO");
+                        }
+                    } else {
+                        if (selectedHeight >= 2160) {
+                            tv.setText(prefix + "4K UHD");
+                        } else if (selectedHeight == 1080) {
+                            tv.setText(prefix + "1080p50");
+                        } else {
+                            tv.setText(prefix + selectedHeight + "p");
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        });
+    }
+
+    public static void hideTvQualityButton() {
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (tvQualityButtonOverlayRef != null) {
+                    View btn = tvQualityButtonOverlayRef.get();
+                    if (btn != null) {
+                        btn.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+    }
+
+    private static void scheduleTvButtonFade() {
+        cancelTvButtonFade();
+        tvButtonFadeRunnable = new Runnable() {
+            @Override
+            public void run() {
+                View btn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+                if (btn != null && !btn.hasFocus()) {
+                    btn.animate().alpha(0.0f).setDuration(400).withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            View b = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+                            if (b != null && !b.hasFocus()) {
+                                b.setVisibility(View.GONE);
+                            }
+                        }
+                    }).start();
+                }
+            }
+        };
+        mainHandler.postDelayed(tvButtonFadeRunnable, 6000L);
+    }
+
+    private static void cancelTvButtonFade() {
+        if (tvButtonFadeRunnable != null) {
+            mainHandler.removeCallbacks(tvButtonFadeRunnable);
+            tvButtonFadeRunnable = null;
+        }
+    }
+
+    private static View findWebView(Activity activity) {
+        if (activity == null) return null;
+        try {
+            View root = activity.findViewById(android.R.id.content);
+            if (root instanceof ViewGroup) {
+                return findWebViewRecursive((ViewGroup) root);
+            }
+        } catch (Throwable ignored) {}
+        return null;
+    }
+
+    private static View findWebViewRecursive(ViewGroup group) {
+        for (int i = 0; i < group.getChildCount(); i++) {
+            View child = group.getChildAt(i);
+            if (child instanceof android.webkit.WebView) {
+                return child;
+            }
+            if (child instanceof ViewGroup) {
+                View found = findWebViewRecursive((ViewGroup) child);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
     private static int dpToPx(Context context, int dp) {
+        if (context == null) {
+            return Math.round(dp * android.content.res.Resources.getSystem().getDisplayMetrics().density);
+        }
+        return Math.round(
+                TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        dp,
+                        context.getResources().getDisplayMetrics()
+                )
+        );
+    }
+
+    private static int dpToPx(Context context, float dp) {
+        if (context == null) {
+            return Math.round(dp * android.content.res.Resources.getSystem().getDisplayMetrics().density);
+        }
         return Math.round(
                 TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,

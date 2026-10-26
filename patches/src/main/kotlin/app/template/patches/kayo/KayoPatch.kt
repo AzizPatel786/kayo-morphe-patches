@@ -253,12 +253,12 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             }
         }
 
-        // 14. Hook PlayerView.setPlayer to capture active Media3 ExoPlayer instance for Live Diagnostics
+        // 14. Hook PlayerView.setPlayer to capture active Media3 ExoPlayer instance and attach TV Quality Button
         safeHook("TvPlayerViewSetPlayer") {
             TvPlayerViewSetPlayerFingerprint.methodOrNull?.let { method ->
                 method.addInstruction(
                     0,
-                    "invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->onMedia3PlayerAttached(Ljava/lang/Object;)V"
+                    "invoke-static {p0, p1}, $EXTENSION_CLASS_DESCRIPTOR->onTvPlayerViewSetPlayer(Landroid/view/View;Ljava/lang/Object;)V"
                 )
             }
         }

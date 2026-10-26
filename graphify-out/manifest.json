@@ -24,9 +24,9 @@
     "semantic_hash": "f68b52a18847381b54ed45b3ad0b6d2b"
   },
   "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java": {
-    "mtime": 1792815882.8238263,
-    "seen": 1792816001.6669521,
-    "ast_hash": "49b9effd55889b1849ccc64b8c49831a",
+    "mtime": 1793000229.6856277,
+    "seen": 1793000388.5543451,
+    "ast_hash": "aa1d2c17e655583d38f4edf208180cd3",
     "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/kayo/KayoPatch.kt": {
-    "mtime": 1792815032.88486,
-    "seen": 1792816001.6669805,
-    "ast_hash": "704108296f5fb8c0b763bf5ff28b3b5c",
+    "mtime": 1793000061.4895852,
+    "seen": 1793000388.554375,
+    "ast_hash": "d6963a1341cf33d986e72deddaab88f5",
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/shared/Constants.kt": {
