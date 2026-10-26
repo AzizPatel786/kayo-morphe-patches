@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-24T04:28:49",
-  "description": "## [1.0.6](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.5...v1.0.6) (2026-10-24)\n\n### 🐛 Bug Fixes\n\n* **tv:** lock rendition in selectTracksForType, bypass buffer hysteresis, and fix manifest track diagnostics ([90ba75c](https://github.com/AzizPatel786/kayo-morphe-patches/commit/90ba75c7bf1b99f0d23c419700fb5ba16c71cd5a))",
-  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.0.6/patches-1.0.6.mpp",
+  "created_at": "2026-10-26T07:42:28",
+  "description": "## [1.1.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.6...v1.1.0) (2026-10-26)\n\n### ✨ New Features\n\n* **tv:** add in-player video quality button and d-pad navigation for android tv ([11090ff](https://github.com/AzizPatel786/kayo-morphe-patches/commit/11090ff938d9cb993370103a98890c5254f89e5a))",
+  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.1.0/patches-1.1.0.mpp",
   "signature_download_url": "",
-  "version": "1.0.6"
+  "version": "1.1.0"
 }

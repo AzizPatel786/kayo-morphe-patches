@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.6...v1.1.0) (2026-10-26)
+
+### ✨ New Features
+
+* **tv:** add in-player video quality button and d-pad navigation for android tv ([11090ff](https://github.com/AzizPatel786/kayo-morphe-patches/commit/11090ff938d9cb993370103a98890c5254f89e5a))
+
 ## [1.0.6](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.5...v1.0.6) (2026-10-24)
 
 ### 🐛 Bug Fixes
