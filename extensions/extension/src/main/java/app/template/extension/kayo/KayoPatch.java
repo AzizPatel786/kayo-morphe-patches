@@ -1038,6 +1038,7 @@ public final class KayoPatch {
         Activity act = currentTvActivityRef != null ? currentTvActivityRef.get() : null;
         if (act != null) {
             ensureTvQualityButtonAttached(act);
+            showTvQualityButtonBriefly();
         }
     }
 
@@ -1048,16 +1049,6 @@ public final class KayoPatch {
     public static void onTvPlayerViewSetPlayer(final View playerView, final Object player) {
         if (playerView != null) {
             currentTvPlayerViewRef = new WeakReference<>(playerView);
-            playerView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-                @Override
-                public void onViewAttachedToWindow(View v) {
-                }
-
-                @Override
-                public void onViewDetachedFromWindow(View v) {
-                    onTvPlayerReleased();
-                }
-            });
             Activity act = findActivity(playerView.getContext());
             if (act != null) {
                 currentTvActivityRef = new WeakReference<>(act);
@@ -1081,7 +1072,8 @@ public final class KayoPatch {
                 }
             });
         } else {
-            onTvPlayerReleased();
+            hideTvQualityButton();
+            hideDiagnosticsOverlay();
         }
     }
 
@@ -1524,46 +1516,49 @@ public final class KayoPatch {
         int action = event.getAction();
         int keyCode = event.getKeyCode();
 
+        // 1. Direct Remote Menu / Settings keys directly open Quality Menu
+        if (keyCode == android.view.KeyEvent.KEYCODE_MENU ||
+                keyCode == android.view.KeyEvent.KEYCODE_SETTINGS) {
+            if (action == android.view.KeyEvent.ACTION_UP) {
+                showQualityDialog(activity, null);
+            }
+            return true;
+        }
+
         boolean isVideo = isTvVideoPlaying();
         if (!isVideo) {
+            // When video is not playing, make sure TV quality button and diagnostics overlay are hidden
             View tvBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
             if (tvBtn != null && tvBtn.getVisibility() != View.GONE) {
                 tvBtn.setVisibility(View.GONE);
                 tvBtn.clearFocus();
             }
+            hideDiagnosticsOverlay();
             return false;
         }
 
-        if (action == android.view.KeyEvent.ACTION_DOWN) {
-            // Wake up and show TV Quality button whenever remote is touched during playback
-            View existingBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
-            if (existingBtn == null) {
-                ensureTvQualityButtonAttached(activity);
-            } else {
-                existingBtn.setVisibility(View.VISIBLE);
-                existingBtn.setAlpha(1.0f);
-                scheduleTvButtonFade();
-            }
+        // --- VIDEO IS ACTIVELY PLAYING ---
 
-            // 1. If TV Quality Button is currently focused:
-            View tvBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
-            if (tvBtn != null && tvBtn.isShown() && tvBtn.hasFocus()) {
+        // Ensure button is attached
+        View tvBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+        if (tvBtn == null) {
+            ensureTvQualityButtonAttached(activity);
+            tvBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+        }
+
+        if (action == android.view.KeyEvent.ACTION_DOWN) {
+            // Case A: If TV Quality Button is currently focused:
+            if (tvBtn != null && tvBtn.getVisibility() == View.VISIBLE && tvBtn.hasFocus()) {
                 if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
                         keyCode == android.view.KeyEvent.KEYCODE_ENTER ||
                         keyCode == android.view.KeyEvent.KEYCODE_BUTTON_A) {
                     showQualityDialog(activity, null);
                     return true;
                 }
-                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_DOWN) {
+                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_DOWN ||
+                        keyCode == android.view.KeyEvent.KEYCODE_BACK) {
                     tvBtn.clearFocus();
-                    View wv = findWebView(activity);
-                    if (wv != null) {
-                        wv.requestFocus();
-                    }
-                    return true;
-                }
-                if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
-                    tvBtn.clearFocus();
+                    updateTvButtonFocusState(activity, tvBtn, false);
                     View wv = findWebView(activity);
                     if (wv != null) {
                         wv.requestFocus();
@@ -1576,33 +1571,29 @@ public final class KayoPatch {
                 }
             }
 
-            // 2. If TV Quality Button is visible but not focused, navigate up to it on DPAD_UP:
-            if (tvBtn != null && tvBtn.isShown() && !tvBtn.hasFocus() && isVideo) {
-                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP) {
+            // Case B: If DPAD_UP is pressed while video is playing:
+            if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP) {
+                if (tvBtn != null) {
+                    tvBtn.setVisibility(View.VISIBLE);
+                    tvBtn.setAlpha(1.0f);
                     tvBtn.requestFocus();
                     updateTvButtonFocusState(activity, tvBtn, true);
                     return true;
                 }
             }
 
-            // 3. Remote Menu Button (KEYCODE_MENU = 82, KEYCODE_SETTINGS = 176): Directly opens Quality menu
-            if (keyCode == android.view.KeyEvent.KEYCODE_MENU ||
-                    keyCode == android.view.KeyEvent.KEYCODE_SETTINGS) {
-                showQualityDialog(activity, null);
-                return true;
-            }
-
-            // 4. Remote Info and Color Keys: Toggle Diagnostics HUD overlay
+            // Case C: Remote Info and Color Keys: Toggle Diagnostics HUD overlay
             if (keyCode == android.view.KeyEvent.KEYCODE_INFO ||
                     keyCode == android.view.KeyEvent.KEYCODE_PROG_RED ||
                     keyCode == android.view.KeyEvent.KEYCODE_PROG_YELLOW ||
                     keyCode == android.view.KeyEvent.KEYCODE_PROG_GREEN ||
-                    keyCode == android.view.KeyEvent.KEYCODE_PROG_BLUE) {
+                    keyCode == android.view.KeyEvent.KEYCODE_PROG_BLUE ||
+                    keyCode == android.view.KeyEvent.KEYCODE_GUIDE) {
                 toggleDiagnosticsOverlay(activity);
                 return true;
             }
 
-            // 5. Center/Enter Key: Double-tap detection for Diagnostics HUD and track downTime for long-press
+            // Case D: Center/Enter Key: Double-tap detection for Diagnostics HUD and track downTime for long-press
             if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
                     keyCode == android.view.KeyEvent.KEYCODE_ENTER) {
                 long now = System.currentTimeMillis();
@@ -1614,6 +1605,11 @@ public final class KayoPatch {
                     return true;
                 }
                 lastCenterClickTime = now;
+            }
+
+            // Case E: Any other remote key on active stream refreshes the button fade timer if visible
+            if (tvBtn != null && tvBtn.getVisibility() == View.VISIBLE && !tvBtn.hasFocus()) {
+                scheduleTvButtonFade();
             }
         } else if (action == android.view.KeyEvent.ACTION_UP) {
             // Long-press Center/Enter (held >= 600ms) on remote: Opens Quality menu directly
@@ -3317,25 +3313,6 @@ public final class KayoPatch {
     private static final int TV_QUALITY_BUTTON_TEXT_VIEW_ID = 0x7f0b9994;
 
     public static boolean isTvVideoPlaying() {
-        if (currentTvPlayerViewRef == null) {
-            return false;
-        }
-        View pv = currentTvPlayerViewRef.get();
-        if (pv == null) {
-            return false;
-        }
-        if (!pv.isAttachedToWindow() || pv.getVisibility() != View.VISIBLE || !pv.isShown()) {
-            return false;
-        }
-        try {
-            Field fPlayer = pv.getClass().getField("player");
-            Object playerInView = fPlayer.get(pv);
-            if (playerInView == null) {
-                return false;
-            }
-        } catch (Throwable ignored) {
-        }
-
         if (currentMedia3PlayerRef == null) {
             return false;
         }
@@ -3344,30 +3321,77 @@ public final class KayoPatch {
             return false;
         }
         try {
-            Method isPlayingMethod = player.getClass().getMethod("isPlaying");
-            boolean isPlaying = (Boolean) isPlayingMethod.invoke(player);
-            if (isPlaying) {
-                return true;
+            // 1. Check playerReleased field on ExoPlayerImpl
+            try {
+                Field fReleased = player.getClass().getDeclaredField("playerReleased");
+                fReleased.setAccessible(true);
+                if (fReleased.getBoolean(player)) {
+                    return false;
+                }
+            } catch (Throwable ignored) {
             }
-            Method getPlayWhenReady = player.getClass().getMethod("getPlayWhenReady");
-            boolean playWhenReady = (Boolean) getPlayWhenReady.invoke(player);
+
+            // 2. Check if playerView's player is null
+            if (currentTvPlayerViewRef != null) {
+                View pv = currentTvPlayerViewRef.get();
+                if (pv != null) {
+                    try {
+                        Field fPlayer = pv.getClass().getField("player");
+                        Object playerInView = fPlayer.get(pv);
+                        if (playerInView == null) {
+                            return false;
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+
+            // 3. Check Media3 playback state
             Method getPlaybackState = player.getClass().getMethod("getPlaybackState");
             int state = (Integer) getPlaybackState.invoke(player);
-            // 2 = STATE_BUFFERING, 3 = STATE_READY
-            return playWhenReady && (state == 2 || state == 3);
+            // 1 = STATE_IDLE, 2 = STATE_BUFFERING, 3 = STATE_READY, 4 = STATE_ENDED
+            if (state == 2 || state == 3) {
+                return true;
+            }
+
+            // 4. Also check isPlaying()
+            try {
+                Method isPlayingMethod = player.getClass().getMethod("isPlaying");
+                if ((Boolean) isPlayingMethod.invoke(player)) {
+                    return true;
+                }
+            } catch (Throwable ignored) {
+            }
+
+            return false;
         } catch (Throwable ignored) {
             return false;
         }
+    }
+
+    public static void showTvQualityButtonBriefly() {
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    View btn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+                    if (btn != null) {
+                        btn.setVisibility(View.VISIBLE);
+                        btn.setAlpha(1.0f);
+                        updateTvQualityButtonText();
+                        scheduleTvButtonFade();
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        });
     }
 
     public static void ensureTvQualityButtonAttached(final Activity activity) {
         if (activity == null || activity.isFinishing()) {
             return;
         }
-        if (!isTvVideoPlaying()) {
-            return;
-        }
-        mainHandler.post(new Runnable() {
+        Runnable r = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -3389,10 +3413,7 @@ public final class KayoPatch {
                         if (existingTv != null) {
                             tvQualityButtonTextRef = new WeakReference<>(existingTv);
                         }
-                        existingBtn.setVisibility(View.VISIBLE);
-                        existingBtn.setAlpha(1.0f);
                         updateTvQualityButtonText();
-                        scheduleTvButtonFade();
                         return;
                     }
 
@@ -3403,6 +3424,7 @@ public final class KayoPatch {
                     buttonContainer.setFocusableInTouchMode(true);
                     buttonContainer.setClickable(true);
                     buttonContainer.setBackground(createTvButtonBackground(activity, false));
+                    buttonContainer.setVisibility(View.GONE); // Start hidden until playback or DPAD_UP
 
                     FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -3445,13 +3467,18 @@ public final class KayoPatch {
                     tvQualityButtonTextRef = new WeakReference<>(tv);
 
                     updateTvQualityButtonText();
-                    scheduleTvButtonFade();
                     android.util.Log.i("MorpheKayo", "TV Quality Button attached to view hierarchy");
                 } catch (Throwable t) {
                     android.util.Log.e("MorpheKayo", "Error attaching TV Quality Button", t);
                 }
             }
-        });
+        };
+
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            r.run();
+        } else {
+            mainHandler.post(r);
+        }
     }
 
     private static void updateTvButtonFocusState(Context context, View button, boolean hasFocus) {

@@ -442,15 +442,7 @@ object TvDefaultTrackSelectorSelectTracksForTypeFingerprint : Fingerprint(
     )
 )
 
-/**
- * Matches `DrmPlayer.releasePlayer()` in Kayo TV (au.com.kayosports.tv).
- */
-object TvDrmPlayerReleasePlayerFingerprint : Fingerprint(
-    definingClass = "Lcom/dazn/plugins/media3/drm/DrmPlayer;",
-    name = "releasePlayer",
-    returnType = "V",
-    parameters = listOf()
-)
+
 
 
 

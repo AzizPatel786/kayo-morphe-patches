@@ -373,15 +373,6 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             }
         }
 
-        // 22. Hook DrmPlayer.releasePlayer to clean up TV Quality button and release references when stream ends
-        safeHook("TvDrmPlayerReleasePlayer") {
-            TvDrmPlayerReleasePlayerFingerprint.methodOrNull?.let { method ->
-                method.addInstruction(
-                    0,
-                    "invoke-static {}, $EXTENSION_CLASS_DESCRIPTOR->onTvPlayerReleased()V"
-                )
-            }
-        }
     }
 }
 
