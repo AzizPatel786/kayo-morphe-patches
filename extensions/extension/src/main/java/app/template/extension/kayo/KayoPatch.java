@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Extension helper class for Kayo Sports In-Player Quality Menu and
@@ -90,6 +91,7 @@ public final class KayoPatch {
     private static volatile WeakReference<View> tvQualityButtonOverlayRef;
     private static volatile WeakReference<TextView> tvQualityButtonTextRef;
     private static Runnable tvButtonFadeRunnable;
+    private static volatile boolean isTvStreamActive = false;
 
     private static final List<WeakReference<TextView>> qualityBadgeViews = new ArrayList<>();
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -1021,6 +1023,7 @@ public final class KayoPatch {
      * to update tracks, player, and live stats directly as soon as rendition starts.
      */
     public static void onTvTracksChanged(Object tracks, Object listener) {
+        isTvStreamActive = true;
         if (tracks != null) {
             onMedia3TracksChanged(tracks);
         }
@@ -1055,6 +1058,7 @@ public final class KayoPatch {
             }
         }
         if (player != null) {
+            isTvStreamActive = true;
             onMedia3PlayerAttached(player);
             mainHandler.post(new Runnable() {
                 @Override
@@ -1072,6 +1076,7 @@ public final class KayoPatch {
                 }
             });
         } else {
+            isTvStreamActive = false;
             hideTvQualityButton();
             hideDiagnosticsOverlay();
         }
@@ -1530,6 +1535,8 @@ public final class KayoPatch {
             // When video is not playing, make sure TV quality button and diagnostics overlay are hidden
             View tvBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
             if (tvBtn != null && tvBtn.getVisibility() != View.GONE) {
+                cancelTvButtonFade();
+                tvBtn.animate().cancel();
                 tvBtn.setVisibility(View.GONE);
                 tvBtn.clearFocus();
             }
@@ -1565,17 +1572,27 @@ public final class KayoPatch {
                     }
                     return true;
                 }
-                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_LEFT ||
+                if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP ||
+                        keyCode == android.view.KeyEvent.KEYCODE_DPAD_LEFT ||
                         keyCode == android.view.KeyEvent.KEYCODE_DPAD_RIGHT) {
-                    return true; // Consume lateral keys while button is focused
+                    return true; // Consume navigation keys while button is focused
                 }
             }
 
             // Case B: If DPAD_UP is pressed while video is playing:
             if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP) {
+                if (tvBtn == null) {
+                    ensureTvQualityButtonAttached(activity);
+                    tvBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+                }
                 if (tvBtn != null) {
+                    cancelTvButtonFade();
+                    tvBtn.animate().cancel();
                     tvBtn.setVisibility(View.VISIBLE);
                     tvBtn.setAlpha(1.0f);
+                    tvBtn.setScaleX(1.10f);
+                    tvBtn.setScaleY(1.10f);
+                    tvBtn.bringToFront();
                     tvBtn.requestFocus();
                     updateTvButtonFocusState(activity, tvBtn, true);
                     return true;
@@ -1598,7 +1615,7 @@ public final class KayoPatch {
                     keyCode == android.view.KeyEvent.KEYCODE_ENTER) {
                 long now = System.currentTimeMillis();
                 lastCenterKeyDownTime = now;
-                if (now - lastCenterClickTime < 400) {
+                if (now - lastCenterClickTime < 600) {
                     lastCenterClickTime = 0;
                     lastCenterKeyDownTime = 0;
                     toggleDiagnosticsOverlay(activity);
@@ -3313,59 +3330,97 @@ public final class KayoPatch {
     private static final int TV_QUALITY_BUTTON_TEXT_VIEW_ID = 0x7f0b9994;
 
     public static boolean isTvVideoPlaying() {
+        // 1. Check DAZN PlayerRegistry for registered DrmPlayer instances
+        try {
+            Class<?> regClass = Class.forName("com.dazn.plugins.media3.standby.PlayerRegistry");
+            Field fPlayers = regClass.getField("players");
+            Map<?, ?> map = (Map<?, ?>) fPlayers.get(null);
+            if (map != null) {
+                if (map.isEmpty()) {
+                    isTvStreamActive = false;
+                    return false;
+                }
+                isTvStreamActive = true;
+                if (currentMedia3PlayerRef == null || currentMedia3PlayerRef.get() == null) {
+                    for (Object drmPlayer : map.values()) {
+                        if (drmPlayer != null) {
+                            try {
+                                Field fPlayer = drmPlayer.getClass().getDeclaredField("playerInstance");
+                                fPlayer.setAccessible(true);
+                                Object inst = fPlayer.get(drmPlayer);
+                                if (inst != null) {
+                                    onMedia3PlayerAttached(inst);
+                                    break;
+                                }
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
         if (currentMedia3PlayerRef == null) {
-            return false;
+            return isTvStreamActive;
         }
         Object player = currentMedia3PlayerRef.get();
         if (player == null) {
-            return false;
+            return isTvStreamActive;
         }
+
         try {
-            // 1. Check playerReleased field on ExoPlayerImpl
+            // Check playerReleased on ExoPlayerImpl
             try {
-                Field fReleased = player.getClass().getDeclaredField("playerReleased");
-                fReleased.setAccessible(true);
+                Field fReleased = player.getClass().getField("playerReleased");
                 if (fReleased.getBoolean(player)) {
+                    isTvStreamActive = false;
+                    return false;
+                }
+            } catch (NoSuchFieldException e) {
+                try {
+                    Field fReleased = player.getClass().getDeclaredField("playerReleased");
+                    fReleased.setAccessible(true);
+                    if (fReleased.getBoolean(player)) {
+                        isTvStreamActive = false;
+                        return false;
+                    }
+                } catch (Throwable ignored) {
+                }
+            } catch (Throwable ignored) {
+            }
+
+            // Check Media3 playback state
+            try {
+                Method getPlaybackState = player.getClass().getMethod("getPlaybackState");
+                getPlaybackState.setAccessible(true);
+                int state = (Integer) getPlaybackState.invoke(player);
+                // 1 = STATE_IDLE, 2 = STATE_BUFFERING, 3 = STATE_READY, 4 = STATE_ENDED
+                if (state == 2 || state == 3) {
+                    isTvStreamActive = true;
+                    return true;
+                }
+                if (state == 4) {
+                    isTvStreamActive = false;
                     return false;
                 }
             } catch (Throwable ignored) {
             }
 
-            // 2. Check if playerView's player is null
-            if (currentTvPlayerViewRef != null) {
-                View pv = currentTvPlayerViewRef.get();
-                if (pv != null) {
-                    try {
-                        Field fPlayer = pv.getClass().getField("player");
-                        Object playerInView = fPlayer.get(pv);
-                        if (playerInView == null) {
-                            return false;
-                        }
-                    } catch (Throwable ignored) {
-                    }
-                }
-            }
-
-            // 3. Check Media3 playback state
-            Method getPlaybackState = player.getClass().getMethod("getPlaybackState");
-            int state = (Integer) getPlaybackState.invoke(player);
-            // 1 = STATE_IDLE, 2 = STATE_BUFFERING, 3 = STATE_READY, 4 = STATE_ENDED
-            if (state == 2 || state == 3) {
-                return true;
-            }
-
-            // 4. Also check isPlaying()
+            // Check isPlaying()
             try {
                 Method isPlayingMethod = player.getClass().getMethod("isPlaying");
+                isPlayingMethod.setAccessible(true);
                 if ((Boolean) isPlayingMethod.invoke(player)) {
+                    isTvStreamActive = true;
                     return true;
                 }
             } catch (Throwable ignored) {
             }
 
-            return false;
+            return isTvStreamActive;
         } catch (Throwable ignored) {
-            return false;
+            return isTvStreamActive;
         }
     }
 
@@ -3376,8 +3431,13 @@ public final class KayoPatch {
                 try {
                     View btn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
                     if (btn != null) {
+                        cancelTvButtonFade();
+                        btn.animate().cancel();
                         btn.setVisibility(View.VISIBLE);
                         btn.setAlpha(1.0f);
+                        btn.setScaleX(1.0f);
+                        btn.setScaleY(1.0f);
+                        btn.bringToFront();
                         updateTvQualityButtonText();
                         scheduleTvButtonFade();
                     }
@@ -3408,6 +3468,7 @@ public final class KayoPatch {
 
                     View existingBtn = root.findViewById(TV_QUALITY_BUTTON_VIEW_ID);
                     if (existingBtn != null) {
+                        existingBtn.bringToFront();
                         tvQualityButtonOverlayRef = new WeakReference<>(existingBtn);
                         TextView existingTv = existingBtn.findViewById(TV_QUALITY_BUTTON_TEXT_VIEW_ID);
                         if (existingTv != null) {
@@ -3425,6 +3486,7 @@ public final class KayoPatch {
                     buttonContainer.setClickable(true);
                     buttonContainer.setBackground(createTvButtonBackground(activity, false));
                     buttonContainer.setVisibility(View.GONE); // Start hidden until playback or DPAD_UP
+                    buttonContainer.setElevation(dpToPx(activity, 20));
 
                     FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -3463,6 +3525,7 @@ public final class KayoPatch {
                     });
 
                     root.addView(buttonContainer);
+                    buttonContainer.bringToFront();
                     tvQualityButtonOverlayRef = new WeakReference<View>(buttonContainer);
                     tvQualityButtonTextRef = new WeakReference<>(tv);
 
@@ -3558,11 +3621,17 @@ public final class KayoPatch {
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (tvQualityButtonOverlayRef != null) {
-                    View btn = tvQualityButtonOverlayRef.get();
-                    if (btn != null) {
-                        btn.setVisibility(View.GONE);
+                try {
+                    cancelTvButtonFade();
+                    if (tvQualityButtonOverlayRef != null) {
+                        View btn = tvQualityButtonOverlayRef.get();
+                        if (btn != null) {
+                            btn.animate().cancel();
+                            btn.setVisibility(View.GONE);
+                            btn.clearFocus();
+                        }
                     }
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -3573,6 +3642,7 @@ public final class KayoPatch {
             @Override
             public void run() {
                 try {
+                    isTvStreamActive = false;
                     currentMedia3PlayerRef = null;
                     currentTvPlayerViewRef = null;
                     cancelTvButtonFade();
