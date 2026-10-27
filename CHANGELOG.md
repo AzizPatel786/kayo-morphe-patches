@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.0...v1.1.1) (2026-10-27)
+
+### 🐛 Bug Fixes
+
+* **tv:** fix stream closed d-pad popup and resolve video buffering ([1f44561](https://github.com/AzizPatel786/kayo-morphe-patches/commit/1f4456120e1559f0c8340d07029322388dcb361f))
+
 ## [1.1.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.6...v1.1.0) (2026-10-26)
 
 ### ✨ New Features

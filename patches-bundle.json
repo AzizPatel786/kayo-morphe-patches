@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-26T07:42:28",
-  "description": "## [1.1.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.6...v1.1.0) (2026-10-26)\n\n### ✨ New Features\n\n* **tv:** add in-player video quality button and d-pad navigation for android tv ([11090ff](https://github.com/AzizPatel786/kayo-morphe-patches/commit/11090ff938d9cb993370103a98890c5254f89e5a))",
-  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.1.0/patches-1.1.0.mpp",
+  "created_at": "2026-10-27T06:21:02",
+  "description": "## [1.1.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.0...v1.1.1) (2026-10-27)\n\n### 🐛 Bug Fixes\n\n* **tv:** fix stream closed d-pad popup and resolve video buffering ([1f44561](https://github.com/AzizPatel786/kayo-morphe-patches/commit/1f4456120e1559f0c8340d07029322388dcb361f))",
+  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.1.1/patches-1.1.1.mpp",
   "signature_download_url": "",
-  "version": "1.1.0"
+  "version": "1.1.1"
 }
