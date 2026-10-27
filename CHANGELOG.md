@@ -1,3 +1,9 @@
+## [1.1.3](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.2...v1.1.3) (2026-10-27)
+
+### 🐛 Bug Fixes
+
+* **tv:** fix d-pad up button focus and double tap diagnostics ([e227a10](https://github.com/AzizPatel786/kayo-morphe-patches/commit/e227a1045791c270b31483d69b7cf95e55c07034))
+
 ## [1.1.2](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.1...v1.1.2) (2026-10-27)
 
 ### 🐛 Bug Fixes
