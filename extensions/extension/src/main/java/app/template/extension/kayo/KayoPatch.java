@@ -936,142 +936,6 @@ public final class KayoPatch {
         return pair;
     }
 
-    /**
-     * TV hook: Overrides AdaptiveTrackSelection.getSelectedIndex and determineIdealSelectedIndex
-     * to return the exact track index matching the locked video quality.
-     */
-    public static int overrideSelectedIndex(Object trackSelection) {
-        if (trackSelection == null || selectedHeight == QUALITY_AUTO) {
-            return -1;
-        }
-        try {
-            Object[] formats = (Object[]) getFieldAny(trackSelection, "formats");
-            if (formats == null || formats.length == 0) {
-                return -1;
-            }
-
-            boolean isVideo = false;
-            for (Object fmt : formats) {
-                if (fmt != null) {
-                    int h = getIntField(fmt.getClass(), fmt, "height", 0);
-                    if (h > 0) {
-                        isVideo = true;
-                        break;
-                    }
-                }
-            }
-            if (!isVideo) {
-                return -1;
-            }
-
-            int bestIndex = -1;
-            int bestHeight = -1;
-            int bestBitrate = -1;
-            int maxAvailableHeight = -1;
-            int maxAvailableIndex = -1;
-            int maxAvailableBitrate = -1;
-
-            for (int i = 0; i < formats.length; i++) {
-                Object fmt = formats[i];
-                if (fmt == null) continue;
-                Class<?> fmtClass = fmt.getClass();
-                int h = getIntField(fmtClass, fmt, "height", 0);
-                int b = getIntField(fmtClass, fmt, "bitrate", 0);
-                if (b <= 0) b = getIntField(fmtClass, fmt, "peakBitrate", 0);
-                if (b <= 0) b = getIntField(fmtClass, fmt, "averageBitrate", 0);
-
-                if (h > maxAvailableHeight || (h == maxAvailableHeight && b > maxAvailableBitrate)) {
-                    maxAvailableHeight = h;
-                    maxAvailableIndex = i;
-                    maxAvailableBitrate = b;
-                }
-
-                if (h == selectedHeight) {
-                    if (bestIndex == -1) {
-                        bestIndex = i;
-                        bestHeight = h;
-                        bestBitrate = b;
-                    } else if (selectedBitrate > 0 && Math.abs(b - selectedBitrate) < Math.abs(bestBitrate - selectedBitrate)) {
-                        bestIndex = i;
-                        bestBitrate = b;
-                    } else if (selectedBitrate <= 0 && b > bestBitrate) {
-                        bestIndex = i;
-                        bestBitrate = b;
-                    }
-                }
-            }
-
-            if (bestIndex == -1 && selectedHeight >= 2160 && maxAvailableIndex >= 0) {
-                bestIndex = maxAvailableIndex;
-            }
-            if (bestIndex == -1) {
-                int closestDiff = Integer.MAX_VALUE;
-                for (int i = 0; i < formats.length; i++) {
-                    Object fmt = formats[i];
-                    if (fmt == null) continue;
-                    Class<?> fmtClass = fmt.getClass();
-                    int h = getIntField(fmtClass, fmt, "height", 0);
-                    if (h <= 0) continue;
-                    int diff = Math.abs(h - selectedHeight);
-                    if (diff < closestDiff) {
-                        closestDiff = diff;
-                        bestIndex = i;
-                    }
-                }
-            }
-
-            return bestIndex;
-        } catch (Throwable t) {
-            return -1;
-        }
-    }
-
-    public static int overrideIdealSelectedIndex(Object trackSelection) {
-        return overrideSelectedIndex(trackSelection);
-    }
-
-    /**
-     * TV hook: Intercepts AdaptiveTrackSelection.updateSelectedTrack to bypass buffer hysteresis
-     * checks when quality is locked, setting selectedIndex and reason immediately.
-     */
-    public static boolean onUpdateSelectedTrack(Object trackSelection) {
-        if (selectedHeight == QUALITY_AUTO || trackSelection == null) {
-            return false;
-        }
-        int bestIdx = overrideSelectedIndex(trackSelection);
-        if (bestIdx >= 0) {
-            try {
-                Field fIdx = null;
-                Field fReason = null;
-                Class<?> c = trackSelection.getClass();
-                while (c != null && c != Object.class) {
-                    if (fIdx == null) {
-                        try {
-                            fIdx = c.getDeclaredField("selectedIndex");
-                            fIdx.setAccessible(true);
-                        } catch (NoSuchFieldException ignored) {}
-                    }
-                    if (fReason == null) {
-                        try {
-                            fReason = c.getDeclaredField("reason");
-                            fReason.setAccessible(true);
-                        } catch (NoSuchFieldException ignored) {}
-                    }
-                    c = c.getSuperclass();
-                }
-                if (fIdx != null) {
-                    fIdx.setInt(trackSelection, bestIdx);
-                }
-                if (fReason != null) {
-                    fReason.setInt(trackSelection, 1); // REASON_MANUAL
-                }
-                return true;
-            } catch (Throwable ignored) {
-            }
-        }
-        return false;
-    }
-
     private static List<VideoTrackOption> extractVideoTracksFromSelection(Object sel) {
         List<VideoTrackOption> options = new ArrayList<>();
         if (sel == null) return options;
@@ -1184,6 +1048,16 @@ public final class KayoPatch {
     public static void onTvPlayerViewSetPlayer(final View playerView, final Object player) {
         if (playerView != null) {
             currentTvPlayerViewRef = new WeakReference<>(playerView);
+            playerView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                    onTvPlayerReleased();
+                }
+            });
             Activity act = findActivity(playerView.getContext());
             if (act != null) {
                 currentTvActivityRef = new WeakReference<>(act);
@@ -1207,7 +1081,7 @@ public final class KayoPatch {
                 }
             });
         } else {
-            hideTvQualityButton();
+            onTvPlayerReleased();
         }
     }
 
@@ -1651,18 +1525,24 @@ public final class KayoPatch {
         int keyCode = event.getKeyCode();
 
         boolean isVideo = isTvVideoPlaying();
+        if (!isVideo) {
+            View tvBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+            if (tvBtn != null && tvBtn.getVisibility() != View.GONE) {
+                tvBtn.setVisibility(View.GONE);
+                tvBtn.clearFocus();
+            }
+            return false;
+        }
 
         if (action == android.view.KeyEvent.ACTION_DOWN) {
             // Wake up and show TV Quality button whenever remote is touched during playback
-            if (isVideo) {
-                View existingBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
-                if (existingBtn == null) {
-                    ensureTvQualityButtonAttached(activity);
-                } else {
-                    existingBtn.setVisibility(View.VISIBLE);
-                    existingBtn.setAlpha(1.0f);
-                    scheduleTvButtonFade();
-                }
+            View existingBtn = tvQualityButtonOverlayRef != null ? tvQualityButtonOverlayRef.get() : null;
+            if (existingBtn == null) {
+                ensureTvQualityButtonAttached(activity);
+            } else {
+                existingBtn.setVisibility(View.VISIBLE);
+                existingBtn.setAlpha(1.0f);
+                scheduleTvButtonFade();
             }
 
             // 1. If TV Quality Button is currently focused:
@@ -3437,22 +3317,54 @@ public final class KayoPatch {
     private static final int TV_QUALITY_BUTTON_TEXT_VIEW_ID = 0x7f0b9994;
 
     public static boolean isTvVideoPlaying() {
-        if (currentMedia3PlayerRef == null || currentMedia3PlayerRef.get() == null) {
+        if (currentTvPlayerViewRef == null) {
+            return false;
+        }
+        View pv = currentTvPlayerViewRef.get();
+        if (pv == null) {
+            return false;
+        }
+        if (!pv.isAttachedToWindow() || pv.getVisibility() != View.VISIBLE || !pv.isShown()) {
+            return false;
+        }
+        try {
+            Field fPlayer = pv.getClass().getField("player");
+            Object playerInView = fPlayer.get(pv);
+            if (playerInView == null) {
+                return false;
+            }
+        } catch (Throwable ignored) {
+        }
+
+        if (currentMedia3PlayerRef == null) {
             return false;
         }
         Object player = currentMedia3PlayerRef.get();
+        if (player == null) {
+            return false;
+        }
         try {
+            Method isPlayingMethod = player.getClass().getMethod("isPlaying");
+            boolean isPlaying = (Boolean) isPlayingMethod.invoke(player);
+            if (isPlaying) {
+                return true;
+            }
+            Method getPlayWhenReady = player.getClass().getMethod("getPlayWhenReady");
+            boolean playWhenReady = (Boolean) getPlayWhenReady.invoke(player);
             Method getPlaybackState = player.getClass().getMethod("getPlaybackState");
             int state = (Integer) getPlaybackState.invoke(player);
             // 2 = STATE_BUFFERING, 3 = STATE_READY
-            return state == 2 || state == 3;
+            return playWhenReady && (state == 2 || state == 3);
         } catch (Throwable ignored) {
-            return true;
+            return false;
         }
     }
 
     public static void ensureTvQualityButtonAttached(final Activity activity) {
         if (activity == null || activity.isFinishing()) {
+            return;
+        }
+        if (!isTvVideoPlaying()) {
             return;
         }
         mainHandler.post(new Runnable() {
@@ -3624,6 +3536,54 @@ public final class KayoPatch {
                     if (btn != null) {
                         btn.setVisibility(View.GONE);
                     }
+                }
+            }
+        });
+    }
+
+    public static void onTvPlayerReleased() {
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    currentMedia3PlayerRef = null;
+                    currentTvPlayerViewRef = null;
+                    cancelTvButtonFade();
+                    hideTvQualityButton();
+                    if (tvQualityButtonOverlayRef != null) {
+                        View btn = tvQualityButtonOverlayRef.get();
+                        if (btn != null) {
+                            btn.setVisibility(View.GONE);
+                            btn.clearFocus();
+                            if (btn.getParent() instanceof ViewGroup) {
+                                ((ViewGroup) btn.getParent()).removeView(btn);
+                            }
+                        }
+                        tvQualityButtonOverlayRef = null;
+                        tvQualityButtonTextRef = null;
+                    }
+                    hideDiagnosticsOverlay();
+                    android.util.Log.i("MorpheKayo", "onTvPlayerReleased: TV player resources cleaned up");
+                } catch (Throwable ignored) {
+                }
+            }
+        });
+    }
+
+    public static void hideDiagnosticsOverlay() {
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    stopDiagnosticsOverlayTimer();
+                    if (activeOverlayRef != null) {
+                        View overlay = activeOverlayRef.get();
+                        if (overlay != null && overlay.getParent() instanceof ViewGroup) {
+                            ((ViewGroup) overlay.getParent()).removeView(overlay);
+                        }
+                        activeOverlayRef = null;
+                    }
+                } catch (Throwable ignored) {
                 }
             }
         });

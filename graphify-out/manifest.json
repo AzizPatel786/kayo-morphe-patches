@@ -24,9 +24,9 @@
     "semantic_hash": "f68b52a18847381b54ed45b3ad0b6d2b"
   },
   "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java": {
-    "mtime": 1793000425.4348187,
-    "seen": 1793000691.7139075,
-    "ast_hash": "aa1d2c17e655583d38f4edf208180cd3",
+    "mtime": 1793081720.8796844,
+    "seen": 1793081897.3007028,
+    "ast_hash": "a5e079729d01af6a9a3d613622f7f7fa",
     "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java": {
@@ -102,15 +102,15 @@
     "semantic_hash": "47654ef7f645e170ce681fe902be588f"
   },
   "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt": {
-    "mtime": 1792815000.3698244,
-    "seen": 1792816001.6669788,
-    "ast_hash": "bab4aa4cae34a0f1ddb6ee86d3f413df",
+    "mtime": 1793081504.785543,
+    "seen": 1793081897.3007557,
+    "ast_hash": "2dda0b2522b6d902cafa9d0c3bf4f0be",
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/kayo/KayoPatch.kt": {
-    "mtime": 1793000425.4549859,
-    "seen": 1793000691.7139337,
-    "ast_hash": "d6963a1341cf33d986e72deddaab88f5",
+    "mtime": 1793081524.5458195,
+    "seen": 1793081897.3007593,
+    "ast_hash": "e86ea5a5a3eb06b18c4ef2df64633d5d",
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/shared/Constants.kt": {
