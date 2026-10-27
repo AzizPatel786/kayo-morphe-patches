@@ -1,10 +1,11 @@
 {
   "0": "gradientdrawable",
+  "1": "TrackGroup",
   "2": "KayoPatch.java",
   "3": "Builder",
   "4": "generate_patches_readme.py",
   "5": "Fingerprints.kt",
-  "6": "TrackGroup",
+  "6": "Builder",
   "7": "package.json",
   "8": "CHANGELOG.md",
   "9": "PatchListGenerator.kt",
