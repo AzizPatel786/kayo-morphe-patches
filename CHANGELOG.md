@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.1...v1.1.2) (2026-10-27)
+
+### 🐛 Bug Fixes
+
+* **tv:** restore tv quality button visibility and direct remote menu access ([8e9db18](https://github.com/AzizPatel786/kayo-morphe-patches/commit/8e9db1898309889cf4dd18f9140a634e13988ee6))
+
 ## [1.1.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.0...v1.1.1) (2026-10-27)
 
 ### 🐛 Bug Fixes
