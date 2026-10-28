@@ -1,3 +1,9 @@
+## [1.1.4](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.3...v1.1.4) (2026-10-28)
+
+### 🐛 Bug Fixes
+
+* **tv:** lock rendition in AdaptiveTrackSelection and selectTracksForType to prevent ABR downgrades ([45743c6](https://github.com/AzizPatel786/kayo-morphe-patches/commit/45743c6927c0720e5df3604a35926e18c47cb0ea))
+
 ## [1.1.3](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.2...v1.1.3) (2026-10-27)
 
 ### 🐛 Bug Fixes
