@@ -442,9 +442,38 @@ object TvDefaultTrackSelectorSelectTracksForTypeFingerprint : Fingerprint(
     )
 )
 
+/**
+ * Matches `AdaptiveTrackSelection.determineIdealSelectedIndex(long)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvAdaptiveTrackSelectionDetermineIdealSelectedIndexFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/AdaptiveTrackSelection;",
+    name = "determineIdealSelectedIndex",
+    returnType = "I",
+    parameters = listOf("J")
+)
 
+/**
+ * Matches `AdaptiveTrackSelection.getSelectedIndex()` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvAdaptiveTrackSelectionGetSelectedIndexFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/AdaptiveTrackSelection;",
+    name = "getSelectedIndex",
+    returnType = "I",
+    parameters = listOf()
+)
 
-
-
-
-
+/**
+ * Matches `AdaptiveTrackSelection.updateSelectedTrack(...)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvAdaptiveTrackSelectionUpdateSelectedTrackFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/AdaptiveTrackSelection;",
+    name = "updateSelectedTrack",
+    returnType = "V",
+    parameters = listOf(
+        "J",
+        "J",
+        "J",
+        "Ljava/util/List;",
+        "[Landroidx/media3/exoplayer/source/chunk/MediaChunkIterator;"
+    )
+)

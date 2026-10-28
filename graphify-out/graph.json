@@ -117,7 +117,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "norm_label": "audiotrackoption",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
@@ -130,24 +130,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "norm_label": "videotrackoption",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
       "source_location": "L280"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format_format",
-      "label": "Format",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "norm_label": "format",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
-      "source_location": "L6"
     },
     {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_tracks_group",
@@ -155,7 +142,7 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": "group",
@@ -168,7 +155,7 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": "tracks",
@@ -181,12 +168,25 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": "immutablelist",
       "source_file": "extensions/extension/src/main/java/com/google/common/collect/ImmutableList.java",
       "source_location": "L8"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format_format",
+      "label": "Format",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "Format",
+      "file_type": "code",
+      "norm_label": "format",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
+      "source_location": "L6"
     },
     {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_builder",
@@ -408,6 +408,45 @@
       "norm_label": "profilebasedtrackselectorupdatetracksfingerprint",
       "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
       "source_location": "L56"
+    },
+    {
+      "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvadaptivetrackselectiondetermineidealselectedindexfingerprint",
+      "label": "TvAdaptiveTrackSelectionDetermineIdealSelectedIndexFingerprint",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "Fingerprints.kt",
+      "file_type": "code",
+      "norm_label": "tvadaptivetrackselectiondetermineidealselectedindexfingerprint",
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
+      "source_location": "L448"
+    },
+    {
+      "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvadaptivetrackselectiongetselectedindexfingerprint",
+      "label": "TvAdaptiveTrackSelectionGetSelectedIndexFingerprint",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "Fingerprints.kt",
+      "file_type": "code",
+      "norm_label": "tvadaptivetrackselectiongetselectedindexfingerprint",
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
+      "source_location": "L458"
+    },
+    {
+      "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvadaptivetrackselectionupdateselectedtrackfingerprint",
+      "label": "TvAdaptiveTrackSelectionUpdateSelectedTrackFingerprint",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "Fingerprints.kt",
+      "file_type": "code",
+      "norm_label": "tvadaptivetrackselectionupdateselectedtrackfingerprint",
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
+      "source_location": "L468"
     },
     {
       "id": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvdazndrmsessionmanagerconstructorfingerprint",
@@ -728,55 +767,55 @@
             "callee": "setPadding",
             "receiver_type": "ScrollView",
             "lang": "java",
-            "line": "L2444"
+            "line": "L2531"
           },
           {
             "callee": "setText",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2447"
+            "line": "L2534"
           },
           {
             "callee": "setTextColor",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2448"
+            "line": "L2535"
           },
           {
             "callee": "parseColor",
             "receiver_type": "Color",
             "lang": "java",
-            "line": "L2448"
+            "line": "L2535"
           },
           {
             "callee": "setTextSize",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2449"
+            "line": "L2536"
           },
           {
             "callee": "setTypeface",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2450"
+            "line": "L2537"
           },
           {
             "callee": "setLineSpacing",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2451"
+            "line": "L2538"
           },
           {
             "callee": "addView",
             "receiver_type": "ScrollView",
             "lang": "java",
-            "line": "L2452"
+            "line": "L2539"
           }
         ]
       },
       "norm_label": ".buildandshowdiagnosticsdialog()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2438"
+      "source_location": "L2525"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_builddiagnosticsreportstring",
@@ -792,19 +831,19 @@
             "callee": "format",
             "receiver_type": "String",
             "lang": "java",
-            "line": "L2589"
+            "line": "L2676"
           },
           {
             "callee": "abs",
             "receiver_type": "Math",
             "lang": "java",
-            "line": "L2654"
+            "line": "L2741"
           }
         ]
       },
       "norm_label": ".builddiagnosticsreportstring()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2571"
+      "source_location": "L2658"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_formatlivemetricstext",
@@ -820,13 +859,13 @@
             "callee": "format",
             "receiver_type": "String",
             "lang": "java",
-            "line": "L2156"
+            "line": "L2243"
           }
         ]
       },
       "norm_label": ".formatlivemetricstext()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2143"
+      "source_location": "L2230"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getactivestreammetrics",
@@ -842,37 +881,37 @@
             "callee": "get",
             "receiver_type": "WeakReference",
             "lang": "java",
-            "line": "L1793"
+            "line": "L1880"
           },
           {
             "callee": "invoke",
             "receiver_type": "Method",
             "lang": "java",
-            "line": "L1909"
+            "line": "L1996"
           },
           {
             "callee": "get",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1916"
+            "line": "L2003"
           },
           {
             "callee": "getLong",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L2097"
+            "line": "L2184"
           },
           {
             "callee": "forName",
             "receiver_type": "Class",
             "lang": "java",
-            "line": "L2110"
+            "line": "L2197"
           }
         ]
       },
       "norm_label": ".getactivestreammetrics()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1791"
+      "source_location": "L1878"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getbooleanfield",
@@ -888,19 +927,19 @@
             "callee": "setAccessible",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1468"
+            "line": "L1555"
           },
           {
             "callee": "getBoolean",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1469"
+            "line": "L1556"
           }
         ]
       },
       "norm_label": ".getbooleanfield()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1463"
+      "source_location": "L1550"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getlongfield",
@@ -916,19 +955,19 @@
             "callee": "setAccessible",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1452"
+            "line": "L1539"
           },
           {
             "callee": "getLong",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1453"
+            "line": "L1540"
           }
         ]
       },
       "norm_label": ".getlongfield()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1447"
+      "source_location": "L1534"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_streammetrics_getaudiodescription",
@@ -1144,13 +1183,13 @@
             "callee": "format",
             "receiver_type": "String",
             "lang": "java",
-            "line": "L3138"
+            "line": "L3225"
           }
         ]
       },
       "norm_label": ".buildandshowdialog()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3119"
+      "source_location": "L3206"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_builddiagnosticsoverlayview",
@@ -1166,121 +1205,121 @@
             "callee": "setOrientation",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2258"
+            "line": "L2345"
           },
           {
             "callee": "setPadding",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2262"
+            "line": "L2349"
           },
           {
             "callee": "setCornerRadius",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L2265"
+            "line": "L2352"
           },
           {
             "callee": "setColor",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L2266"
+            "line": "L2353"
           },
           {
             "callee": "parseColor",
             "receiver_type": "Color",
             "lang": "java",
-            "line": "L2266"
+            "line": "L2353"
           },
           {
             "callee": "setStroke",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L2267"
+            "line": "L2354"
           },
           {
             "callee": "setBackground",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2268"
+            "line": "L2355"
           },
           {
             "callee": "setGravity",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2273"
+            "line": "L2360"
           },
           {
             "callee": "setText",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2276"
+            "line": "L2363"
           },
           {
             "callee": "setTextColor",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2277"
+            "line": "L2364"
           },
           {
             "callee": "setTextSize",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2278"
+            "line": "L2365"
           },
           {
             "callee": "setTypeface",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2279"
+            "line": "L2366"
           },
           {
             "callee": "addView",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2285"
+            "line": "L2372"
           },
           {
             "callee": "setPadding",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2294"
+            "line": "L2381"
           },
           {
             "callee": "setOnClickListener",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2295"
+            "line": "L2382"
           },
           {
             "callee": "setBackgroundColor",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L2307"
+            "line": "L2394"
           },
           {
             "callee": "setId",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2318"
+            "line": "L2405"
           },
           {
             "callee": "setLineSpacing",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2322"
+            "line": "L2409"
           },
           {
             "callee": "setOnTouchListener",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2353"
+            "line": "L2440"
           }
         ]
       },
       "norm_label": ".builddiagnosticsoverlayview()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2256"
+      "source_location": "L2343"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_canceltvbuttonfade",
@@ -1296,13 +1335,13 @@
             "callee": "removeCallbacks",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3713"
+            "line": "L3800"
           }
         ]
       },
       "norm_label": ".canceltvbuttonfade()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3711"
+      "source_location": "L3798"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_configuretvtrackparametersbuilder",
@@ -1346,85 +1385,85 @@
             "callee": "setText",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3000"
+            "line": "L3087"
           },
           {
             "callee": "setTextColor",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3001"
+            "line": "L3088"
           },
           {
             "callee": "setTextSize",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3002"
+            "line": "L3089"
           },
           {
             "callee": "setTypeface",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3003"
+            "line": "L3090"
           },
           {
             "callee": "setGravity",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3004"
+            "line": "L3091"
           },
           {
             "callee": "setSingleLine",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3005"
+            "line": "L3092"
           },
           {
             "callee": "setPadding",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3009"
+            "line": "L3096"
           },
           {
             "callee": "setCornerRadius",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L3012"
+            "line": "L3099"
           },
           {
             "callee": "setColor",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L3013"
+            "line": "L3100"
           },
           {
             "callee": "parseColor",
             "receiver_type": "Color",
             "lang": "java",
-            "line": "L3013"
+            "line": "L3100"
           },
           {
             "callee": "setStroke",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L3014"
+            "line": "L3101"
           },
           {
             "callee": "setBackground",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3015"
+            "line": "L3102"
           },
           {
             "callee": "setLayoutParams",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3022"
+            "line": "L3109"
           }
         ]
       },
       "norm_label": ".creatediagnosticsbuttontextview()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2998"
+      "source_location": "L3085"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_createqualitybadgetextview",
@@ -1440,73 +1479,73 @@
             "callee": "setTextColor",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2973"
+            "line": "L3060"
           },
           {
             "callee": "setTextSize",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2974"
+            "line": "L3061"
           },
           {
             "callee": "setTypeface",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2975"
+            "line": "L3062"
           },
           {
             "callee": "setGravity",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2976"
+            "line": "L3063"
           },
           {
             "callee": "setSingleLine",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2977"
+            "line": "L3064"
           },
           {
             "callee": "setPadding",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2981"
+            "line": "L3068"
           },
           {
             "callee": "setCornerRadius",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L2984"
+            "line": "L3071"
           },
           {
             "callee": "setColor",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L2985"
+            "line": "L3072"
           },
           {
             "callee": "parseColor",
             "receiver_type": "Color",
             "lang": "java",
-            "line": "L2985"
+            "line": "L3072"
           },
           {
             "callee": "setBackground",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2986"
+            "line": "L3073"
           },
           {
             "callee": "setLayoutParams",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2993"
+            "line": "L3080"
           }
         ]
       },
       "norm_label": ".createqualitybadgetextview()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2971"
+      "source_location": "L3058"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_createtvbuttonbackground",
@@ -1522,37 +1561,37 @@
             "callee": "setShape",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L3568"
+            "line": "L3655"
           },
           {
             "callee": "setCornerRadius",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L3569"
+            "line": "L3656"
           },
           {
             "callee": "setColor",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L3571"
+            "line": "L3658"
           },
           {
             "callee": "parseColor",
             "receiver_type": "Color",
             "lang": "java",
-            "line": "L3571"
+            "line": "L3658"
           },
           {
             "callee": "setStroke",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L3572"
+            "line": "L3659"
           }
         ]
       },
       "norm_label": ".createtvbuttonbackground()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3566"
+      "source_location": "L3653"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_dptopx",
@@ -1568,25 +1607,25 @@
             "callee": "round",
             "receiver_type": "Math",
             "lang": "java",
-            "line": "L3745"
+            "line": "L3832"
           },
           {
             "callee": "applyDimension",
             "receiver_type": "TypedValue",
             "lang": "java",
-            "line": "L3748"
+            "line": "L3835"
           },
           {
             "callee": "getResources",
             "receiver_type": "Context",
             "lang": "java",
-            "line": "L3751"
+            "line": "L3838"
           }
         ]
       },
       "norm_label": ".dptopx()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3743"
+      "source_location": "L3830"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ensuretvqualitybuttonattached",
@@ -1602,31 +1641,31 @@
             "callee": "isFinishing",
             "receiver_type": "Activity",
             "lang": "java",
-            "line": "L3451"
+            "line": "L3538"
           },
           {
             "callee": "myLooper",
             "receiver_type": "Looper",
             "lang": "java",
-            "line": "L3540"
+            "line": "L3627"
           },
           {
             "callee": "getMainLooper",
             "receiver_type": "Looper",
             "lang": "java",
-            "line": "L3540"
+            "line": "L3627"
           },
           {
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3543"
+            "line": "L3630"
           }
         ]
       },
       "norm_label": ".ensuretvqualitybuttonattached()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3450"
+      "source_location": "L3537"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findactivity",
@@ -1638,7 +1677,7 @@
       "file_type": "code",
       "norm_label": ".findactivity()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3314"
+      "source_location": "L3401"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findcurrentlyplayingtrack",
@@ -1650,7 +1689,7 @@
       "file_type": "code",
       "norm_label": ".findcurrentlyplayingtrack()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3084"
+      "source_location": "L3171"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findparentonclicklistener",
@@ -1666,19 +1705,19 @@
             "callee": "getParent",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1754"
+            "line": "L1841"
           },
           {
             "callee": "getParent",
             "receiver_type": "ViewParent",
             "lang": "java",
-            "line": "L1759"
+            "line": "L1846"
           }
         ]
       },
       "norm_label": ".findparentonclicklistener()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1753"
+      "source_location": "L1840"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findwebview",
@@ -1694,13 +1733,13 @@
             "callee": "findViewById",
             "receiver_type": "Activity",
             "lang": "java",
-            "line": "L3721"
+            "line": "L3808"
           }
         ]
       },
       "norm_label": ".findwebview()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3718"
+      "source_location": "L3805"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findwebviewrecursive",
@@ -1716,19 +1755,19 @@
             "callee": "getChildCount",
             "receiver_type": "ViewGroup",
             "lang": "java",
-            "line": "L3730"
+            "line": "L3817"
           },
           {
             "callee": "getChildAt",
             "receiver_type": "ViewGroup",
             "lang": "java",
-            "line": "L3731"
+            "line": "L3818"
           }
         ]
       },
       "norm_label": ".findwebviewrecursive()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3729"
+      "source_location": "L3816"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getphysicaldisplaysizespoof",
@@ -1766,13 +1805,13 @@
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3671"
+            "line": "L3758"
           }
         ]
       },
       "norm_label": ".hidediagnosticsoverlay()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3670"
+      "source_location": "L3757"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_hidetvqualitybutton",
@@ -1788,13 +1827,13 @@
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3621"
+            "line": "L3708"
           }
         ]
       },
       "norm_label": ".hidetvqualitybutton()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3620"
+      "source_location": "L3707"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_injectqualityanddiagnosticsbuttons",
@@ -1810,91 +1849,91 @@
             "callee": "getParent",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L2909"
+            "line": "L2996"
           },
           {
             "callee": "getContext",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L2914"
+            "line": "L3001"
           },
           {
             "callee": "setOrientation",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2918"
+            "line": "L3005"
           },
           {
             "callee": "setGravity",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2919"
+            "line": "L3006"
           },
           {
             "callee": "getLayoutParams",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2921"
+            "line": "L3008"
           },
           {
             "callee": "setLayoutParams",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2924"
+            "line": "L3011"
           },
           {
             "callee": "setPadding",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2927"
+            "line": "L3014"
           },
           {
             "callee": "getPaddingTop",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2927"
+            "line": "L3014"
           },
           {
             "callee": "getPaddingBottom",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2927"
+            "line": "L3014"
           },
           {
             "callee": "findViewById",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2930"
+            "line": "L3017"
           },
           {
             "callee": "setId",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2932"
+            "line": "L3019"
           },
           {
             "callee": "setOnClickListener",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2933"
+            "line": "L3020"
           },
           {
             "callee": "addView",
             "receiver_type": "LinearLayout",
             "lang": "java",
-            "line": "L2939"
+            "line": "L3026"
           },
           {
             "callee": "setOnLongClickListener",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L2957"
+            "line": "L3044"
           }
         ]
       },
       "norm_label": ".injectqualityanddiagnosticsbuttons()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2907"
+      "source_location": "L2994"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_invokecallbacksuccess",
@@ -1932,19 +1971,19 @@
             "callee": "getApplicationContext",
             "receiver_type": "Context",
             "lang": "java",
-            "line": "L3283"
+            "line": "L3370"
           },
           {
             "callee": "getBoolean",
             "receiver_type": "SharedPreferences",
             "lang": "java",
-            "line": "L3285"
+            "line": "L3372"
           }
         ]
       },
       "norm_label": ".isrememberqualityenabled()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3281"
+      "source_location": "L3368"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_istvvideoplaying",
@@ -1960,49 +1999,49 @@
             "callee": "forName",
             "receiver_type": "Class",
             "lang": "java",
-            "line": "L3335"
+            "line": "L3422"
           },
           {
             "callee": "get",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L3337"
+            "line": "L3424"
           },
           {
             "callee": "get",
             "receiver_type": "WeakReference",
             "lang": "java",
-            "line": "L3344"
+            "line": "L3431"
           },
           {
             "callee": "setAccessible",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L3349"
+            "line": "L3436"
           },
           {
             "callee": "getBoolean",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L3376"
+            "line": "L3463"
           },
           {
             "callee": "setAccessible",
             "receiver_type": "Method",
             "lang": "java",
-            "line": "L3396"
+            "line": "L3483"
           },
           {
             "callee": "invoke",
             "receiver_type": "Method",
             "lang": "java",
-            "line": "L3397"
+            "line": "L3484"
           }
         ]
       },
       "norm_label": ".istvvideoplaying()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3332"
+      "source_location": "L3419"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_kayopatch",
@@ -2030,25 +2069,25 @@
             "callee": "getApplicationContext",
             "receiver_type": "Context",
             "lang": "java",
-            "line": "L3270"
+            "line": "L3357"
           },
           {
             "callee": "getBoolean",
             "receiver_type": "SharedPreferences",
             "lang": "java",
-            "line": "L3272"
+            "line": "L3359"
           },
           {
             "callee": "getInt",
             "receiver_type": "SharedPreferences",
             "lang": "java",
-            "line": "L3274"
+            "line": "L3361"
           }
         ]
       },
       "norm_label": ".loadprefsifneeded()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3264"
+      "source_location": "L3351"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_oncontrolsinitialized",
@@ -2064,31 +2103,31 @@
             "callee": "getContext",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1715"
+            "line": "L1802"
           },
           {
             "callee": "setVisibility",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1719"
+            "line": "L1806"
           },
           {
             "callee": "setOnClickListener",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1724"
+            "line": "L1811"
           },
           {
             "callee": "setOnLongClickListener",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1741"
+            "line": "L1828"
           }
         ]
       },
       "norm_label": ".oncontrolsinitialized()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1710"
+      "source_location": "L1797"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ondrmplayerattached",
@@ -2144,31 +2183,31 @@
             "callee": "get",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1097"
+            "line": "L1184"
           },
           {
             "callee": "forName",
             "receiver_type": "Class",
             "lang": "java",
-            "line": "L1127"
+            "line": "L1214"
           },
           {
             "callee": "newProxyInstance",
             "receiver_type": "Proxy",
             "lang": "java",
-            "line": "L1128"
+            "line": "L1215"
           },
           {
             "callee": "invoke",
             "receiver_type": "Method",
             "lang": "java",
-            "line": "L1145"
+            "line": "L1232"
           }
         ]
       },
       "norm_label": ".onmedia3playerattached()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1088"
+      "source_location": "L1175"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_onmedia3trackschanged",
@@ -2180,7 +2219,7 @@
       "file_type": "code",
       "norm_label": ".onmedia3trackschanged()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1152"
+      "source_location": "L1239"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_onmedia3videosizechanged",
@@ -2192,7 +2231,7 @@
       "file_type": "code",
       "norm_label": ".onmedia3videosizechanged()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1164"
+      "source_location": "L1251"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontrackselectorclicked",
@@ -2208,13 +2247,13 @@
             "callee": "getContext",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1779"
+            "line": "L1866"
           }
         ]
       },
       "norm_label": ".ontrackselectorclicked()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1775"
+      "source_location": "L1862"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontvkeyevent",
@@ -2230,91 +2269,91 @@
             "callee": "getAction",
             "receiver_type": "KeyEvent",
             "lang": "java",
-            "line": "L1521"
+            "line": "L1608"
           },
           {
             "callee": "getKeyCode",
             "receiver_type": "KeyEvent",
             "lang": "java",
-            "line": "L1522"
+            "line": "L1609"
           },
           {
             "callee": "get",
             "receiver_type": "WeakReference",
             "lang": "java",
-            "line": "L1536"
+            "line": "L1623"
           },
           {
             "callee": "getVisibility",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1537"
+            "line": "L1624"
           },
           {
             "callee": "animate",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1539"
+            "line": "L1626"
           },
           {
             "callee": "setVisibility",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1540"
+            "line": "L1627"
           },
           {
             "callee": "clearFocus",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1541"
+            "line": "L1628"
           },
           {
             "callee": "hasFocus",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1558"
+            "line": "L1645"
           },
           {
             "callee": "requestFocus",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1571"
+            "line": "L1658"
           },
           {
             "callee": "setAlpha",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1592"
+            "line": "L1679"
           },
           {
             "callee": "setScaleX",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1593"
+            "line": "L1680"
           },
           {
             "callee": "setScaleY",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1594"
+            "line": "L1681"
           },
           {
             "callee": "bringToFront",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1595"
+            "line": "L1682"
           },
           {
             "callee": "currentTimeMillis",
             "receiver_type": "System",
             "lang": "java",
-            "line": "L1616"
+            "line": "L1703"
           }
         ]
       },
       "norm_label": ".ontvkeyevent()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1516"
+      "source_location": "L1603"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontvplayerreleased",
@@ -2330,13 +2369,13 @@
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3641"
+            "line": "L3728"
           }
         ]
       },
       "norm_label": ".ontvplayerreleased()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3640"
+      "source_location": "L3727"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontvplayerviewsetplayer",
@@ -2352,19 +2391,19 @@
             "callee": "getContext",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L1055"
+            "line": "L1142"
           },
           {
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L1063"
+            "line": "L1150"
           }
         ]
       },
       "norm_label": ".ontvplayerviewsetplayer()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1052"
+      "source_location": "L1139"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontvtrackschanged",
@@ -2380,25 +2419,37 @@
             "callee": "setAccessible",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1033"
+            "line": "L1120"
           },
           {
             "callee": "get",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1034"
+            "line": "L1121"
           },
           {
             "callee": "get",
             "receiver_type": "WeakReference",
             "lang": "java",
-            "line": "L1041"
+            "line": "L1128"
           }
         ]
       },
       "norm_label": ".ontvtrackschanged()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1025"
+      "source_location": "L1112"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_onupdateselectedtrack",
+      "label": ".onUpdateSelectedTrack()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "KayoPatch",
+      "file_type": "code",
+      "norm_label": ".onupdateselectedtrack()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1012"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_onvideocapabilitiesexecute",
@@ -2462,7 +2513,7 @@
       "file_type": "code",
       "norm_label": ".overridetrackselectorvisibility()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1768"
+      "source_location": "L1855"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overridetvmaxbitrate",
@@ -2524,25 +2575,25 @@
             "callee": "getApplicationContext",
             "receiver_type": "Context",
             "lang": "java",
-            "line": "L3302"
+            "line": "L3389"
           },
           {
             "callee": "getBoolean",
             "receiver_type": "SharedPreferences",
             "lang": "java",
-            "line": "L3304"
+            "line": "L3391"
           },
           {
             "callee": "edit",
             "receiver_type": "SharedPreferences",
             "lang": "java",
-            "line": "L3305"
+            "line": "L3392"
           }
         ]
       },
       "norm_label": ".saveselectedquality()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3300"
+      "source_location": "L3387"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_scheduletvbuttonfade",
@@ -2558,13 +2609,13 @@
             "callee": "postDelayed",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3708"
+            "line": "L3795"
           }
         ]
       },
       "norm_label": ".scheduletvbuttonfade()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3689"
+      "source_location": "L3776"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_setfieldsafe",
@@ -2580,19 +2631,19 @@
             "callee": "setAccessible",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1420"
+            "line": "L1507"
           },
           {
             "callee": "set",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1421"
+            "line": "L1508"
           }
         ]
       },
       "norm_label": ".setfieldsafe()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1415"
+      "source_location": "L1502"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_setrememberqualityenabled",
@@ -2608,19 +2659,19 @@
             "callee": "getApplicationContext",
             "receiver_type": "Context",
             "lang": "java",
-            "line": "L3293"
+            "line": "L3380"
           },
           {
             "callee": "edit",
             "receiver_type": "SharedPreferences",
             "lang": "java",
-            "line": "L3295"
+            "line": "L3382"
           }
         ]
       },
       "norm_label": ".setrememberqualityenabled()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3291"
+      "source_location": "L3378"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_showdiagnosticsdialog",
@@ -2636,13 +2687,13 @@
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L2426"
+            "line": "L2513"
           }
         ]
       },
       "norm_label": ".showdiagnosticsdialog()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2419"
+      "source_location": "L2506"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_showqualitydialog",
@@ -2658,13 +2709,13 @@
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3107"
+            "line": "L3194"
           }
         ]
       },
       "norm_label": ".showqualitydialog()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3100"
+      "source_location": "L3187"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_showtvqualitybuttonbriefly",
@@ -2680,13 +2731,13 @@
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3428"
+            "line": "L3515"
           }
         ]
       },
       "norm_label": ".showtvqualitybuttonbriefly()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3427"
+      "source_location": "L3514"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_spoofplaybackcapabilities",
@@ -2698,7 +2749,7 @@
       "file_type": "code",
       "norm_label": ".spoofplaybackcapabilities()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1652"
+      "source_location": "L1739"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_startdiagnosticsoverlaytimer",
@@ -2714,13 +2765,13 @@
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L2406"
+            "line": "L2493"
           }
         ]
       },
       "norm_label": ".startdiagnosticsoverlaytimer()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2388"
+      "source_location": "L2475"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_stopdiagnosticsoverlaytimer",
@@ -2736,13 +2787,13 @@
             "callee": "removeCallbacks",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L2411"
+            "line": "L2498"
           }
         ]
       },
       "norm_label": ".stopdiagnosticsoverlaytimer()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2409"
+      "source_location": "L2496"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_togglediagnosticsoverlay",
@@ -2758,13 +2809,13 @@
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L2214"
+            "line": "L2301"
           }
         ]
       },
       "norm_label": ".togglediagnosticsoverlay()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2208"
+      "source_location": "L2295"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_updateallqualitybadges",
@@ -2780,13 +2831,13 @@
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3028"
+            "line": "L3115"
           }
         ]
       },
       "norm_label": ".updateallqualitybadges()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3027"
+      "source_location": "L3114"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_updatequalitybadgetext",
@@ -2802,43 +2853,43 @@
             "callee": "setText",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3060"
+            "line": "L3147"
           },
           {
             "callee": "setCornerRadius",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L3068"
+            "line": "L3155"
           },
           {
             "callee": "getContext",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3068"
+            "line": "L3155"
           },
           {
             "callee": "setColor",
             "receiver_type": "GradientDrawable",
             "lang": "java",
-            "line": "L3069"
+            "line": "L3156"
           },
           {
             "callee": "parseColor",
             "receiver_type": "Color",
             "lang": "java",
-            "line": "L3069"
+            "line": "L3156"
           },
           {
             "callee": "setBackground",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3070"
+            "line": "L3157"
           }
         ]
       },
       "norm_label": ".updatequalitybadgetext()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3046"
+      "source_location": "L3133"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_updatetvbuttonfocusstate",
@@ -2854,43 +2905,43 @@
             "callee": "setBackground",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L3549"
+            "line": "L3636"
           },
           {
             "callee": "get",
             "receiver_type": "WeakReference",
             "lang": "java",
-            "line": "L3550"
+            "line": "L3637"
           },
           {
             "callee": "setTextColor",
             "receiver_type": "TextView",
             "lang": "java",
-            "line": "L3552"
+            "line": "L3639"
           },
           {
             "callee": "parseColor",
             "receiver_type": "Color",
             "lang": "java",
-            "line": "L3552"
+            "line": "L3639"
           },
           {
             "callee": "setAlpha",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L3555"
+            "line": "L3642"
           },
           {
             "callee": "animate",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L3556"
+            "line": "L3643"
           }
         ]
       },
       "norm_label": ".updatetvbuttonfocusstate()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3547"
+      "source_location": "L3634"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_updatetvqualitybuttontext",
@@ -2906,25 +2957,25 @@
             "callee": "get",
             "receiver_type": "WeakReference",
             "lang": "java",
-            "line": "L3582"
+            "line": "L3669"
           },
           {
             "callee": "hasFocus",
             "receiver_type": "View",
             "lang": "java",
-            "line": "L3586"
+            "line": "L3673"
           },
           {
             "callee": "post",
             "receiver_type": "Handler",
             "lang": "java",
-            "line": "L3588"
+            "line": "L3675"
           }
         ]
       },
       "norm_label": ".updatetvqualitybuttontext()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3580"
+      "source_location": "L3667"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption_getdisplaylabel",
@@ -2960,7 +3011,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "norm_label": ".audiotrackoption()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
@@ -2972,23 +3023,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "norm_label": ".getdisplaylabel()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
       "source_location": "L245"
-    },
-    {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractaudiotracks",
-      "label": ".extractAudioTracks()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "norm_label": ".extractaudiotracks()",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2765"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractaudiotracksfromselection",
@@ -2996,7 +3035,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3004,13 +3043,13 @@
             "callee": "invoke",
             "receiver_type": "Method",
             "lang": "java",
-            "line": "L995"
+            "line": "L1082"
           }
         ]
       },
       "norm_label": ".extractaudiotracksfromselection()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L980"
+      "source_location": "L1067"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractmedia3audiotracks",
@@ -3018,7 +3057,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3026,13 +3065,13 @@
             "callee": "invoke",
             "receiver_type": "Method",
             "lang": "java",
-            "line": "L1321"
+            "line": "L1408"
           }
         ]
       },
       "norm_label": ".extractmedia3audiotracks()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1311"
+      "source_location": "L1398"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractmedia3videotracks",
@@ -3040,7 +3079,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3048,41 +3087,19 @@
             "callee": "invoke",
             "receiver_type": "Method",
             "lang": "java",
-            "line": "L1188"
+            "line": "L1275"
           },
           {
             "callee": "sort",
             "receiver_type": "Collections",
             "lang": "java",
-            "line": "L1295"
+            "line": "L1382"
           }
         ]
       },
       "norm_label": ".extractmedia3videotracks()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1178"
-    },
-    {
-      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractvideotracks",
-      "label": ".extractVideoTracks()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "metadata": {
-        "unresolved_calls": [
-          {
-            "callee": "sort",
-            "receiver_type": "Collections",
-            "lang": "java",
-            "line": "L2749"
-          }
-        ]
-      },
-      "norm_label": ".extractvideotracks()",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2715"
+      "source_location": "L1265"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractvideotracksfromselection",
@@ -3090,7 +3107,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3098,13 +3115,35 @@
             "callee": "invoke",
             "receiver_type": "Method",
             "lang": "java",
-            "line": "L956"
+            "line": "L1043"
           }
         ]
       },
       "norm_label": ".extractvideotracksfromselection()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L941"
+      "source_location": "L1028"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findbesttrackindex",
+      "label": ".findBestTrackIndex()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": ".extractMedia3VideoTracks",
+      "file_type": "code",
+      "metadata": {
+        "unresolved_calls": [
+          {
+            "callee": "abs",
+            "receiver_type": "Math",
+            "lang": "java",
+            "line": "L861"
+          }
+        ]
+      },
+      "norm_label": ".findbesttrackindex()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L832"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getavailableaudiooptions",
@@ -3112,7 +3151,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3120,13 +3159,13 @@
             "callee": "get",
             "receiver_type": "WeakReference",
             "lang": "java",
-            "line": "L2539"
+            "line": "L2626"
           }
         ]
       },
       "norm_label": ".getavailableaudiooptions()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2528"
+      "source_location": "L2615"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getavailablevideooptions",
@@ -3134,7 +3173,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3142,13 +3181,13 @@
             "callee": "get",
             "receiver_type": "WeakReference",
             "lang": "java",
-            "line": "L2495"
+            "line": "L2582"
           }
         ]
       },
       "norm_label": ".getavailablevideooptions()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2484"
+      "source_location": "L2571"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getfieldany",
@@ -3156,7 +3195,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3184,7 +3223,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3192,19 +3231,19 @@
             "callee": "setAccessible",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1484"
+            "line": "L1571"
           },
           {
             "callee": "getFloat",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1485"
+            "line": "L1572"
           }
         ]
       },
       "norm_label": ".getfloatfield()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1479"
+      "source_location": "L1566"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getintfield",
@@ -3212,7 +3251,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3220,19 +3259,19 @@
             "callee": "setAccessible",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1436"
+            "line": "L1523"
           },
           {
             "callee": "getInt",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1437"
+            "line": "L1524"
           }
         ]
       },
       "norm_label": ".getintfield()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1431"
+      "source_location": "L1518"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getstringfield",
@@ -3240,7 +3279,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3248,19 +3287,43 @@
             "callee": "setAccessible",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1500"
+            "line": "L1587"
           },
           {
             "callee": "get",
             "receiver_type": "Field",
             "lang": "java",
-            "line": "L1501"
+            "line": "L1588"
           }
         ]
       },
       "norm_label": ".getstringfield()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1495"
+      "source_location": "L1582"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideidealselectedindex",
+      "label": ".overrideIdealSelectedIndex()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": ".extractMedia3VideoTracks",
+      "file_type": "code",
+      "norm_label": ".overrideidealselectedindex()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1004"
+    },
+    {
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselectedindex",
+      "label": ".overrideSelectedIndex()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": ".extractMedia3VideoTracks",
+      "file_type": "code",
+      "norm_label": ".overrideselectedindex()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L975"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselecttracksresult",
@@ -3268,21 +3331,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
-      "metadata": {
-        "unresolved_calls": [
-          {
-            "callee": "abs",
-            "receiver_type": "Math",
-            "lang": "java",
-            "line": "L884"
-          }
-        ]
-      },
       "norm_label": ".overrideselecttracksresult()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L836"
+      "source_location": "L896"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_videotrackoption_getshortbadgelabel",
@@ -3290,7 +3343,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "metadata": {
         "unresolved_calls": [
@@ -3318,42 +3371,52 @@
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community_name": ".extractMedia3VideoTracks",
       "file_type": "code",
       "norm_label": ".videotrackoption()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
       "source_location": "L293"
     },
     {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format_format_format",
-      "label": ".Format()",
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractaudiotracks",
+      "label": ".extractAudioTracks()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
-      "norm_label": ".format()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
-      "source_location": "L21"
+      "norm_label": ".extractaudiotracks()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L2852"
     },
     {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup_trackgroup_getformat",
-      "label": ".getFormat()",
+      "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractvideotracks",
+      "label": ".extractVideoTracks()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
-      "norm_label": ".getformat()",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
-      "source_location": "L19"
+      "metadata": {
+        "unresolved_calls": [
+          {
+            "callee": "sort",
+            "receiver_type": "Collections",
+            "lang": "java",
+            "line": "L2836"
+          }
+        ]
+      },
+      "norm_label": ".extractvideotracks()",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L2802"
     },
     {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_tracks_group_getmediatrackgroup",
       "label": ".getMediaTrackGroup()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": ".getmediatrackgroup()",
@@ -3365,7 +3428,7 @@
       "label": ".getTrackFormat()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": ".gettrackformat()",
@@ -3377,7 +3440,7 @@
       "label": ".getTrackSupport()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": ".gettracksupport()",
@@ -3389,7 +3452,7 @@
       "label": ".getType()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": ".gettype()",
@@ -3401,7 +3464,7 @@
       "label": ".Group()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": ".group()",
@@ -3413,7 +3476,7 @@
       "label": ".isSelected()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": ".isselected()",
@@ -3425,7 +3488,7 @@
       "label": ".isTrackSelected()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": ".istrackselected()",
@@ -3437,7 +3500,7 @@
       "label": ".isTrackSupported()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": ".istracksupported()",
@@ -3449,12 +3512,36 @@
       "label": ".getGroups()",
       "_callable": true,
       "_origin": "ast",
-      "community": 25,
+      "community": 26,
       "community_name": ".extractVideoTracks",
       "file_type": "code",
       "norm_label": ".getgroups()",
       "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Tracks.java",
       "source_location": "L11"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format_format_format",
+      "label": ".Format()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "Format",
+      "file_type": "code",
+      "norm_label": ".format()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
+      "source_location": "L21"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup_trackgroup_getformat",
+      "label": ".getFormat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "Format",
+      "file_type": "code",
+      "norm_label": ".getformat()",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
+      "source_location": "L19"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_applyselectedquality",
@@ -3470,19 +3557,19 @@
             "callee": "abs",
             "receiver_type": "Math",
             "lang": "java",
-            "line": "L2853"
+            "line": "L2940"
           },
           {
             "callee": "get",
             "receiver_type": "WeakReference",
             "lang": "java",
-            "line": "L2897"
+            "line": "L2984"
           }
         ]
       },
       "norm_label": ".applyselectedquality()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2810"
+      "source_location": "L2897"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontrackschanged",
@@ -3494,7 +3581,7 @@
       "file_type": "code",
       "norm_label": ".ontrackschanged()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1675"
+      "source_location": "L1762"
     },
     {
       "id": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontrackselectorinit",
@@ -3518,7 +3605,7 @@
       "file_type": "code",
       "norm_label": ".shouldignorebitratelimit()",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1698"
+      "source_location": "L1785"
     },
     {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_trackselection_defaulttrackselector_builder_addoverride",
@@ -4123,17 +4210,6 @@
       "source_location": "L1"
     },
     {
-      "id": "extensions_extension_src_main_java_com_google_common_collect_immutablelist",
-      "label": "ImmutableList.java",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TrackGroup",
-      "file_type": "code",
-      "norm_label": "immutablelist.java",
-      "source_file": "extensions/extension/src/main/java/com/google/common/collect/ImmutableList.java",
-      "source_location": "L1"
-    },
-    {
       "id": "patches_src_main_kotlin_app_template_patches_kayo_kayopatch",
       "label": "KayoPatch.kt",
       "_origin": "ast",
@@ -4503,11 +4579,44 @@
       "source_location": ""
     },
     {
+      "id": "pair",
+      "label": "Pair",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": ".extractMedia3VideoTracks",
+      "file_type": "code",
+      "norm_label": "pair",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_tracks",
+      "label": "Tracks.java",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": "tracks.java",
+      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Tracks.java",
+      "source_location": "L1"
+    },
+    {
+      "id": "extensions_extension_src_main_java_com_google_common_collect_immutablelist",
+      "label": "ImmutableList.java",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": ".extractVideoTracks",
+      "file_type": "code",
+      "norm_label": "immutablelist.java",
+      "source_file": "extensions/extension/src/main/java/com/google/common/collect/ImmutableList.java",
+      "source_location": "L1"
+    },
+    {
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_format",
       "label": "Format.java",
       "_origin": "ast",
-      "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community": 27,
+      "community_name": "Format",
       "file_type": "code",
       "norm_label": "format.java",
       "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java",
@@ -4517,34 +4626,12 @@
       "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_source_trackgroup",
       "label": "TrackGroup.java",
       "_origin": "ast",
-      "community": 25,
-      "community_name": ".extractVideoTracks",
+      "community": 27,
+      "community_name": "Format",
       "file_type": "code",
       "norm_label": "trackgroup.java",
       "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java",
       "source_location": "L1"
-    },
-    {
-      "id": "extensions_extension_src_main_java_com_google_android_exoplayer2_tracks",
-      "label": "Tracks.java",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "norm_label": "tracks.java",
-      "source_file": "extensions/extension/src/main/java/com/google/android/exoplayer2/Tracks.java",
-      "source_location": "L1"
-    },
-    {
-      "id": "pair",
-      "label": "Pair",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": ".extractVideoTracks",
-      "file_type": "code",
-      "norm_label": "pair",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "override",
@@ -6184,7 +6271,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2826",
+      "source_location": "L2913",
       "weight": 1.0
     },
     {
@@ -6196,7 +6283,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2828",
+      "source_location": "L2915",
       "weight": 1.0
     },
     {
@@ -6208,7 +6295,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2899",
+      "source_location": "L2986",
       "weight": 1.0
     },
     {
@@ -6220,7 +6307,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2439",
+      "source_location": "L2526",
       "weight": 1.0
     },
     {
@@ -6232,7 +6319,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2440",
+      "source_location": "L2527",
       "weight": 1.0
     },
     {
@@ -6244,7 +6331,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2443",
+      "source_location": "L2530",
       "weight": 1.0
     },
     {
@@ -6256,7 +6343,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3120",
+      "source_location": "L3207",
       "weight": 1.0
     },
     {
@@ -6268,7 +6355,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3122",
+      "source_location": "L3209",
       "weight": 1.0
     },
     {
@@ -6280,7 +6367,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3129",
+      "source_location": "L3216",
       "weight": 1.0
     },
     {
@@ -6292,7 +6379,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3218",
+      "source_location": "L3305",
       "weight": 1.0
     },
     {
@@ -6304,7 +6391,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2260",
+      "source_location": "L2347",
       "weight": 1.0
     },
     {
@@ -6316,7 +6403,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2323",
+      "source_location": "L2410",
       "weight": 1.0
     },
     {
@@ -6328,7 +6415,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2323",
+      "source_location": "L2410",
       "weight": 1.0
     },
     {
@@ -6340,7 +6427,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2647",
+      "source_location": "L2734",
       "weight": 1.0
     },
     {
@@ -6352,7 +6439,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2687",
+      "source_location": "L2774",
       "weight": 1.0
     },
     {
@@ -6388,7 +6475,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3007",
+      "source_location": "L3094",
       "weight": 1.0
     },
     {
@@ -6400,7 +6487,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2979",
+      "source_location": "L3066",
       "weight": 1.0
     },
     {
@@ -6412,7 +6499,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3569",
+      "source_location": "L3656",
       "weight": 1.0
     },
     {
@@ -6424,7 +6511,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2790",
+      "source_location": "L2877",
       "weight": 1.0
     },
     {
@@ -6436,7 +6523,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2792",
+      "source_location": "L2879",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractaudiotracksfromselection",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getfieldany",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1071",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractaudiotracksfromselection",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getintfield",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1073",
       "weight": 1.0
     },
     {
@@ -6448,7 +6559,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1009",
+      "source_location": "L1096",
       "weight": 1.0
     },
     {
@@ -6460,31 +6571,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1014",
-      "weight": 1.0
-    },
-    {
-      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractaudiotracksfromselection",
-      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getfieldany",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L984",
-      "weight": 1.0
-    },
-    {
-      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractaudiotracksfromselection",
-      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getintfield",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L986",
+      "source_location": "L1101",
       "weight": 1.0
     },
     {
@@ -6496,7 +6583,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1317",
+      "source_location": "L1404",
       "weight": 1.0
     },
     {
@@ -6508,7 +6595,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1335",
+      "source_location": "L1422",
       "weight": 1.0
     },
     {
@@ -6520,7 +6607,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1400",
+      "source_location": "L1487",
       "weight": 1.0
     },
     {
@@ -6532,7 +6619,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1405",
+      "source_location": "L1492",
       "weight": 1.0
     },
     {
@@ -6544,7 +6631,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1184",
+      "source_location": "L1271",
       "weight": 1.0
     },
     {
@@ -6556,7 +6643,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1202",
+      "source_location": "L1289",
       "weight": 1.0
     },
     {
@@ -6568,7 +6655,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1278",
+      "source_location": "L1365",
       "weight": 1.0
     },
     {
@@ -6580,7 +6667,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1286",
+      "source_location": "L1373",
       "weight": 1.0
     },
     {
@@ -6592,7 +6679,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1288",
+      "source_location": "L1375",
       "weight": 1.0
     },
     {
@@ -6604,7 +6691,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2742",
+      "source_location": "L2829",
       "weight": 1.0
     },
     {
@@ -6616,7 +6703,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L945",
+      "source_location": "L1032",
       "weight": 1.0
     },
     {
@@ -6628,7 +6715,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L947",
+      "source_location": "L1034",
       "weight": 1.0
     },
     {
@@ -6640,7 +6727,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L967",
+      "source_location": "L1054",
       "weight": 1.0
     },
     {
@@ -6652,7 +6739,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L971",
+      "source_location": "L1058",
       "weight": 1.0
     },
     {
@@ -6664,7 +6751,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L973",
+      "source_location": "L1060",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findbesttrackindex",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getintfield",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L845",
       "weight": 1.0
     },
     {
@@ -6676,7 +6775,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3723",
+      "source_location": "L3810",
       "weight": 1.0
     },
     {
@@ -6688,7 +6787,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3736",
+      "source_location": "L3823",
       "weight": 1.0
     },
     {
@@ -6700,7 +6799,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1805",
+      "source_location": "L1892",
       "weight": 1.0
     },
     {
@@ -6712,7 +6811,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1806",
+      "source_location": "L1893",
       "weight": 1.0
     },
     {
@@ -6724,7 +6823,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1857",
+      "source_location": "L1944",
       "weight": 1.0
     },
     {
@@ -6736,7 +6835,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1868",
+      "source_location": "L1955",
       "weight": 1.0
     },
     {
@@ -6748,7 +6847,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1925",
+      "source_location": "L2012",
       "weight": 1.0
     },
     {
@@ -6760,7 +6859,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1933",
+      "source_location": "L2020",
       "weight": 1.0
     },
     {
@@ -6772,7 +6871,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1969",
+      "source_location": "L2056",
       "weight": 1.0
     },
     {
@@ -6784,7 +6883,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1990",
+      "source_location": "L2077",
       "weight": 1.0
     },
     {
@@ -6796,7 +6895,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2006",
+      "source_location": "L2093",
       "weight": 1.0
     },
     {
@@ -6808,7 +6907,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2022",
+      "source_location": "L2109",
       "weight": 1.0
     },
     {
@@ -6820,7 +6919,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2121",
+      "source_location": "L2208",
       "weight": 1.0
     },
     {
@@ -6832,7 +6931,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2529",
+      "source_location": "L2616",
       "weight": 1.0
     },
     {
@@ -6844,7 +6943,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2534",
+      "source_location": "L2621",
       "weight": 1.0
     },
     {
@@ -6856,7 +6955,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2542",
+      "source_location": "L2629",
       "weight": 1.0
     },
     {
@@ -6868,7 +6967,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2557",
+      "source_location": "L2644",
       "weight": 1.0
     },
     {
@@ -6880,7 +6979,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2485",
+      "source_location": "L2572",
       "weight": 1.0
     },
     {
@@ -6892,7 +6991,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2490",
+      "source_location": "L2577",
       "weight": 1.0
     },
     {
@@ -6904,7 +7003,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2498",
+      "source_location": "L2585",
       "weight": 1.0
     },
     {
@@ -6916,7 +7015,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2514",
+      "source_location": "L2601",
       "weight": 1.0
     },
     {
@@ -6928,7 +7027,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2926",
+      "source_location": "L3013",
       "weight": 1.0
     },
     {
@@ -6940,7 +7039,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2931",
+      "source_location": "L3018",
       "weight": 1.0
     },
     {
@@ -6952,7 +7051,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2944",
+      "source_location": "L3031",
       "weight": 1.0
     },
     {
@@ -6964,7 +7063,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2949",
+      "source_location": "L3036",
       "weight": 1.0
     },
     {
@@ -6976,7 +7075,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3352",
+      "source_location": "L3439",
       "weight": 1.0
     },
     {
@@ -6988,7 +7087,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1716",
+      "source_location": "L1803",
       "weight": 1.0
     },
     {
@@ -7000,7 +7099,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1721",
+      "source_location": "L1808",
       "weight": 1.0
     },
     {
@@ -7012,7 +7111,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1750",
+      "source_location": "L1837",
       "weight": 1.0
     },
     {
@@ -7048,7 +7147,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1115",
+      "source_location": "L1202",
       "weight": 1.0
     },
     {
@@ -7060,7 +7159,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1123",
+      "source_location": "L1210",
       "weight": 1.0
     },
     {
@@ -7072,7 +7171,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1155",
+      "source_location": "L1242",
       "weight": 1.0
     },
     {
@@ -7084,7 +7183,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1156",
+      "source_location": "L1243",
       "weight": 1.0
     },
     {
@@ -7096,7 +7195,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1161",
+      "source_location": "L1248",
       "weight": 1.0
     },
     {
@@ -7108,7 +7207,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1168",
+      "source_location": "L1255",
       "weight": 1.0
     },
     {
@@ -7120,7 +7219,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1172",
+      "source_location": "L1259",
       "weight": 1.0
     },
     {
@@ -7132,7 +7231,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1683",
+      "source_location": "L1770",
       "weight": 1.0
     },
     {
@@ -7144,7 +7243,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1686",
+      "source_location": "L1773",
       "weight": 1.0
     },
     {
@@ -7156,7 +7255,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1779",
+      "source_location": "L1866",
       "weight": 1.0
     },
     {
@@ -7168,7 +7267,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1528",
+      "source_location": "L1615",
       "weight": 1.0
     },
     {
@@ -7180,7 +7279,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1533",
+      "source_location": "L1620",
       "weight": 1.0
     },
     {
@@ -7192,7 +7291,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1538",
+      "source_location": "L1625",
       "weight": 1.0
     },
     {
@@ -7204,7 +7303,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1543",
+      "source_location": "L1630",
       "weight": 1.0
     },
     {
@@ -7216,7 +7315,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1552",
+      "source_location": "L1639",
       "weight": 1.0
     },
     {
@@ -7228,7 +7327,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1568",
+      "source_location": "L1655",
       "weight": 1.0
     },
     {
@@ -7240,7 +7339,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1569",
+      "source_location": "L1656",
       "weight": 1.0
     },
     {
@@ -7252,7 +7351,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1609",
+      "source_location": "L1696",
       "weight": 1.0
     },
     {
@@ -7264,7 +7363,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1629",
+      "source_location": "L1716",
       "weight": 1.0
     },
     {
@@ -7276,7 +7375,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1055",
+      "source_location": "L1142",
       "weight": 1.0
     },
     {
@@ -7288,7 +7387,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1062",
+      "source_location": "L1149",
       "weight": 1.0
     },
     {
@@ -7300,7 +7399,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1080",
+      "source_location": "L1167",
       "weight": 1.0
     },
     {
@@ -7312,7 +7411,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1081",
+      "source_location": "L1168",
       "weight": 1.0
     },
     {
@@ -7324,7 +7423,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1028",
+      "source_location": "L1115",
       "weight": 1.0
     },
     {
@@ -7336,7 +7435,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1036",
+      "source_location": "L1123",
       "weight": 1.0
     },
     {
@@ -7348,7 +7447,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1043",
+      "source_location": "L1130",
       "weight": 1.0
     },
     {
@@ -7360,7 +7459,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1044",
+      "source_location": "L1131",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_onupdateselectedtrack",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselectedindex",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1016",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_onupdateselectedtrack",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_setfieldsafe",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1019",
       "weight": 1.0
     },
     {
@@ -7376,6 +7499,54 @@
       "weight": 1.0
     },
     {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideidealselectedindex",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselectedindex",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1005",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselectedindex",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getfieldany",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L980",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselectedindex",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getintfield",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L986",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselectedindex",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findbesttrackindex",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L995",
+      "weight": 1.0
+    },
+    {
       "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselecttracksresult",
       "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_getfieldany",
       "relation": "calls",
@@ -7384,7 +7555,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L848",
+      "source_location": "L905",
       "weight": 1.0
     },
     {
@@ -7396,7 +7567,43 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L868",
+      "source_location": "L909",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselecttracksresult",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findbesttrackindex",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L928",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselecttracksresult",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_setfieldsafe",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L931",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselecttracksresult",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselecttracksresult",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L968",
       "weight": 1.0
     },
     {
@@ -7420,7 +7627,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3690",
+      "source_location": "L3777",
       "weight": 1.0
     },
     {
@@ -7432,7 +7639,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1700",
+      "source_location": "L1787",
       "weight": 1.0
     },
     {
@@ -7444,7 +7651,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2420",
+      "source_location": "L2507",
       "weight": 1.0
     },
     {
@@ -7456,7 +7663,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3101",
+      "source_location": "L3188",
       "weight": 1.0
     },
     {
@@ -7468,7 +7675,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2389",
+      "source_location": "L2476",
       "weight": 1.0
     },
     {
@@ -7480,7 +7687,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2209",
+      "source_location": "L2296",
       "weight": 1.0
     },
     {
@@ -7492,7 +7699,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3051",
+      "source_location": "L3138",
       "weight": 1.0
     },
     {
@@ -7504,7 +7711,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3051",
+      "source_location": "L3138",
       "weight": 1.0
     },
     {
@@ -7516,7 +7723,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3053",
+      "source_location": "L3140",
       "weight": 1.0
     },
     {
@@ -7528,7 +7735,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3068",
+      "source_location": "L3155",
       "weight": 1.0
     },
     {
@@ -7540,7 +7747,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3549",
+      "source_location": "L3636",
       "weight": 1.0
     },
     {
@@ -7552,7 +7759,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3557",
+      "source_location": "L3644",
       "weight": 1.0
     },
     {
@@ -7564,7 +7771,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3558",
+      "source_location": "L3645",
       "weight": 1.0
     },
     {
@@ -7576,7 +7783,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3562",
+      "source_location": "L3649",
       "weight": 1.0
     },
     {
@@ -7864,7 +8071,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2765",
+      "source_location": "L2852",
       "weight": 1.0
     },
     {
@@ -7876,7 +8083,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L980",
+      "source_location": "L1067",
       "weight": 1.0
     },
     {
@@ -7888,7 +8095,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1311",
+      "source_location": "L1398",
       "weight": 1.0
     },
     {
@@ -7900,7 +8107,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1178",
+      "source_location": "L1265",
       "weight": 1.0
     },
     {
@@ -7912,7 +8119,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2715",
+      "source_location": "L2802",
       "weight": 1.0
     },
     {
@@ -7924,7 +8131,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L941",
+      "source_location": "L1028",
       "weight": 1.0
     },
     {
@@ -7936,7 +8143,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2528",
+      "source_location": "L2615",
       "weight": 1.0
     },
     {
@@ -7948,7 +8155,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2484",
+      "source_location": "L2571",
       "weight": 1.0
     },
     {
@@ -9154,7 +9361,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2810",
+      "source_location": "L2897",
       "weight": 1.0
     },
     {
@@ -9166,7 +9373,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2810",
+      "source_location": "L2897",
       "weight": 1.0
     },
     {
@@ -9178,7 +9385,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2438",
+      "source_location": "L2525",
       "weight": 1.0
     },
     {
@@ -9190,7 +9397,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3119",
+      "source_location": "L3206",
       "weight": 1.0
     },
     {
@@ -9202,7 +9409,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2256",
+      "source_location": "L2343",
       "weight": 1.0
     },
     {
@@ -9214,7 +9421,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2571",
+      "source_location": "L2658",
       "weight": 1.0
     },
     {
@@ -9226,7 +9433,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2998",
+      "source_location": "L3085",
       "weight": 1.0
     },
     {
@@ -9238,7 +9445,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2971",
+      "source_location": "L3058",
       "weight": 1.0
     },
     {
@@ -9250,7 +9457,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3566",
+      "source_location": "L3653",
       "weight": 1.0
     },
     {
@@ -9262,7 +9469,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3756",
+      "source_location": "L3843",
       "weight": 1.0
     },
     {
@@ -9274,7 +9481,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3450",
+      "source_location": "L3537",
       "weight": 1.0
     },
     {
@@ -9286,7 +9493,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2765",
+      "source_location": "L2852",
       "weight": 1.0
     },
     {
@@ -9298,7 +9505,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2715",
+      "source_location": "L2802",
       "weight": 1.0
     },
     {
@@ -9310,7 +9517,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3314",
+      "source_location": "L3401",
       "weight": 1.0
     },
     {
@@ -9322,7 +9529,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1753",
+      "source_location": "L1840",
       "weight": 1.0
     },
     {
@@ -9334,7 +9541,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3718",
+      "source_location": "L3805",
       "weight": 1.0
     },
     {
@@ -9346,7 +9553,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3729",
+      "source_location": "L3816",
       "weight": 1.0
     },
     {
@@ -9358,7 +9565,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2143",
+      "source_location": "L2230",
       "weight": 1.0
     },
     {
@@ -9370,7 +9577,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2907",
+      "source_location": "L2994",
       "weight": 1.0
     },
     {
@@ -9394,7 +9601,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3281",
+      "source_location": "L3368",
       "weight": 1.0
     },
     {
@@ -9406,7 +9613,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3264",
+      "source_location": "L3351",
       "weight": 1.0
     },
     {
@@ -9418,7 +9625,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1710",
+      "source_location": "L1797",
       "weight": 1.0
     },
     {
@@ -9442,7 +9649,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1675",
+      "source_location": "L1762",
       "weight": 1.0
     },
     {
@@ -9454,7 +9661,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1675",
+      "source_location": "L1762",
       "weight": 1.0
     },
     {
@@ -9466,7 +9673,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1775",
+      "source_location": "L1862",
       "weight": 1.0
     },
     {
@@ -9490,7 +9697,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1516",
+      "source_location": "L1603",
       "weight": 1.0
     },
     {
@@ -9502,7 +9709,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1516",
+      "source_location": "L1603",
       "weight": 1.0
     },
     {
@@ -9514,7 +9721,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1052",
+      "source_location": "L1139",
       "weight": 1.0
     },
     {
@@ -9550,7 +9757,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3300",
+      "source_location": "L3387",
       "weight": 1.0
     },
     {
@@ -9562,7 +9769,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3291",
+      "source_location": "L3378",
       "weight": 1.0
     },
     {
@@ -9574,7 +9781,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2419",
+      "source_location": "L2506",
       "weight": 1.0
     },
     {
@@ -9586,7 +9793,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3100",
+      "source_location": "L3187",
       "weight": 1.0
     },
     {
@@ -9598,7 +9805,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2208",
+      "source_location": "L2295",
       "weight": 1.0
     },
     {
@@ -9610,7 +9817,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3046",
+      "source_location": "L3133",
       "weight": 1.0
     },
     {
@@ -9622,7 +9829,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3547",
+      "source_location": "L3634",
       "weight": 1.0
     },
     {
@@ -9634,7 +9841,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3547",
+      "source_location": "L3634",
       "weight": 1.0
     },
     {
@@ -9778,7 +9985,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2256",
+      "source_location": "L2343",
       "weight": 1.0
     },
     {
@@ -9790,7 +9997,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2998",
+      "source_location": "L3085",
       "weight": 1.0
     },
     {
@@ -9802,7 +10009,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2971",
+      "source_location": "L3058",
       "weight": 1.0
     },
     {
@@ -9814,7 +10021,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3566",
+      "source_location": "L3653",
       "weight": 1.0
     },
     {
@@ -9826,7 +10033,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3314",
+      "source_location": "L3401",
       "weight": 1.0
     },
     {
@@ -9838,7 +10045,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3084",
+      "source_location": "L3171",
       "weight": 1.0
     },
     {
@@ -9850,7 +10057,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1753",
+      "source_location": "L1840",
       "weight": 1.0
     },
     {
@@ -9862,7 +10069,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3718",
+      "source_location": "L3805",
       "weight": 1.0
     },
     {
@@ -9874,7 +10081,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3729",
+      "source_location": "L3816",
       "weight": 1.0
     },
     {
@@ -9886,7 +10093,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1791",
+      "source_location": "L1878",
       "weight": 1.0
     },
     {
@@ -9910,7 +10117,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L836",
+      "source_location": "L964",
       "weight": 1.0
     },
     {
@@ -10938,6 +11145,39 @@
     },
     {
       "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints",
+      "target": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvadaptivetrackselectiondetermineidealselectedindexfingerprint",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
+      "source_location": "L448",
+      "weight": 1.0
+    },
+    {
+      "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints",
+      "target": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvadaptivetrackselectiongetselectedindexfingerprint",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
+      "source_location": "L458",
+      "weight": 1.0
+    },
+    {
+      "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints",
+      "target": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvadaptivetrackselectionupdateselectedtrackfingerprint",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
+      "source_location": "L468",
+      "weight": 1.0
+    },
+    {
+      "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints",
       "target": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_profilebasedtrackselectorupdatetracksfingerprint",
       "relation": "contains",
       "_origin": "ast",
@@ -11333,6 +11573,39 @@
       "weight": 1.0
     },
     {
+      "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvadaptivetrackselectiondetermineidealselectedindexfingerprint",
+      "target": "fingerprint",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
+      "source_location": "L448",
+      "weight": 1.0
+    },
+    {
+      "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvadaptivetrackselectiongetselectedindexfingerprint",
+      "target": "fingerprint",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
+      "source_location": "L458",
+      "weight": 1.0
+    },
+    {
+      "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvadaptivetrackselectionupdateselectedtrackfingerprint",
+      "target": "fingerprint",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt",
+      "source_location": "L468",
+      "weight": 1.0
+    },
+    {
       "source": "patches_src_main_kotlin_app_template_patches_kayo_fingerprints_tvdazndrmsessionmanagerconstructorfingerprint",
       "target": "fingerprint",
       "relation": "inherits",
@@ -11488,6 +11761,28 @@
     },
     {
       "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideidealselectedindex",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1004",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_onupdateselectedtrack",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1012",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
       "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_kayopatch",
       "relation": "method",
       "_origin": "ast",
@@ -11499,13 +11794,35 @@
     },
     {
       "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractvideotracksfromselection",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1028",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractaudiotracksfromselection",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L1067",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
       "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_ontvtrackschanged",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1025",
+      "source_location": "L1112",
       "weight": 1.0
     },
     {
@@ -11516,7 +11833,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1052",
+      "source_location": "L1139",
       "weight": 1.0
     },
     {
@@ -11527,7 +11844,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1088",
+      "source_location": "L1175",
       "weight": 1.0
     },
     {
@@ -11538,7 +11855,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1152",
+      "source_location": "L1239",
       "weight": 1.0
     },
     {
@@ -11549,7 +11866,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1164",
+      "source_location": "L1251",
       "weight": 1.0
     },
     {
@@ -11560,7 +11877,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1178",
+      "source_location": "L1265",
       "weight": 1.0
     },
     {
@@ -11571,7 +11888,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1311",
+      "source_location": "L1398",
       "weight": 1.0
     },
     {
@@ -11582,7 +11899,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1415",
+      "source_location": "L1502",
       "weight": 1.0
     },
     {
@@ -11593,7 +11910,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1431",
+      "source_location": "L1518",
       "weight": 1.0
     },
     {
@@ -11604,7 +11921,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1447",
+      "source_location": "L1534",
       "weight": 1.0
     },
     {
@@ -11615,7 +11932,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1463",
+      "source_location": "L1550",
       "weight": 1.0
     },
     {
@@ -11626,7 +11943,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1479",
+      "source_location": "L1566",
       "weight": 1.0
     },
     {
@@ -11637,7 +11954,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1495",
+      "source_location": "L1582",
       "weight": 1.0
     },
     {
@@ -11648,7 +11965,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1516",
+      "source_location": "L1603",
       "weight": 1.0
     },
     {
@@ -11659,7 +11976,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1652",
+      "source_location": "L1739",
       "weight": 1.0
     },
     {
@@ -11670,7 +11987,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1675",
+      "source_location": "L1762",
       "weight": 1.0
     },
     {
@@ -11681,7 +11998,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1698",
+      "source_location": "L1785",
       "weight": 1.0
     },
     {
@@ -11692,7 +12009,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1710",
+      "source_location": "L1797",
       "weight": 1.0
     },
     {
@@ -11703,7 +12020,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1753",
+      "source_location": "L1840",
       "weight": 1.0
     },
     {
@@ -11714,7 +12031,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1768",
+      "source_location": "L1855",
       "weight": 1.0
     },
     {
@@ -11725,7 +12042,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1775",
+      "source_location": "L1862",
       "weight": 1.0
     },
     {
@@ -11736,7 +12053,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1791",
+      "source_location": "L1878",
       "weight": 1.0
     },
     {
@@ -11747,7 +12064,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2143",
+      "source_location": "L2230",
       "weight": 1.0
     },
     {
@@ -11758,7 +12075,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2208",
+      "source_location": "L2295",
       "weight": 1.0
     },
     {
@@ -11769,7 +12086,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2256",
+      "source_location": "L2343",
       "weight": 1.0
     },
     {
@@ -11780,7 +12097,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2388",
+      "source_location": "L2475",
       "weight": 1.0
     },
     {
@@ -11791,7 +12108,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2409",
+      "source_location": "L2496",
       "weight": 1.0
     },
     {
@@ -11802,7 +12119,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2419",
+      "source_location": "L2506",
       "weight": 1.0
     },
     {
@@ -11813,7 +12130,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2438",
+      "source_location": "L2525",
       "weight": 1.0
     },
     {
@@ -11824,7 +12141,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2484",
+      "source_location": "L2571",
       "weight": 1.0
     },
     {
@@ -11835,7 +12152,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2528",
+      "source_location": "L2615",
       "weight": 1.0
     },
     {
@@ -11846,7 +12163,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2571",
+      "source_location": "L2658",
       "weight": 1.0
     },
     {
@@ -11857,7 +12174,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2715",
+      "source_location": "L2802",
       "weight": 1.0
     },
     {
@@ -11868,7 +12185,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2765",
+      "source_location": "L2852",
       "weight": 1.0
     },
     {
@@ -11879,7 +12196,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2810",
+      "source_location": "L2897",
       "weight": 1.0
     },
     {
@@ -11890,7 +12207,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2907",
+      "source_location": "L2994",
       "weight": 1.0
     },
     {
@@ -11901,7 +12218,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2971",
+      "source_location": "L3058",
       "weight": 1.0
     },
     {
@@ -11912,7 +12229,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2998",
+      "source_location": "L3085",
       "weight": 1.0
     },
     {
@@ -11923,7 +12240,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3027",
+      "source_location": "L3114",
       "weight": 1.0
     },
     {
@@ -11934,7 +12251,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3046",
+      "source_location": "L3133",
       "weight": 1.0
     },
     {
@@ -11945,7 +12262,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3084",
+      "source_location": "L3171",
       "weight": 1.0
     },
     {
@@ -11956,7 +12273,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3100",
+      "source_location": "L3187",
       "weight": 1.0
     },
     {
@@ -11967,7 +12284,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3119",
+      "source_location": "L3206",
       "weight": 1.0
     },
     {
@@ -11978,7 +12295,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3264",
+      "source_location": "L3351",
       "weight": 1.0
     },
     {
@@ -11989,7 +12306,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3281",
+      "source_location": "L3368",
       "weight": 1.0
     },
     {
@@ -12000,7 +12317,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3291",
+      "source_location": "L3378",
       "weight": 1.0
     },
     {
@@ -12011,7 +12328,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3300",
+      "source_location": "L3387",
       "weight": 1.0
     },
     {
@@ -12022,7 +12339,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3314",
+      "source_location": "L3401",
       "weight": 1.0
     },
     {
@@ -12033,7 +12350,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3332",
+      "source_location": "L3419",
       "weight": 1.0
     },
     {
@@ -12044,7 +12361,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3427",
+      "source_location": "L3514",
       "weight": 1.0
     },
     {
@@ -12055,7 +12372,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3450",
+      "source_location": "L3537",
       "weight": 1.0
     },
     {
@@ -12066,7 +12383,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3547",
+      "source_location": "L3634",
       "weight": 1.0
     },
     {
@@ -12077,7 +12394,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3566",
+      "source_location": "L3653",
       "weight": 1.0
     },
     {
@@ -12088,7 +12405,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3580",
+      "source_location": "L3667",
       "weight": 1.0
     },
     {
@@ -12099,7 +12416,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3620",
+      "source_location": "L3707",
       "weight": 1.0
     },
     {
@@ -12110,7 +12427,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3640",
+      "source_location": "L3727",
       "weight": 1.0
     },
     {
@@ -12121,7 +12438,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3670",
+      "source_location": "L3757",
       "weight": 1.0
     },
     {
@@ -12132,7 +12449,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3689",
+      "source_location": "L3776",
       "weight": 1.0
     },
     {
@@ -12143,7 +12460,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3711",
+      "source_location": "L3798",
       "weight": 1.0
     },
     {
@@ -12154,7 +12471,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3718",
+      "source_location": "L3805",
       "weight": 1.0
     },
     {
@@ -12165,7 +12482,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3729",
+      "source_location": "L3816",
       "weight": 1.0
     },
     {
@@ -12176,7 +12493,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3756",
+      "source_location": "L3843",
       "weight": 1.0
     },
     {
@@ -12324,35 +12641,35 @@
     },
     {
       "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_findbesttrackindex",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
+      "source_location": "L832",
+      "weight": 1.0
+    },
+    {
+      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
       "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselecttracksresult",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L836",
+      "source_location": "L964",
       "weight": 1.0
     },
     {
       "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
-      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractvideotracksfromselection",
+      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_overrideselectedindex",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L941",
-      "weight": 1.0
-    },
-    {
-      "source": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch",
-      "target": "extensions_extension_src_main_java_app_template_extension_kayo_kayopatch_kayopatch_extractaudiotracksfromselection",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L980",
+      "source_location": "L975",
       "weight": 1.0
     },
     {
@@ -13101,7 +13418,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2813",
+      "source_location": "L2900",
       "weight": 1.0
     },
     {
@@ -13113,7 +13430,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2825",
+      "source_location": "L2912",
       "weight": 1.0
     },
     {
@@ -13125,7 +13442,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L3153",
+      "source_location": "L3240",
       "weight": 1.0
     },
     {
@@ -13137,7 +13454,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2615",
+      "source_location": "L2702",
       "weight": 1.0
     },
     {
@@ -13149,7 +13466,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2771",
+      "source_location": "L2858",
       "weight": 1.0
     },
     {
@@ -13161,7 +13478,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2778",
+      "source_location": "L2865",
       "weight": 1.0
     },
     {
@@ -13173,7 +13490,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2784",
+      "source_location": "L2871",
       "weight": 1.0
     },
     {
@@ -13185,7 +13502,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2788",
+      "source_location": "L2875",
       "weight": 1.0
     },
     {
@@ -13197,7 +13514,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2722",
+      "source_location": "L2809",
       "weight": 1.0
     },
     {
@@ -13209,7 +13526,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2729",
+      "source_location": "L2816",
       "weight": 1.0
     },
     {
@@ -13221,7 +13538,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2733",
+      "source_location": "L2820",
       "weight": 1.0
     },
     {
@@ -13233,7 +13550,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2736",
+      "source_location": "L2823",
       "weight": 1.0
     },
     {
@@ -13245,7 +13562,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2740",
+      "source_location": "L2827",
       "weight": 1.0
     },
     {
@@ -13257,7 +13574,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2741",
+      "source_location": "L2828",
       "weight": 1.0
     },
     {
@@ -13269,7 +13586,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L2184",
+      "source_location": "L2271",
       "weight": 1.0
     },
     {
@@ -13281,7 +13598,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1798",
+      "source_location": "L1885",
       "weight": 1.0
     },
     {
@@ -13293,7 +13610,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1855",
+      "source_location": "L1942",
       "weight": 1.0
     },
     {
@@ -13305,7 +13622,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1882",
+      "source_location": "L1969",
       "weight": 1.0
     },
     {
@@ -13317,7 +13634,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1883",
+      "source_location": "L1970",
       "weight": 1.0
     },
     {
@@ -13329,7 +13646,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1884",
+      "source_location": "L1971",
       "weight": 1.0
     },
     {
@@ -13341,7 +13658,7 @@
       "confidence_score": 0.8,
       "context": "call",
       "source_file": "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java",
-      "source_location": "L1159",
+      "source_location": "L1246",
       "weight": 1.0
     },
     {
@@ -13418,5 +13735,5 @@
       "source_file": ".github/ISSUE_TEMPLATE/config.yml"
     }
   ],
-  "built_at_commit": "b28598b79fa51f44cf55382c0f7f1f89ee870b8d"
+  "built_at_commit": "1defc8d24264a194df3cca93fc5eba3aa4b0ec0e"
 }

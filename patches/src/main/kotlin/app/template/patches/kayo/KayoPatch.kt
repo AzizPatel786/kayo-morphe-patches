@@ -365,7 +365,7 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                     method.addInstructions(
                         pairCreateIdx + 2,
                         """
-                            invoke-static {v0, p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectTracksResult(Landroid/util/Pair;I)Landroid/util/Pair;
+                            invoke-static {v0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectTracksResult(Landroid/util/Pair;)Landroid/util/Pair;
                             move-result-object v0
                         """
                     )
@@ -373,6 +373,56 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             }
         }
 
+        // 22. Hook AdaptiveTrackSelection.determineIdealSelectedIndex to enforce ideal rendition index
+        safeHook("TvAdaptiveTrackSelectionDetermineIdealSelectedIndex") {
+            TvAdaptiveTrackSelectionDetermineIdealSelectedIndexFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideIdealSelectedIndex(Ljava/lang/Object;)I
+                        move-result v0
+                        if-ltz v0, :cond_orig_ideal
+                        return v0
+                        :cond_orig_ideal
+                        nop
+                    """
+                )
+            }
+        }
+
+        // 23. Hook AdaptiveTrackSelection.getSelectedIndex to enforce rendition index
+        safeHook("TvAdaptiveTrackSelectionGetSelectedIndex") {
+            TvAdaptiveTrackSelectionGetSelectedIndexFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectedIndex(Ljava/lang/Object;)I
+                        move-result v0
+                        if-ltz v0, :cond_orig_selected
+                        return v0
+                        :cond_orig_selected
+                        nop
+                    """
+                )
+            }
+        }
+
+        // 24. Hook AdaptiveTrackSelection.updateSelectedTrack to bypass hysteresis check when locked
+        safeHook("TvAdaptiveTrackSelectionUpdateSelectedTrack") {
+            TvAdaptiveTrackSelectionUpdateSelectedTrackFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->onUpdateSelectedTrack(Ljava/lang/Object;)Z
+                        move-result v0
+                        if-eqz v0, :cond_orig_update
+                        return-void
+                        :cond_orig_update
+                        nop
+                    """
+                )
+            }
+        }
     }
 }
 

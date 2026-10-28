@@ -829,15 +829,72 @@ public final class KayoPatch {
         return null;
     }
 
+    private static int findBestTrackIndex(Object[] formats, int targetHeight, int targetBitrate) {
+        if (formats == null || formats.length == 0) return -1;
+        int bestIndex = -1;
+        int bestHeight = -1;
+        int bestBitrate = -1;
+        int maxAvailableHeight = -1;
+        int maxAvailableIndex = -1;
+        int maxAvailableBitrate = -1;
+
+        for (int i = 0; i < formats.length; i++) {
+            Object fmt = formats[i];
+            if (fmt == null) continue;
+            Class<?> fmtClass = fmt.getClass();
+            int h = getIntField(fmtClass, fmt, "height", 0);
+            int b = getIntField(fmtClass, fmt, "bitrate", 0);
+            if (b <= 0) b = getIntField(fmtClass, fmt, "peakBitrate", 0);
+            if (b <= 0) b = getIntField(fmtClass, fmt, "averageBitrate", 0);
+
+            if (h > maxAvailableHeight || (h == maxAvailableHeight && b > maxAvailableBitrate)) {
+                maxAvailableHeight = h;
+                maxAvailableIndex = i;
+                maxAvailableBitrate = b;
+            }
+
+            if (h == targetHeight) {
+                if (bestIndex == -1) {
+                    bestIndex = i;
+                    bestHeight = h;
+                    bestBitrate = b;
+                } else if (targetBitrate > 0 && Math.abs(b - targetBitrate) < Math.abs(bestBitrate - targetBitrate)) {
+                    bestIndex = i;
+                    bestBitrate = b;
+                } else if (targetBitrate <= 0 && b > bestBitrate) {
+                    bestIndex = i;
+                    bestBitrate = b;
+                }
+            }
+        }
+
+        if (bestIndex == -1 && targetHeight >= 2160 && maxAvailableIndex >= 0) {
+            bestIndex = maxAvailableIndex;
+        }
+        if (bestIndex == -1) {
+            int closestDiff = Integer.MAX_VALUE;
+            for (int i = 0; i < formats.length; i++) {
+                Object fmt = formats[i];
+                if (fmt == null) continue;
+                Class<?> fmtClass = fmt.getClass();
+                int h = getIntField(fmtClass, fmt, "height", 0);
+                if (h <= 0) continue;
+                int diff = Math.abs(h - targetHeight);
+                if (diff < closestDiff) {
+                    closestDiff = diff;
+                    bestIndex = i;
+                }
+            }
+        }
+        return bestIndex;
+    }
+
     /**
      * TV hook: Overrides DefaultTrackSelector.selectTracksForType to restrict the selected
      * track definition to only the chosen rendition when video quality is locked.
      */
-    public static android.util.Pair overrideSelectTracksResult(android.util.Pair pair, int trackType) {
+    public static android.util.Pair overrideSelectTracksResult(android.util.Pair pair) {
         if (pair == null || pair.first == null) {
-            return pair;
-        }
-        if (trackType != VIDEO_TRACK_TYPE) {
             return pair;
         }
         if (selectedHeight == QUALITY_AUTO) {
@@ -849,70 +906,33 @@ public final class KayoPatch {
             if (group == null) {
                 return pair;
             }
+            int type = getIntField(group.getClass(), group, "type", -1);
+            if (type != VIDEO_TRACK_TYPE && type != -1) {
+                return pair;
+            }
             Object[] formats = (Object[]) getFieldAny(group, "formats");
             if (formats == null || formats.length == 0) {
                 return pair;
             }
-
-            int bestIndex = -1;
-            int bestHeight = -1;
-            int bestBitrate = -1;
-            int maxAvailableHeight = -1;
-            int maxAvailableIndex = -1;
-            int maxAvailableBitrate = -1;
-
-            for (int i = 0; i < formats.length; i++) {
-                Object fmt = formats[i];
-                if (fmt == null) continue;
-                Class<?> fmtClass = fmt.getClass();
-                int h = getIntField(fmtClass, fmt, "height", 0);
-                int b = getIntField(fmtClass, fmt, "bitrate", 0);
-                if (b <= 0) b = getIntField(fmtClass, fmt, "peakBitrate", 0);
-                if (b <= 0) b = getIntField(fmtClass, fmt, "averageBitrate", 0);
-
-                if (h > maxAvailableHeight || (h == maxAvailableHeight && b > maxAvailableBitrate)) {
-                    maxAvailableHeight = h;
-                    maxAvailableIndex = i;
-                    maxAvailableBitrate = b;
-                }
-
-                if (h == selectedHeight) {
-                    if (bestIndex == -1) {
-                        bestIndex = i;
-                        bestHeight = h;
-                        bestBitrate = b;
-                    } else if (selectedBitrate > 0 && Math.abs(b - selectedBitrate) < Math.abs(bestBitrate - selectedBitrate)) {
-                        bestIndex = i;
-                        bestBitrate = b;
-                    } else if (selectedBitrate <= 0 && b > bestBitrate) {
-                        bestIndex = i;
-                        bestBitrate = b;
-                    }
+            boolean isVideo = false;
+            for (Object fmt : formats) {
+                if (fmt != null && getIntField(fmt.getClass(), fmt, "height", 0) > 0) {
+                    isVideo = true;
+                    break;
                 }
             }
-
-            if (bestIndex == -1 && selectedHeight >= 2160 && maxAvailableIndex >= 0) {
-                bestIndex = maxAvailableIndex;
-            }
-            if (bestIndex == -1) {
-                int closestDiff = Integer.MAX_VALUE;
-                for (int i = 0; i < formats.length; i++) {
-                    Object fmt = formats[i];
-                    if (fmt == null) continue;
-                    Class<?> fmtClass = fmt.getClass();
-                    int h = getIntField(fmtClass, fmt, "height", 0);
-                    if (h <= 0) continue;
-                    int diff = Math.abs(h - selectedHeight);
-                    if (diff < closestDiff) {
-                        closestDiff = diff;
-                        bestIndex = i;
-                    }
-                }
+            if (!isVideo) {
+                return pair;
             }
 
+            int bestIndex = findBestTrackIndex(formats, selectedHeight, selectedBitrate);
             if (bestIndex >= 0) {
+                // Mutate definition.tracks in-place so FixedTrackSelection is guaranteed
+                setFieldSafe(definition.getClass(), definition, "tracks", new int[]{bestIndex});
+
                 Object newDef = null;
-                for (java.lang.reflect.Constructor<?> ctor : definition.getClass().getConstructors()) {
+                for (java.lang.reflect.Constructor<?> ctor : definition.getClass().getDeclaredConstructors()) {
+                    ctor.setAccessible(true);
                     Class<?>[] pTypes = ctor.getParameterTypes();
                     try {
                         if (pTypes.length == 3 && pTypes[0] == int.class && pTypes[2] == int[].class) {
@@ -930,12 +950,79 @@ public final class KayoPatch {
                 if (newDef != null) {
                     android.util.Log.i("MorpheKayo", "overrideSelectTracksResult: locked track definition to index " + bestIndex + " (" + formats[bestIndex] + ")");
                     return android.util.Pair.create(newDef, pair.second);
+                } else {
+                    android.util.Log.i("MorpheKayo", "overrideSelectTracksResult: mutated definition.tracks in-place to index " + bestIndex);
+                    return pair;
                 }
             }
         } catch (Throwable t) {
             android.util.Log.e("MorpheKayo", "Error in overrideSelectTracksResult", t);
         }
         return pair;
+    }
+
+    public static android.util.Pair overrideSelectTracksResult(android.util.Pair pair, int trackType) {
+        if (trackType != VIDEO_TRACK_TYPE) {
+            return pair;
+        }
+        return overrideSelectTracksResult(pair);
+    }
+
+    /**
+     * TV hook: Overrides AdaptiveTrackSelection.getSelectedIndex and determineIdealSelectedIndex
+     * to return the exact track index matching the locked video quality.
+     */
+    public static int overrideSelectedIndex(Object trackSelection) {
+        if (trackSelection == null || selectedHeight == QUALITY_AUTO) {
+            return -1;
+        }
+        try {
+            Object[] formats = (Object[]) getFieldAny(trackSelection, "formats");
+            if (formats == null || formats.length == 0) {
+                return -1;
+            }
+            boolean isVideo = false;
+            for (Object fmt : formats) {
+                if (fmt != null && getIntField(fmt.getClass(), fmt, "height", 0) > 0) {
+                    isVideo = true;
+                    break;
+                }
+            }
+            if (!isVideo) {
+                return -1;
+            }
+
+            return findBestTrackIndex(formats, selectedHeight, selectedBitrate);
+        } catch (Throwable ignored) {
+            return -1;
+        }
+    }
+
+    /**
+     * TV hook: Overrides AdaptiveTrackSelection.determineIdealSelectedIndex to enforce ideal rendition index.
+     */
+    public static int overrideIdealSelectedIndex(Object trackSelection) {
+        return overrideSelectedIndex(trackSelection);
+    }
+
+    /**
+     * TV hook: Intercepts AdaptiveTrackSelection.updateSelectedTrack to bypass buffer hysteresis
+     * checks when quality is locked, setting selectedIndex and reason immediately.
+     */
+    public static boolean onUpdateSelectedTrack(Object trackSelection) {
+        if (selectedHeight == QUALITY_AUTO || trackSelection == null) {
+            return false;
+        }
+        int bestIdx = overrideSelectedIndex(trackSelection);
+        if (bestIdx >= 0) {
+            try {
+                setFieldSafe(trackSelection.getClass(), trackSelection, "selectedIndex", bestIdx);
+                setFieldSafe(trackSelection.getClass(), trackSelection, "reason", 1); // C.SELECTION_REASON_MANUAL
+                return true;
+            } catch (Throwable ignored) {
+            }
+        }
+        return false;
     }
 
     private static List<VideoTrackOption> extractVideoTracksFromSelection(Object sel) {

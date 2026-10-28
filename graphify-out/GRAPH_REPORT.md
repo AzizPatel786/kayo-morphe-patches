@@ -1,17 +1,17 @@
-# Graph Report - Morphe Stuff  (2026-10-27)
+# Graph Report - Morphe Stuff  (2026-10-28)
 
 ## Corpus Check
-- 27 files · ~20,328 words
+- 27 files · ~20,832 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 6, .properties 2, .xml 1)
 
 ## Summary
-- 362 nodes · 637 edges · 26 communities (14 shown, 12 thin omitted)
+- 369 nodes · 657 edges · 28 communities (15 shown, 13 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 26 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b28598b7`
+- Built from commit: `1defc8d2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -37,10 +37,12 @@
 - Open PR to Main Workflow
 - KayoPatch
 - viewgroup
+- .extractMedia3VideoTracks
 - .extractVideoTracks
+- Format
 
 ## God Nodes (most connected - your core abstractions)
-1. `KayoPatch` - 92 edges
+1. `KayoPatch` - 96 edges
 2. `Builder` - 21 edges
 3. `TrackGroup` - 15 edges
 4. `Builder` - 13 edges
@@ -69,10 +71,10 @@
 ## Hyperedges (group relationships)
 - **GitHub Issue Template Configuration Suite** — github_issue_template_bug_report, github_issue_template_feature_request, github_issue_template_config [EXTRACTED 1.00]
 
-## Communities (26 total, 12 thin omitted)
+## Communities (28 total, 13 thin omitted)
 
 ### Community 1 - "TrackGroup"
-Cohesion: 0.20
+Cohesion: 0.22
 Nodes (3): TrackGroup, TrackSelectionOverride, list
 
 ### Community 2 - "KayoPatch.java"
@@ -88,8 +90,8 @@ Cohesion: 0.13
 Nodes (18): anchor(), build_content(), patches_table(), pkg_emoji(), Render a markdown table of supported versions. Experimental versions get a 🧪…, Wrap a patches table in a <details> spoiler with a versions sub-table. If…, Build the full generated patches section., Generates the patches section of README.md from patches-list.json and injects… (+10 more)
 
 ### Community 5 - "Fingerprints.kt"
-Cohesion: 0.11
-Nodes (31): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint, AbstractDaznPlayerControlsTrackSelectorVisibilityFingerprint (+23 more)
+Cohesion: 0.10
+Nodes (34): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint, AbstractDaznPlayerControlsTrackSelectorVisibilityFingerprint (+26 more)
 
 ### Community 7 - "package.json"
 Cohesion: 0.14
@@ -123,22 +125,26 @@ Nodes (3): Bug Report Template, Issue Template Configuration, Feature Request Te
 Cohesion: 0.07
 Nodes (12): android.app.Activity, android.content.Context, android.graphics.drawable.GradientDrawable, android.view.View, android.view.ViewGroup, android.widget.TextView, SuppressWarnings, KayoPatch (+4 more)
 
-### Community 25 - ".extractVideoTracks"
-Cohesion: 0.11
-Nodes (7): AudioTrackOption, VideoTrackOption, Format, Group, Tracks, ImmutableList, Pair
+### Community 25 - ".extractMedia3VideoTracks"
+Cohesion: 0.20
+Nodes (3): AudioTrackOption, VideoTrackOption, Pair
+
+### Community 26 - ".extractVideoTracks"
+Cohesion: 0.23
+Nodes (3): Group, Tracks, ImmutableList
 
 ## Knowledge Gaps
 - **33 isolated node(s):** `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec`, `@semantic-release/exec`, `@semantic-release/git` (+28 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 142 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `KayoPatch` connect `KayoPatch` to `.getActiveStreamMetrics`, `.extractVideoTracks`, `KayoPatch.java`, `Builder`?**
-  _High betweenness centrality (0.254) - this node is a cross-community bridge._
-- **Why does `TrackGroup` connect `TrackGroup` to `.extractVideoTracks`, `KayoPatch.java`, `Builder`, `Builder`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
+- **Why does `KayoPatch` connect `KayoPatch` to `KayoPatch.java`, `Builder`, `.getActiveStreamMetrics`, `.extractMedia3VideoTracks`, `.extractVideoTracks`?**
+  _High betweenness centrality (0.257) - this node is a cross-community bridge._
+- **Why does `TrackGroup` connect `TrackGroup` to `KayoPatch.java`, `Builder`, `Builder`, `.extractMedia3VideoTracks`, `.extractVideoTracks`, `Format`?**
+  _High betweenness centrality (0.037) - this node is a cross-community bridge._
 - **Why does `DefaultTrackSelector` connect `Builder` to `TrackGroup`, `KayoPatch.java`, `KayoPatch`?**
   _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **What connects `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec` to the rest of the system?**
