@@ -592,14 +592,30 @@ public final class KayoPatch {
             setFieldSafe(bClass, builder, "allowVideoNonSeamlessAdaptiveness", true);
 
             if (selectedHeight == QUALITY_AUTO) {
+                setFieldSafe(bClass, builder, "minVideoWidth", 0);
+                setFieldSafe(bClass, builder, "minVideoHeight", 0);
+                setFieldSafe(bClass, builder, "minVideoBitrate", 0);
                 setFieldSafe(bClass, builder, "maxVideoWidth", Integer.MAX_VALUE);
                 setFieldSafe(bClass, builder, "maxVideoHeight", Integer.MAX_VALUE);
                 setFieldSafe(bClass, builder, "maxVideoBitrate", Integer.MAX_VALUE);
                 setFieldSafe(bClass, builder, "maxVideoFrameRate", Integer.MAX_VALUE);
             } else {
-                int w = (selectedHeight >= 2160) ? 3840 : (selectedHeight >= 1080 ? 1920 : (selectedHeight >= 720 ? 1280 : Integer.MAX_VALUE));
+                int targetHeight = selectedHeight;
+                List<VideoTrackOption> avail = getAvailableVideoOptions();
+                if (!avail.isEmpty() && targetHeight >= 2160) {
+                    int maxH = 0;
+                    for (VideoTrackOption opt : avail) {
+                        if (opt.height > maxH) maxH = opt.height;
+                    }
+                    if (maxH > 0 && maxH < 2160) {
+                        targetHeight = maxH;
+                    }
+                }
+                int w = (targetHeight >= 2160) ? 3840 : (targetHeight >= 1080 ? 1920 : (targetHeight >= 720 ? 1280 : 960));
+                setFieldSafe(bClass, builder, "minVideoWidth", w);
+                setFieldSafe(bClass, builder, "minVideoHeight", targetHeight);
                 setFieldSafe(bClass, builder, "maxVideoWidth", w);
-                setFieldSafe(bClass, builder, "maxVideoHeight", selectedHeight);
+                setFieldSafe(bClass, builder, "maxVideoHeight", targetHeight);
                 setFieldSafe(bClass, builder, "maxVideoBitrate", (selectedBitrate > 0) ? selectedBitrate : Integer.MAX_VALUE);
                 setFieldSafe(bClass, builder, "maxVideoFrameRate", Integer.MAX_VALUE);
             }
@@ -1006,22 +1022,25 @@ public final class KayoPatch {
     }
 
     /**
-     * TV hook: Intercepts AdaptiveTrackSelection.updateSelectedTrack to bypass buffer hysteresis
-     * checks when quality is locked, setting selectedIndex and reason immediately.
+     * TV hook: Intercepts AdaptiveTrackSelection.updateSelectedTrack right before return
+     * to enforce the user's chosen rendition and manual reason after chunk iterators have advanced.
      */
-    public static boolean onUpdateSelectedTrack(Object trackSelection) {
+    public static void onUpdateSelectedTrackExit(Object trackSelection) {
         if (selectedHeight == QUALITY_AUTO || trackSelection == null) {
-            return false;
+            return;
         }
         int bestIdx = overrideSelectedIndex(trackSelection);
         if (bestIdx >= 0) {
             try {
                 setFieldSafe(trackSelection.getClass(), trackSelection, "selectedIndex", bestIdx);
                 setFieldSafe(trackSelection.getClass(), trackSelection, "reason", 1); // C.SELECTION_REASON_MANUAL
-                return true;
             } catch (Throwable ignored) {
             }
         }
+    }
+
+    public static boolean onUpdateSelectedTrack(Object trackSelection) {
+        onUpdateSelectedTrackExit(trackSelection);
         return false;
     }
 
@@ -1032,10 +1051,19 @@ public final class KayoPatch {
             Object group = getFieldAny(sel, "group");
             if (group == null) return options;
             int type = getIntField(group.getClass(), group, "type", -1);
-            if (type != VIDEO_TRACK_TYPE) return options;
-
             Object[] formats = (Object[]) getFieldAny(group, "formats");
             if (formats == null) return options;
+
+            if (type != VIDEO_TRACK_TYPE) {
+                boolean hasVideo = false;
+                for (Object fmt : formats) {
+                    if (fmt != null && getIntField(fmt.getClass(), fmt, "height", 0) > 0) {
+                        hasVideo = true;
+                        break;
+                    }
+                }
+                if (!hasVideo) return options;
+            }
 
             int activeIdx = -1;
             try {
@@ -1127,6 +1155,7 @@ public final class KayoPatch {
         }
         Activity act = currentTvActivityRef != null ? currentTvActivityRef.get() : null;
         if (act != null) {
+            loadPrefsIfNeeded(act);
             ensureTvQualityButtonAttached(act);
             showTvQualityButtonBriefly();
         }
@@ -1138,6 +1167,7 @@ public final class KayoPatch {
      */
     public static void onTvPlayerViewSetPlayer(final View playerView, final Object player) {
         if (playerView != null) {
+            loadPrefsIfNeeded(playerView.getContext());
             currentTvPlayerViewRef = new WeakReference<>(playerView);
             Activity act = findActivity(playerView.getContext());
             if (act != null) {
@@ -1147,6 +1177,9 @@ public final class KayoPatch {
         if (player != null) {
             isTvStreamActive = true;
             onMedia3PlayerAttached(player);
+            if (selectedHeight != QUALITY_AUTO) {
+                applyMedia3Quality(player, selectedHeight, selectedBitrate);
+            }
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1298,8 +1331,27 @@ public final class KayoPatch {
                     } catch (Throwable ignored) {
                     }
                 }
+                Object[] formats = null;
+                if (mediaTrackGroup != null) {
+                    formats = (Object[]) getFieldAny(mediaTrackGroup, "formats");
+                }
+                if (formats == null) {
+                    formats = (Object[]) getFieldAny(group, "formats");
+                }
+
                 if (type != VIDEO_TRACK_TYPE) {
-                    continue;
+                    boolean hasVideo = false;
+                    if (formats != null) {
+                        for (Object f : formats) {
+                            if (f != null && getIntField(f.getClass(), f, "height", 0) > 0) {
+                                hasVideo = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!hasVideo) {
+                        continue;
+                    }
                 }
 
                 int length = getIntField(group.getClass(), group, "length", 0);
@@ -1309,14 +1361,6 @@ public final class KayoPatch {
 
                 boolean[] trackSelected = (boolean[]) getFieldAny(group, "trackSelected");
                 int[] trackSupport = (int[]) getFieldAny(group, "trackSupport");
-
-                Object[] formats = null;
-                if (mediaTrackGroup != null) {
-                    formats = (Object[]) getFieldAny(mediaTrackGroup, "formats");
-                }
-                if (formats == null) {
-                    formats = (Object[]) getFieldAny(group, "formats");
-                }
 
                 if (formats != null && length <= 0) {
                     length = formats.length;
@@ -2582,6 +2626,18 @@ public final class KayoPatch {
         Object p = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
         if (p != null) {
             try {
+                try {
+                    Method mGetTracks = p.getClass().getMethod("getCurrentTracks");
+                    Object curTracks = mGetTracks.invoke(p);
+                    if (curTracks != null) {
+                        videoOptions = extractMedia3VideoTracks(curTracks);
+                        if (!videoOptions.isEmpty()) {
+                            return videoOptions;
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+
                 Object pbInfo = getFieldAny(p, "playbackInfo");
                 if (pbInfo != null) {
                     Object res = getFieldAny(pbInfo, "trackSelectorResult");
@@ -2605,11 +2661,75 @@ public final class KayoPatch {
                             }
                         }
                     }
+
+                    Object tgArray = getFieldAny(pbInfo, "trackGroups");
+                    if (tgArray != null) {
+                        videoOptions = extractVideoTracksFromTrackGroupArray(tgArray);
+                        if (!videoOptions.isEmpty()) {
+                            return videoOptions;
+                        }
+                    }
                 }
             } catch (Throwable ignored) {
             }
         }
         return videoOptions;
+    }
+
+    private static List<VideoTrackOption> extractVideoTracksFromTrackGroupArray(Object tgArray) {
+        List<VideoTrackOption> options = new ArrayList<>();
+        if (tgArray == null) return options;
+        try {
+            int length = getIntField(tgArray.getClass(), tgArray, "length", 0);
+            for (int i = 0; i < length; i++) {
+                Object group = null;
+                try {
+                    Method mGet = tgArray.getClass().getMethod("get", int.class);
+                    group = mGet.invoke(tgArray, i);
+                } catch (Throwable ignored) {
+                }
+                if (group == null) continue;
+                int type = getIntField(group.getClass(), group, "type", -1);
+                Object[] formats = (Object[]) getFieldAny(group, "formats");
+                if (formats == null) continue;
+                boolean isVideo = (type == VIDEO_TRACK_TYPE);
+                if (!isVideo) {
+                    for (Object f : formats) {
+                        if (f != null && getIntField(f.getClass(), f, "height", 0) > 0) {
+                            isVideo = true;
+                            break;
+                        }
+                    }
+                }
+                if (!isVideo) continue;
+                for (int fIdx = 0; fIdx < formats.length; fIdx++) {
+                    Object fmt = formats[fIdx];
+                    if (fmt == null) continue;
+                    Class<?> fClass = fmt.getClass();
+                    int width = getIntField(fClass, fmt, "width", 0);
+                    int height = getIntField(fClass, fmt, "height", 0);
+                    if (height <= 0) continue;
+                    float frameRate = getFloatField(fClass, fmt, "frameRate", 0f);
+                    int bitrate = getIntField(fClass, fmt, "bitrate", 0);
+                    if (bitrate <= 0) bitrate = getIntField(fClass, fmt, "peakBitrate", 0);
+                    if (bitrate <= 0) bitrate = getIntField(fClass, fmt, "averageBitrate", 0);
+                    String codecs = getStringField(fClass, fmt, "codecs", "");
+                    options.add(new VideoTrackOption(fIdx, false, true, width, height, frameRate, bitrate, codecs));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        if (!options.isEmpty()) {
+            Collections.sort(options, new Comparator<VideoTrackOption>() {
+                @Override
+                public int compare(VideoTrackOption a, VideoTrackOption b) {
+                    if (b.height != a.height) return Integer.compare(b.height, a.height);
+                    if (Float.compare(b.frameRate, a.frameRate) != 0) return Float.compare(b.frameRate, a.frameRate);
+                    return Integer.compare(b.bitrate, a.bitrate);
+                }
+            });
+        }
+        return options;
     }
 
     private static List<AudioTrackOption> getAvailableAudioOptions() {

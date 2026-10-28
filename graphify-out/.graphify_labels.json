@@ -1,11 +1,10 @@
 {
   "0": "gradientdrawable",
-  "1": "TrackGroup",
   "2": "KayoPatch.java",
   "3": "Builder",
   "4": "generate_patches_readme.py",
   "5": "Fingerprints.kt",
-  "6": "Builder",
+  "6": "TrackGroup",
   "7": "package.json",
   "8": "CHANGELOG.md",
   "9": "PatchListGenerator.kt",
@@ -24,7 +23,5 @@
   "22": "Open PR to Main Workflow",
   "23": "KayoPatch",
   "24": "viewgroup",
-  "25": ".extractMedia3VideoTracks",
-  "26": ".extractVideoTracks",
-  "27": "Format"
+  "25": ".extractVideoTracks"
 }

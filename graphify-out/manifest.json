@@ -24,9 +24,9 @@
     "semantic_hash": "f68b52a18847381b54ed45b3ad0b6d2b"
   },
   "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java": {
-    "mtime": 1793165557.925797,
-    "seen": 1793165805.942419,
-    "ast_hash": "8731da28ca538462a08c97fe226f44c9",
+    "mtime": 1793221869.7949991,
+    "seen": 1793222055.4848926,
+    "ast_hash": "23e8dbed181a62b6482b4383f353347f",
     "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java": {
@@ -84,15 +84,15 @@
     "semantic_hash": ""
   },
   "patches-bundle.json": {
-    "mtime": 1793089878.5931816,
-    "seen": 1793089902.952445,
-    "ast_hash": "67c14598fab268222cc414ccc049be8f",
+    "mtime": 1793167936.3007143,
+    "seen": 1793222055.4849138,
+    "ast_hash": "4a681a404c09e545a28d1a00427e75e6",
     "semantic_hash": ""
   },
   "patches-list.json": {
-    "mtime": 1793089878.5956662,
-    "seen": 1793089902.952447,
-    "ast_hash": "828242ccb0f5dd3d904d616ef67ff2bc",
+    "mtime": 1793167936.3046393,
+    "seen": 1793222055.484916,
+    "ast_hash": "4498e478bbfb8fe8404d0d3bd835129c",
     "semantic_hash": ""
   },
   "patches/build.gradle.kts": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/kayo/KayoPatch.kt": {
-    "mtime": 1793165700.3502562,
-    "seen": 1793165805.942445,
-    "ast_hash": "8cbc5662c81c5eb287107d465d9dc347",
+    "mtime": 1793221590.7388675,
+    "seen": 1793222055.484921,
+    "ast_hash": "bfbab1fb7ff41cafc18adeabe06cc443",
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/shared/Constants.kt": {
@@ -168,15 +168,15 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1793089878.5850842,
-    "seen": 1793089902.9524715,
-    "ast_hash": "99e0f35c2dde14c0a7efafcb7c194424",
+    "mtime": 1793167936.2876194,
+    "seen": 1793222055.4849427,
+    "ast_hash": "cf3ee7290000d1f16b6eb987e734a31b",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793089878.5866666,
-    "seen": 1793089902.9524734,
-    "ast_hash": "64fa4e063b85398d313ce13d769c9500",
+    "mtime": 1793167936.2938852,
+    "seen": 1793222055.484944,
+    "ast_hash": "0aa123951645cc13213bf79d01531f25",
     "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {

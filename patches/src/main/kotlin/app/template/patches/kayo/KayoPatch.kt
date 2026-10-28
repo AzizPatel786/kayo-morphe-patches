@@ -407,20 +407,20 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             }
         }
 
-        // 24. Hook AdaptiveTrackSelection.updateSelectedTrack to bypass hysteresis check when locked
+        // 24. Hook AdaptiveTrackSelection.updateSelectedTrack to enforce locked rendition before return
         safeHook("TvAdaptiveTrackSelectionUpdateSelectedTrack") {
             TvAdaptiveTrackSelectionUpdateSelectedTrackFingerprint.methodOrNull?.let { method ->
-                method.addInstructionsWithLabels(
-                    0,
-                    """
-                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->onUpdateSelectedTrack(Ljava/lang/Object;)Z
-                        move-result v0
-                        if-eqz v0, :cond_orig_update
-                        return-void
-                        :cond_orig_update
-                        nop
-                    """
-                )
+                val returnIndices = method.implementation?.instructions?.mapIndexedNotNull { index, insn ->
+                    if (insn.opcode == Opcode.RETURN_VOID) index else null
+                } ?: emptyList()
+                returnIndices.reversed().forEach { returnIdx ->
+                    method.addInstructions(
+                        returnIdx,
+                        """
+                            invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->onUpdateSelectedTrackExit(Ljava/lang/Object;)V
+                        """
+                    )
+                }
             }
         }
     }
