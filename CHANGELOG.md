@@ -1,3 +1,9 @@
+## [1.1.6](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.5...v1.1.6) (2026-10-28)
+
+### 🐛 Bug Fixes
+
+* **tv:** default stream selection to maximum available quality ([ab603cc](https://github.com/AzizPatel786/kayo-morphe-patches/commit/ab603cc15532013aa5ebf8aa09bcf91b318c9ed4))
+
 ## [1.1.5](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.4...v1.1.5) (2026-10-28)
 
 ### 🐛 Bug Fixes
