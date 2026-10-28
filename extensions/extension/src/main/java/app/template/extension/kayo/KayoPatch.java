@@ -64,6 +64,7 @@ public final class KayoPatch {
 
     private static final int VIDEO_TRACK_TYPE = 2; // C.TRACK_TYPE_VIDEO
     private static final int QUALITY_AUTO = -1;
+    private static final int QUALITY_MAX = 2160;
 
     private static final int QUALITY_BUTTON_VIEW_ID = 0x7f0b9999;
     private static final int DIAGNOSTICS_BUTTON_VIEW_ID = 0x7f0b9998;
@@ -75,7 +76,8 @@ public final class KayoPatch {
     private static volatile WeakReference<ExoPlayer> currentPlayerRef;
 
     // -1 means Auto (Adaptive), > 0 means target video height (e.g. 2160, 1080, 720, 540)
-    private static volatile int selectedHeight = QUALITY_AUTO;
+    // Default to maximum available quality (2160p / 4K UHD or highest stream rendition)
+    private static volatile int selectedHeight = QUALITY_MAX;
     // Specific bitrate to lock to (or -1 if any bitrate at that height)
     private static volatile int selectedBitrate = QUALITY_AUTO;
     private static volatile boolean prefsLoaded = false;
@@ -602,20 +604,32 @@ public final class KayoPatch {
             } else {
                 int targetHeight = selectedHeight;
                 List<VideoTrackOption> avail = getAvailableVideoOptions();
-                if (!avail.isEmpty() && targetHeight >= 2160) {
-                    int maxH = 0;
-                    for (VideoTrackOption opt : avail) {
-                        if (opt.height > maxH) maxH = opt.height;
-                    }
-                    if (maxH > 0 && maxH < 2160) {
-                        targetHeight = maxH;
+                if (targetHeight >= 2160) {
+                    if (!avail.isEmpty()) {
+                        int maxH = 0;
+                        for (VideoTrackOption opt : avail) {
+                            if (opt.height > maxH) maxH = opt.height;
+                        }
+                        if (maxH > 0) {
+                            targetHeight = maxH;
+                        }
+                    } else {
+                        // Tracks not populated yet; do not restrict min bounds, let selector pick highest
+                        targetHeight = 0;
                     }
                 }
-                int w = (targetHeight >= 2160) ? 3840 : (targetHeight >= 1080 ? 1920 : (targetHeight >= 720 ? 1280 : 960));
-                setFieldSafe(bClass, builder, "minVideoWidth", w);
-                setFieldSafe(bClass, builder, "minVideoHeight", targetHeight);
-                setFieldSafe(bClass, builder, "maxVideoWidth", w);
-                setFieldSafe(bClass, builder, "maxVideoHeight", targetHeight);
+                if (targetHeight > 0) {
+                    int w = (targetHeight >= 2160) ? 3840 : (targetHeight >= 1080 ? 1920 : (targetHeight >= 720 ? 1280 : 960));
+                    setFieldSafe(bClass, builder, "minVideoWidth", w);
+                    setFieldSafe(bClass, builder, "minVideoHeight", targetHeight);
+                    setFieldSafe(bClass, builder, "maxVideoWidth", w);
+                    setFieldSafe(bClass, builder, "maxVideoHeight", targetHeight);
+                } else {
+                    setFieldSafe(bClass, builder, "minVideoWidth", 0);
+                    setFieldSafe(bClass, builder, "minVideoHeight", 0);
+                    setFieldSafe(bClass, builder, "maxVideoWidth", Integer.MAX_VALUE);
+                    setFieldSafe(bClass, builder, "maxVideoHeight", Integer.MAX_VALUE);
+                }
                 setFieldSafe(bClass, builder, "maxVideoBitrate", (selectedBitrate > 0) ? selectedBitrate : Integer.MAX_VALUE);
                 setFieldSafe(bClass, builder, "maxVideoFrameRate", Integer.MAX_VALUE);
             }
@@ -1277,6 +1291,12 @@ public final class KayoPatch {
         if (playing != null) {
             lastObservedMedia3Track = playing;
             android.util.Log.i("MorpheKayo", "Media3 active playing track: " + playing.getDisplayLabel());
+        }
+        if (selectedHeight != QUALITY_AUTO && currentMedia3PlayerRef != null) {
+            Object player = currentMedia3PlayerRef.get();
+            if (player != null) {
+                applyMedia3Quality(player, selectedHeight, selectedBitrate);
+            }
         }
         updateAllQualityBadges();
     }
@@ -3277,7 +3297,19 @@ public final class KayoPatch {
             badge.setBackground(bg);
         } else {
             if (selectedHeight >= 2160) {
-                badge.setText("4K");
+                List<VideoTrackOption> opts = getAvailableVideoOptions();
+                int activeH = 0;
+                VideoTrackOption playing = findCurrentlyPlayingTrack(opts);
+                if (playing != null) {
+                    activeH = playing.height;
+                } else if (!opts.isEmpty()) {
+                    activeH = opts.get(0).height;
+                }
+                if (activeH > 0 && activeH < 2160) {
+                    badge.setText(activeH + "p");
+                } else {
+                    badge.setText("4K");
+                }
             } else {
                 badge.setText(selectedHeight + "p");
             }
@@ -3368,6 +3400,9 @@ public final class KayoPatch {
                         checkedItem = i + 1;
                     }
                 }
+            }
+            if (checkedItem == 0 && selectedHeight >= 2160 && !videoOptions.isEmpty()) {
+                checkedItem = 1;
             }
         } else {
             // Fallback presets if opened before tracks are ready
@@ -3478,7 +3513,7 @@ public final class KayoPatch {
                     .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             boolean remember = prefs.getBoolean(KEY_REMEMBER_QUALITY, true);
             if (remember) {
-                selectedHeight = prefs.getInt(KEY_SELECTED_HEIGHT, QUALITY_AUTO);
+                selectedHeight = prefs.getInt(KEY_SELECTED_HEIGHT, QUALITY_MAX);
                 selectedBitrate = prefs.getInt(KEY_SELECTED_BITRATE, QUALITY_AUTO);
             }
         } catch (Throwable ignored) {
@@ -3811,7 +3846,19 @@ public final class KayoPatch {
                         }
                     } else {
                         if (selectedHeight >= 2160) {
-                            tv.setText(prefix + "4K UHD");
+                            List<VideoTrackOption> opts = getAvailableVideoOptions();
+                            int activeH = 0;
+                            VideoTrackOption playing = findCurrentlyPlayingTrack(opts);
+                            if (playing != null) {
+                                activeH = playing.height;
+                            } else if (!opts.isEmpty()) {
+                                activeH = opts.get(0).height;
+                            }
+                            if (activeH > 0 && activeH < 2160) {
+                                tv.setText(prefix + activeH + "p (MAX)");
+                            } else {
+                                tv.setText(prefix + "4K UHD");
+                            }
                         } else if (selectedHeight == 1080) {
                             tv.setText(prefix + "1080p50");
                         } else {
