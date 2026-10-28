@@ -1,3 +1,9 @@
+## [1.1.5](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.4...v1.1.5) (2026-10-28)
+
+### 🐛 Bug Fixes
+
+* **tv:** eliminate stream buffering and enforce fixed quality selection ([6f85807](https://github.com/AzizPatel786/kayo-morphe-patches/commit/6f85807cd88b355a2f01b4e666f94fe5d185c1fb))
+
 ## [1.1.4](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.3...v1.1.4) (2026-10-28)
 
 ### 🐛 Bug Fixes
