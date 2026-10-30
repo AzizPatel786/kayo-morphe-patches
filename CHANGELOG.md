@@ -1,3 +1,9 @@
+## [1.1.9](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.8...v1.1.9) (2026-10-30)
+
+### 🐛 Bug Fixes
+
+* **kayo:** lock ExoTrackSelection.Definition constructor and AdaptiveTrackSelection on Android TV ([21b6e97](https://github.com/AzizPatel786/kayo-morphe-patches/commit/21b6e9707e123fa8e2b2b0d080892d77790cd4a9))
+
 ## [1.1.8](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.7...v1.1.8) (2026-10-30)
 
 ### 🐛 Bug Fixes
