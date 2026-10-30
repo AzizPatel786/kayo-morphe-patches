@@ -510,7 +510,7 @@ public final class KayoPatch {
                         codecSecure.put("secure", true);
                         codecSecure.put("hardwareAccelerated", true);
                         codecSecure.put("adaptive", true);
-                        codecSecure.put("tunneled", true);
+                        codecSecure.put("tunneled", false);
                         codecSecure.put("maxWidth", 3840);
                         codecSecure.put("maxHeight", 2160);
                         codecSecure.put("maxFrameRate", 60);
@@ -542,7 +542,7 @@ public final class KayoPatch {
                         avcSecure.put("secure", true);
                         avcSecure.put("hardwareAccelerated", true);
                         avcSecure.put("adaptive", true);
-                        avcSecure.put("tunneled", true);
+                        avcSecure.put("tunneled", false);
                         avcSecure.put("maxWidth", 3840);
                         avcSecure.put("maxHeight", 2160);
                         avcSecure.put("maxFrameRate", 60);
@@ -664,13 +664,15 @@ public final class KayoPatch {
             setFieldSafe(bClass, builder, "exceedRendererCapabilitiesIfNecessary", true);
             setFieldSafe(bClass, builder, "allowVideoNonSeamlessAdaptiveness", true);
             setFieldSafe(bClass, builder, "allowVideoMixedMimeTypeAdaptiveness", true);
+            setFieldSafe(bClass, builder, "tunnelingEnabled", false);
         } catch (Throwable t) {
             android.util.Log.e("MorpheKayo", "Error in configureTvTrackParametersBuilder", t);
         }
     }
 
     /**
-     * TV hook: Sanitizes LoadArguments JSON so that useWidevineL3 is false and maxVideoBitrate is unconstrained.
+     * TV hook: Sanitizes LoadArguments JSON so that useWidevineL3 is false, tunneling is disabled,
+     * and maxVideoBitrate is unconstrained.
      */
     public static void sanitizeLoadArgumentsJson(org.json.JSONObject json) {
         if (json == null) {
@@ -679,13 +681,16 @@ public final class KayoPatch {
         try {
             json.put("useWidevineL3", false);
             json.put("maxVideoBitrate", Integer.MAX_VALUE);
-            android.util.Log.i("MorpheKayo", "Sanitized LoadArguments JSON: useWidevineL3=false, maxVideoBitrate=MAX");
+            json.put("tunnellingEnabled", false);
+            json.put("applyTunnelingTransitionFix", false);
+            android.util.Log.i("MorpheKayo", "Sanitized LoadArguments JSON: useWidevineL3=false, tunnellingEnabled=false, maxVideoBitrate=MAX");
         } catch (Throwable ignored) {
         }
     }
 
     /**
-     * TV hook: Sanitizes LoadArguments so that useWidevineL3 is false and maxVideoBitrate is unconstrained.
+     * TV hook: Sanitizes LoadArguments so that useWidevineL3 is false, tunneling is disabled,
+     * and maxVideoBitrate is unconstrained.
      */
     public static void sanitizeLoadArguments(Object loadArguments) {
         if (loadArguments == null) {
@@ -695,9 +700,118 @@ public final class KayoPatch {
             Class<?> clazz = loadArguments.getClass();
             setFieldSafe(clazz, loadArguments, "useWidevineL3", false);
             setFieldSafe(clazz, loadArguments, "maxVideoBitrate", Integer.MAX_VALUE);
-            android.util.Log.i("MorpheKayo", "Sanitized LoadArguments: useWidevineL3=false, maxVideoBitrate=MAX");
+            setFieldSafe(clazz, loadArguments, "isTunnellingEnabled", false);
+            setFieldSafe(clazz, loadArguments, "applyTunnelingTransitionFix", false);
+            android.util.Log.i("MorpheKayo", "Sanitized LoadArguments: useWidevineL3=false, isTunnellingEnabled=false, maxVideoBitrate=MAX");
         } catch (Throwable ignored) {
         }
+    }
+
+    /**
+     * TV hook: Configures DefaultLoadControl thresholds so locked high-bitrate streams
+     * (1080p50 / 4K50) do not exit STATE_BUFFERING with only 1s of buffered media and immediately underrun.
+     */
+    public static void configureDefaultLoadControl(Object loadControl) {
+        if (loadControl == null) {
+            return;
+        }
+        try {
+            Class<?> clazz = loadControl.getClass();
+            // 4.0s startup buffer (instead of 1.0s) so 1-2 full DASH segments are buffered before playback starts
+            setFieldSafe(clazz, loadControl, "bufferForPlaybackUs", 4_000_000L);
+            // 8.0s rebuffer threshold (instead of 2.0s) to build a solid safety cushion if a rebuffer ever occurs
+            setFieldSafe(clazz, loadControl, "bufferForPlaybackAfterRebufferUs", 8_000_000L);
+            // 60s min / 120s max forward buffer and 30s back buffer
+            setFieldSafe(clazz, loadControl, "minBufferUs", 60_000_000L);
+            setFieldSafe(clazz, loadControl, "maxBufferUs", 120_000_000L);
+            setFieldSafe(clazz, loadControl, "backBufferDurationUs", 30_000_000L);
+            android.util.Log.i("MorpheKayo", "Configured DefaultLoadControl: playback=4s, rebuffer=8s, min=60s, max=120s");
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error in configureDefaultLoadControl", t);
+        }
+    }
+
+    /**
+     * TV hook: Configures DefaultLivePlaybackSpeedControl so ExoPlayer never speeds up live playback
+     * above 1.0x (default 1.03x), which otherwise drains the forward buffer and causes repeated rebuffering.
+     */
+    public static void configureLivePlaybackSpeedControl(Object speedControl) {
+        if (speedControl == null) {
+            return;
+        }
+        try {
+            Class<?> clazz = speedControl.getClass();
+            setFieldSafe(clazz, speedControl, "maxPlaybackSpeed", 1.0f);
+            setFieldSafe(clazz, speedControl, "fallbackMaxPlaybackSpeed", 1.0f);
+            setFieldSafe(clazz, speedControl, "minPlaybackSpeed", 0.97f);
+            setFieldSafe(clazz, speedControl, "fallbackMinPlaybackSpeed", 0.97f);
+            long minOffset = getLongField(clazz, speedControl, "minTargetLiveOffsetUs", 0L);
+            if (minOffset < 10_000_000L) {
+                setFieldSafe(clazz, speedControl, "minTargetLiveOffsetUs", 10_000_000L);
+            }
+            long currentTarget = getLongField(clazz, speedControl, "currentTargetLiveOffsetUs", 0L);
+            if (currentTarget > 0L && currentTarget < 14_000_000L) {
+                setFieldSafe(clazz, speedControl, "currentTargetLiveOffsetUs", 14_000_000L);
+            }
+            android.util.Log.i("MorpheKayo", "Configured DefaultLivePlaybackSpeedControl: maxPlaybackSpeed=1.0f, minTargetLiveOffsetUs>=10s");
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error in configureLivePlaybackSpeedControl", t);
+        }
+    }
+
+    /**
+     * TV hook: Sanitizes ExoPlayerConfig JSON before parsing so live streams join with a safe 14s
+     * target offset and do not clip the presentation delay to the packager edge.
+     */
+    public static void sanitizeExoPlayerConfigJson(org.json.JSONObject json) {
+        if (json == null) {
+            return;
+        }
+        try {
+            json.put("useRevisedPresentationDelay", false);
+            long liveTarget = json.optLong("liveConfigurationTargetOffsetSeconds", 0L);
+            if (liveTarget < 14L) {
+                json.put("liveConfigurationTargetOffsetSeconds", 14L);
+            }
+            long fallbackTarget = json.optLong("fallbackTargetLiveOffsetSeconds", 0L);
+            if (fallbackTarget < 14L) {
+                json.put("fallbackTargetLiveOffsetSeconds", 14L);
+            }
+            json.put("hevcSecureInputCompressionRatio", 2);
+            android.util.Log.i("MorpheKayo", "Sanitized ExoPlayerConfig JSON: useRevisedPresentationDelay=false, liveOffset>=14s");
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /**
+     * TV hook: Sanitizes ExoPlayerConfig instance defaults.
+     */
+    public static void sanitizeExoPlayerConfig(Object config) {
+        if (config == null) {
+            return;
+        }
+        try {
+            Class<?> clazz = config.getClass();
+            setFieldSafe(clazz, config, "useRevisedPresentationDelay", false);
+            long liveTarget = getLongField(clazz, config, "liveConfigurationTargetOffsetSeconds", 0L);
+            if (liveTarget < 14L) {
+                setFieldSafe(clazz, config, "liveConfigurationTargetOffsetSeconds", 14L);
+            }
+            long fallbackTarget = getLongField(clazz, config, "fallbackTargetLiveOffsetSeconds", 0L);
+            if (fallbackTarget < 14L) {
+                setFieldSafe(clazz, config, "fallbackTargetLiveOffsetSeconds", 14L);
+            }
+            setFieldSafe(clazz, config, "hevcSecureInputCompressionRatio", 2);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /**
+     * TV hook: Clamps the bandwidth estimate reported to JS via Notificator.onBandwidthSample
+     * to at least 80 Mbps so the web player never reacts to transient segment download dips.
+     */
+    public static long overrideReportedBandwidth(long bitrateEstimate) {
+        return Math.max(bitrateEstimate, 80_000_000L);
     }
 
     /**

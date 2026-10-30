@@ -555,3 +555,63 @@ object TvAdaptiveTrackSelectionEvaluateQueueSizeFingerprint : Fingerprint(
         "Ljava/util/List;"
     )
 )
+
+/**
+ * Matches `DefaultLoadControl.<init>()V` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvDefaultLoadControlConstructorFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/DefaultLoadControl;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf(),
+    filters = listOf(opcode(Opcode.RETURN_VOID))
+)
+
+/**
+ * Matches `DefaultLivePlaybackSpeedControl.<init>(JJ)V` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvDefaultLivePlaybackSpeedControlConstructorFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/DefaultLivePlaybackSpeedControl;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf(
+        "J",
+        "J"
+    ),
+    filters = listOf(opcode(Opcode.RETURN_VOID))
+)
+
+/**
+ * Matches `ResultKt.parse(Lorg/json/JSONObject;)Lcom/dazn/plugins/media3/ExoPlayerConfig/ExoPlayerConfig;` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvExoPlayerConfigParserFingerprint : Fingerprint(
+    definingClass = "Lkotlin/ResultKt;",
+    name = "parse",
+    returnType = "Lcom/dazn/plugins/media3/ExoPlayerConfig/ExoPlayerConfig;",
+    parameters = listOf("Lorg/json/JSONObject;")
+)
+
+/**
+ * Matches `ExoPlayerConfig.<init>()V` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvExoPlayerConfigConstructorFingerprint : Fingerprint(
+    definingClass = "Lcom/dazn/plugins/media3/ExoPlayerConfig/ExoPlayerConfig;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf(),
+    filters = listOf(opcode(Opcode.RETURN_VOID))
+)
+
+/**
+ * Matches `Notificator.onBandwidthSample(IJJ)V` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvNotificatorOnBandwidthSampleFingerprint : Fingerprint(
+    definingClass = "Lcom/dazn/plugins/media3/Notificator;",
+    name = "onBandwidthSample",
+    returnType = "V",
+    parameters = listOf(
+        "I",
+        "J",
+        "J"
+    )
+)

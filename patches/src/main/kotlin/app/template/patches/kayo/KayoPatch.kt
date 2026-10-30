@@ -501,5 +501,82 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                 )
             }
         }
+
+        // 24. Hook DefaultLoadControl.<init>()V to configure larger startup/rebuffer thresholds and forward buffer
+        safeHook("TvDefaultLoadControlConstructor") {
+            val fp = TvDefaultLoadControlConstructorFingerprint
+            fp.methodOrNull?.let { method ->
+                val returnVoidIdx = fp.instructionMatches.firstOrNull()?.index ?: -1
+                if (returnVoidIdx >= 0) {
+                    method.addInstruction(
+                        returnVoidIdx,
+                        "invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->configureDefaultLoadControl(Ljava/lang/Object;)V"
+                    )
+                }
+            }
+        }
+
+        // 25. Hook DefaultLivePlaybackSpeedControl.<init>(JJ)V to prevent 1.03x live catch-up from draining buffer
+        safeHook("TvDefaultLivePlaybackSpeedControlConstructor") {
+            val fp = TvDefaultLivePlaybackSpeedControlConstructorFingerprint
+            fp.methodOrNull?.let { method ->
+                val returnVoidIdx = fp.instructionMatches.firstOrNull()?.index ?: -1
+                if (returnVoidIdx >= 0) {
+                    method.addInstruction(
+                        returnVoidIdx,
+                        "invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->configureLivePlaybackSpeedControl(Ljava/lang/Object;)V"
+                    )
+                }
+            }
+        }
+
+        // 26. Hook ExoPlayerConfig parser and constructor to ensure safe live target offset and disable live-edge join clipping
+        safeHook("TvExoPlayerConfigParser") {
+            TvExoPlayerConfigParserFingerprint.methodOrNull?.let { method ->
+                method.addInstruction(
+                    0,
+                    "invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->sanitizeExoPlayerConfigJson(Lorg/json/JSONObject;)V"
+                )
+            }
+        }
+
+        safeHook("TvExoPlayerConfigConstructor") {
+            val fp = TvExoPlayerConfigConstructorFingerprint
+            fp.methodOrNull?.let { method ->
+                val returnVoidIdx = fp.instructionMatches.firstOrNull()?.index ?: -1
+                if (returnVoidIdx >= 0) {
+                    method.addInstruction(
+                        returnVoidIdx,
+                        "invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->sanitizeExoPlayerConfig(Ljava/lang/Object;)V"
+                    )
+                }
+            }
+        }
+
+        // 27. Hook DefaultBandwidthMeter.getInitialBitrateEstimate to return 80 Mbps instead of 1 Mbps
+        safeHook("TvDefaultBandwidthMeterGetInitialEstimate") {
+            TvDefaultBandwidthMeterGetInitialEstimateFingerprint.methodOrNull?.let { method ->
+                method.addInstructions(
+                    0,
+                    """
+                        const-wide/32 v0, 0x04c4b400
+                        return-wide v0
+                    """
+                )
+            }
+        }
+
+        // 28. Hook Notificator.onBandwidthSample(IJJ)V so JS layer never sees artificial bandwidth dips
+        safeHook("TvNotificatorOnBandwidthSample") {
+            TvNotificatorOnBandwidthSampleFingerprint.methodOrNull?.let { method ->
+                method.addInstructions(
+                    0,
+                    """
+                        invoke-static {p4, p5}, $EXTENSION_CLASS_DESCRIPTOR->overrideReportedBandwidth(J)J
+                        move-result-wide p4
+                    """
+                )
+            }
+        }
     }
 }
