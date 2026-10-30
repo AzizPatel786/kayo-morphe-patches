@@ -1,3 +1,9 @@
+## [1.1.7](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.6...v1.1.7) (2026-10-30)
+
+### 🐛 Bug Fixes
+
+* **kayo:** enable true 4K UHD manifest detection and eliminate buffering loop on Android TV ([4084903](https://github.com/AzizPatel786/kayo-morphe-patches/commit/408490363be8c94d7373d58c9e5db9ad1b999357))
+
 ## [1.1.6](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.5...v1.1.6) (2026-10-28)
 
 ### 🐛 Bug Fixes
