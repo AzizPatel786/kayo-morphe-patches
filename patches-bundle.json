@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-30T03:55:55",
-  "description": "## [1.1.7](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.6...v1.1.7) (2026-10-30)\n\n### 🐛 Bug Fixes\n\n* **kayo:** enable true 4K UHD manifest detection and eliminate buffering loop on Android TV ([4084903](https://github.com/AzizPatel786/kayo-morphe-patches/commit/408490363be8c94d7373d58c9e5db9ad1b999357))",
-  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.1.7/patches-1.1.7.mpp",
+  "created_at": "2026-10-30T04:56:06",
+  "description": "## [1.1.8](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.7...v1.1.8) (2026-10-30)\n\n### 🐛 Bug Fixes\n\n* **kayo:** fix Dalvik register overflow in selectTracksForType, hardware codec names for 4K, and initial button label ([d13e976](https://github.com/AzizPatel786/kayo-morphe-patches/commit/d13e9763bdf7bcb7f865cbea7c8003d669fcccf5))",
+  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.1.8/patches-1.1.8.mpp",
   "signature_download_url": "",
-  "version": "1.1.7"
+  "version": "1.1.8"
 }

@@ -1,3 +1,9 @@
+## [1.1.8](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.7...v1.1.8) (2026-10-30)
+
+### 🐛 Bug Fixes
+
+* **kayo:** fix Dalvik register overflow in selectTracksForType, hardware codec names for 4K, and initial button label ([d13e976](https://github.com/AzizPatel786/kayo-morphe-patches/commit/d13e9763bdf7bcb7f865cbea7c8003d669fcccf5))
+
 ## [1.1.7](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.6...v1.1.7) (2026-10-30)
 
 ### 🐛 Bug Fixes
