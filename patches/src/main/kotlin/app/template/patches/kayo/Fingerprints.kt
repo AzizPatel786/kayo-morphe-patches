@@ -477,3 +477,44 @@ object TvAdaptiveTrackSelectionUpdateSelectedTrackFingerprint : Fingerprint(
         "[Landroidx/media3/exoplayer/source/chunk/MediaChunkIterator;"
     )
 )
+
+
+/**
+ * Matches `DefaultTrackSelector$Parameters.<init>(DefaultTrackSelector$Parameters$Builder)` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvDefaultTrackSelectorParametersConstructorFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/DefaultTrackSelector\$Parameters;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf("Landroidx/media3/exoplayer/trackselection/DefaultTrackSelector\$Parameters\$Builder;")
+)
+
+/**
+ * Matches `Action$Companion.queryConnectedHdcpLevel()Ljava/lang/String;` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvHdcpLevelQuerierFingerprint : Fingerprint(
+    definingClass = "Lcom/dazn/plugins/media3/enums/Action\$Companion;",
+    name = "queryConnectedHdcpLevel",
+    returnType = "Ljava/lang/String;",
+    parameters = listOf()
+)
+
+/**
+ * Matches `HdmiStatusPlugin.tryNotify()V` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvHdmiStatusPluginTryNotifyFingerprint : Fingerprint(
+    definingClass = "Lcom/dazn/plugins/hdmistatus/HdmiStatusPlugin;",
+    name = "tryNotify",
+    returnType = "V",
+    parameters = listOf()
+)
+
+/**
+ * Matches `DrmPlayer.releasePlayer()V` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvDrmPlayerReleasePlayerFingerprint : Fingerprint(
+    definingClass = "Lcom/dazn/plugins/media3/drm/DrmPlayer;",
+    name = "releasePlayer",
+    returnType = "V",
+    parameters = listOf()
+)

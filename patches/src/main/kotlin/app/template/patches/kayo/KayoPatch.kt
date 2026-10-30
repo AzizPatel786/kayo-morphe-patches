@@ -253,6 +253,18 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             }
         }
 
+        // 13b. Hook DefaultTrackSelector$Parameters.<init>(DefaultTrackSelector$Parameters$Builder)
+        // so every DefaultTrackSelector.Parameters instance ever constructed in Kayo TV has unconstrained
+        // 4K UHD video/viewport parameters before TrackSelectionParameters.<init>(Builder) copies its fields.
+        safeHook("TvDefaultTrackSelectorParametersConstructor") {
+            TvDefaultTrackSelectorParametersConstructorFingerprint.methodOrNull?.let { method ->
+                method.addInstruction(
+                    0,
+                    "invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->configureTvTrackParametersBuilder(Ljava/lang/Object;)V"
+                )
+            }
+        }
+
         // 14. Hook PlayerView.setPlayer to capture active Media3 ExoPlayer instance and attach TV Quality Button
         safeHook("TvPlayerViewSetPlayer") {
             TvPlayerViewSetPlayerFingerprint.methodOrNull?.let { method ->
@@ -332,14 +344,27 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             }
         }
 
-        // 19. Hook DefaultBandwidthMeter.getInitialBitrateEstimateForNetworkType to return 100 Mbps
-        safeHook("TvDefaultBandwidthMeterGetInitialEstimate") {
-            TvDefaultBandwidthMeterGetInitialEstimateFingerprint.methodOrNull?.let { method ->
+        // 19. Hook Action$Companion.queryConnectedHdcpLevel to always return "2.2" for 4K UHD HDCP verification
+        safeHook("TvHdcpLevelQuerier") {
+            TvHdcpLevelQuerierFingerprint.methodOrNull?.let { method ->
                 method.addInstructions(
                     0,
                     """
-                        const-wide/32 v0, 0x05f5e100
-                        return-wide v0
+                        const-string v0, "2.2"
+                        return-object v0
+                    """
+                )
+            }
+        }
+
+        // 19b. Hook HdmiStatusPlugin.tryNotify to always report HDMI connected = true
+        safeHook("TvHdmiStatusPluginTryNotify") {
+            TvHdmiStatusPluginTryNotifyFingerprint.methodOrNull?.let { method ->
+                method.addInstructions(
+                    0,
+                    """
+                        const/4 v0, 0x1
+                        iput-boolean v0, p0, Lcom/dazn/plugins/hdmistatus/HdmiStatusPlugin;->isConnected:Z
                     """
                 )
             }
@@ -365,7 +390,7 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                     method.addInstructions(
                         pairCreateIdx + 2,
                         """
-                            invoke-static {v0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectTracksResult(Landroid/util/Pair;)Landroid/util/Pair;
+                            invoke-static {v0, p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectTracksResult(Landroid/util/Pair;I)Landroid/util/Pair;
                             move-result-object v0
                         """
                     )
@@ -373,56 +398,14 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             }
         }
 
-        // 22. Hook AdaptiveTrackSelection.determineIdealSelectedIndex to enforce ideal rendition index
-        safeHook("TvAdaptiveTrackSelectionDetermineIdealSelectedIndex") {
-            TvAdaptiveTrackSelectionDetermineIdealSelectedIndexFingerprint.methodOrNull?.let { method ->
-                method.addInstructionsWithLabels(
+        // 22. Hook DrmPlayer.releasePlayer to clean up TV player state and hide TV Quality Button when stream closes
+        safeHook("TvDrmPlayerReleasePlayer") {
+            TvDrmPlayerReleasePlayerFingerprint.methodOrNull?.let { method ->
+                method.addInstruction(
                     0,
-                    """
-                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideIdealSelectedIndex(Ljava/lang/Object;)I
-                        move-result v0
-                        if-ltz v0, :cond_orig_ideal
-                        return v0
-                        :cond_orig_ideal
-                        nop
-                    """
+                    "invoke-static {}, $EXTENSION_CLASS_DESCRIPTOR->onTvPlayerReleased()V"
                 )
-            }
-        }
-
-        // 23. Hook AdaptiveTrackSelection.getSelectedIndex to enforce rendition index
-        safeHook("TvAdaptiveTrackSelectionGetSelectedIndex") {
-            TvAdaptiveTrackSelectionGetSelectedIndexFingerprint.methodOrNull?.let { method ->
-                method.addInstructionsWithLabels(
-                    0,
-                    """
-                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectedIndex(Ljava/lang/Object;)I
-                        move-result v0
-                        if-ltz v0, :cond_orig_selected
-                        return v0
-                        :cond_orig_selected
-                        nop
-                    """
-                )
-            }
-        }
-
-        // 24. Hook AdaptiveTrackSelection.updateSelectedTrack to enforce locked rendition before return
-        safeHook("TvAdaptiveTrackSelectionUpdateSelectedTrack") {
-            TvAdaptiveTrackSelectionUpdateSelectedTrackFingerprint.methodOrNull?.let { method ->
-                val returnIndices = method.implementation?.instructions?.mapIndexedNotNull { index, insn ->
-                    if (insn.opcode == Opcode.RETURN_VOID) index else null
-                } ?: emptyList()
-                returnIndices.reversed().forEach { returnIdx ->
-                    method.addInstructions(
-                        returnIdx,
-                        """
-                            invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->onUpdateSelectedTrackExit(Ljava/lang/Object;)V
-                        """
-                    )
-                }
             }
         }
     }
 }
-
