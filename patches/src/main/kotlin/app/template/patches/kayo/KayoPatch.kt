@@ -383,10 +383,9 @@ val inPlayerQualityMenuPatch = bytecodePatch(
         // 21. Hook DefaultTrackSelector.selectTracksForType to enforce single-track selection when quality is locked
         safeHook("TvDefaultTrackSelectorSelectTracksForType") {
             TvDefaultTrackSelectorSelectTracksForTypeFingerprint.methodOrNull?.let { method ->
-                val pairCreateIdx = method.implementation?.instructions?.indexOfFirst { insn ->
-                    insn.opcode == Opcode.INVOKE_STATIC && insn.toString().contains("Pair;->create")
-                } ?: -1
-                if (pairCreateIdx >= 0) {
+                val fp = TvDefaultTrackSelectorSelectTracksForTypeFingerprint
+                if (fp.instructionMatches.isNotEmpty()) {
+                    val pairCreateIdx = fp.instructionMatches[0].index
                     method.addInstructions(
                         pairCreateIdx + 2,
                         """
@@ -395,6 +394,88 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                         """
                     )
                 }
+            }
+        }
+
+        // 21b. Hook ExoTrackSelection$Definition.<init>(int, TrackGroup, int[]) to narrow video track arrays
+        // to [bestIndex] whenever quality is locked, forcing MediaPeriodHolder to create FixedTrackSelection.
+        safeHook("TvExoTrackSelectionDefinitionConstructor") {
+            TvExoTrackSelectionDefinitionConstructorFingerprint.methodOrNull?.let { method ->
+                method.addInstructions(
+                    0,
+                    """
+                        invoke-static {p2, p3}, $EXTENSION_CLASS_DESCRIPTOR->overrideDefinitionTracks(Ljava/lang/Object;[I)[I
+                        move-result-object p3
+                    """
+                )
+            }
+        }
+
+        // 21c. Hook AdaptiveTrackSelection.determineIdealSelectedIndex(long) to return locked selection index
+        safeHook("TvAdaptiveTrackSelectionDetermineIdealSelectedIndex") {
+            TvAdaptiveTrackSelectionDetermineIdealSelectedIndexFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideIdealSelectedIndex(Ljava/lang/Object;)I
+                        move-result v0
+                        if-ltz v0, :cond_native_ideal
+                        return v0
+                        :cond_native_ideal
+                        nop
+                    """
+                )
+            }
+        }
+
+        // 21d. Hook AdaptiveTrackSelection.getSelectedIndex() to return locked selection index
+        safeHook("TvAdaptiveTrackSelectionGetSelectedIndex") {
+            TvAdaptiveTrackSelectionGetSelectedIndexFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectedIndex(Ljava/lang/Object;)I
+                        move-result v0
+                        if-ltz v0, :cond_native_selected
+                        return v0
+                        :cond_native_selected
+                        nop
+                    """
+                )
+            }
+        }
+
+        // 21e. Hook AdaptiveTrackSelection.updateSelectedTrack(...) to lock selectedIndex = targetIdx and reason = 2 (MANUAL)
+        safeHook("TvAdaptiveTrackSelectionUpdateSelectedTrack") {
+            TvAdaptiveTrackSelectionUpdateSelectedTrackFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0}, $EXTENSION_CLASS_DESCRIPTOR->onUpdateSelectedTrack(Ljava/lang/Object;)Z
+                        move-result v0
+                        if-eqz v0, :cond_native_update
+                        return-void
+                        :cond_native_update
+                        nop
+                    """
+                )
+            }
+        }
+
+        // 21f. Hook AdaptiveTrackSelection.evaluateQueueSize(long, List) to retain full buffer when quality is locked
+        safeHook("TvAdaptiveTrackSelectionEvaluateQueueSize") {
+            TvAdaptiveTrackSelectionEvaluateQueueSizeFingerprint.methodOrNull?.let { method ->
+                method.addInstructionsWithLabels(
+                    0,
+                    """
+                        invoke-static {p0, p3}, $EXTENSION_CLASS_DESCRIPTOR->overrideEvaluateQueueSize(Ljava/lang/Object;Ljava/util/List;)I
+                        move-result v0
+                        if-ltz v0, :cond_native_queue
+                        return v0
+                        :cond_native_queue
+                        nop
+                    """
+                )
             }
         }
 

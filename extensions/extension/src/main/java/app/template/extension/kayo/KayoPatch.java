@@ -728,6 +728,29 @@ public final class KayoPatch {
         }
 
         try {
+            // 1. Immediately update any active AdaptiveTrackSelection in playbackInfo.trackSelectorResult.selections
+            try {
+                Object pbInfo = getFieldAny(player, "playbackInfo");
+                if (pbInfo != null) {
+                    Object tsResult = getFieldAny(pbInfo, "trackSelectorResult");
+                    if (tsResult != null) {
+                        Object[] selections = (Object[]) getFieldAny(tsResult, "selections");
+                        if (selections != null) {
+                            for (Object sel : selections) {
+                                if (sel != null) {
+                                    int idx = findLockedIndexInSelection(sel);
+                                    if (idx >= 0) {
+                                        setFieldSafe(sel.getClass(), sel, "selectedIndex", idx);
+                                        setFieldSafe(sel.getClass(), sel, "reason", 2); // C.SELECTION_REASON_MANUAL
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+
             Object selector = getFieldAny(player, "trackSelector");
             if (selector != null) {
                 try {
@@ -992,19 +1015,120 @@ public final class KayoPatch {
         return overrideSelectTracksResult(pair);
     }
 
+    /**
+     * TV hook: Intercepts ExoTrackSelection$Definition.<init>(int, TrackGroup, int[])
+     * and narrows video track arrays to [bestIndex] whenever quality is locked,
+     * forcing MediaPeriodHolder.selectTracks to construct a FixedTrackSelection.
+     */
+    public static int[] overrideDefinitionTracks(Object group, int[] tracks) {
+        if (group == null || tracks == null || tracks.length <= 1) {
+            return tracks;
+        }
+        if (selectedHeight == QUALITY_AUTO) {
+            return tracks;
+        }
+        try {
+            int type = getIntField(group.getClass(), group, "type", -1);
+            if (type != VIDEO_TRACK_TYPE && type != -1) {
+                return tracks;
+            }
+            Object[] formats = (Object[]) getFieldAny(group, "formats");
+            if (formats == null || formats.length == 0) {
+                return tracks;
+            }
+            boolean isVideo = false;
+            for (Object fmt : formats) {
+                if (fmt != null && getIntField(fmt.getClass(), fmt, "height", 0) > 0) {
+                    isVideo = true;
+                    break;
+                }
+            }
+            if (!isVideo) {
+                return tracks;
+            }
+            int bestIndex = findBestTrackIndex(formats, selectedHeight, selectedBitrate);
+            if (bestIndex >= 0) {
+                android.util.Log.i("MorpheKayo", "overrideDefinitionTracks: locked TrackGroup to single track index " + bestIndex + " (targetHeight=" + selectedHeight + ")");
+                return new int[]{bestIndex};
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("MorpheKayo", "Error in overrideDefinitionTracks", t);
+        }
+        return tracks;
+    }
+
+    private static int findLockedIndexInSelection(Object trackSelection) {
+        if (trackSelection == null || selectedHeight == QUALITY_AUTO) {
+            return -1;
+        }
+        try {
+            Object[] formats = (Object[]) getFieldAny(trackSelection, "formats");
+            if (formats == null || formats.length == 0) {
+                return -1;
+            }
+            boolean isVideo = false;
+            for (Object fmt : formats) {
+                if (fmt != null && getIntField(fmt.getClass(), fmt, "height", 0) > 0) {
+                    isVideo = true;
+                    break;
+                }
+            }
+            if (!isVideo) {
+                return -1;
+            }
+            return findBestTrackIndex(formats, selectedHeight, selectedBitrate);
+        } catch (Throwable ignored) {
+            return -1;
+        }
+    }
+
     public static int overrideSelectedIndex(Object trackSelection) {
+        int idx = findLockedIndexInSelection(trackSelection);
+        if (idx >= 0) {
+            setFieldSafe(trackSelection.getClass(), trackSelection, "selectedIndex", idx);
+            setFieldSafe(trackSelection.getClass(), trackSelection, "reason", 2); // C.SELECTION_REASON_MANUAL = 2
+            return idx;
+        }
         return -1;
     }
 
     public static int overrideIdealSelectedIndex(Object trackSelection) {
+        int idx = findLockedIndexInSelection(trackSelection);
+        if (idx >= 0) {
+            setFieldSafe(trackSelection.getClass(), trackSelection, "selectedIndex", idx);
+            setFieldSafe(trackSelection.getClass(), trackSelection, "reason", 2);
+            return idx;
+        }
         return -1;
     }
 
     public static void onUpdateSelectedTrackExit(Object trackSelection) {
+        int idx = findLockedIndexInSelection(trackSelection);
+        if (idx >= 0) {
+            setFieldSafe(trackSelection.getClass(), trackSelection, "selectedIndex", idx);
+            setFieldSafe(trackSelection.getClass(), trackSelection, "reason", 2);
+        }
     }
 
     public static boolean onUpdateSelectedTrack(Object trackSelection) {
+        int idx = findLockedIndexInSelection(trackSelection);
+        if (idx >= 0) {
+            setFieldSafe(trackSelection.getClass(), trackSelection, "selectedIndex", idx);
+            setFieldSafe(trackSelection.getClass(), trackSelection, "reason", 2); // C.SELECTION_REASON_MANUAL = 2
+            return true;
+        }
         return false;
+    }
+
+    public static int overrideEvaluateQueueSize(Object trackSelection, List<?> queue) {
+        if (selectedHeight == QUALITY_AUTO || queue == null) {
+            return -1;
+        }
+        int idx = findLockedIndexInSelection(trackSelection);
+        if (idx >= 0) {
+            return queue.size();
+        }
+        return -1;
     }
 
     private static List<VideoTrackOption> extractVideoTracksFromSelection(Object sel) {
@@ -1400,6 +1524,75 @@ public final class KayoPatch {
                 return Integer.compare(b.bitrate, a.bitrate);
             }
         });
+
+        // Refine isCurrentlyPlaying using the player's actual videoFormat or active ExoTrackSelection
+        try {
+            Object p = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+            if (p != null && !options.isEmpty()) {
+                int actualH = 0;
+                int actualB = 0;
+                Object vFmt = getFieldAny(p, "videoFormat");
+                if (vFmt != null) {
+                    actualH = getIntField(vFmt.getClass(), vFmt, "height", 0);
+                    actualB = getIntField(vFmt.getClass(), vFmt, "bitrate", 0);
+                    if (actualB <= 0) actualB = getIntField(vFmt.getClass(), vFmt, "peakBitrate", 0);
+                    if (actualB <= 0) actualB = getIntField(vFmt.getClass(), vFmt, "averageBitrate", 0);
+                }
+                if (actualH <= 0) {
+                    Object pbInfo = getFieldAny(p, "playbackInfo");
+                    if (pbInfo != null) {
+                        Object tsResult = getFieldAny(pbInfo, "trackSelectorResult");
+                        if (tsResult != null) {
+                            Object[] selections = (Object[]) getFieldAny(tsResult, "selections");
+                            if (selections != null) {
+                                for (Object sel : selections) {
+                                    if (sel == null) continue;
+                                    try {
+                                        Method getSelFmt = sel.getClass().getMethod("getSelectedFormat");
+                                        Object sFmt = getSelFmt.invoke(sel);
+                                        if (sFmt != null) {
+                                            int h = getIntField(sFmt.getClass(), sFmt, "height", 0);
+                                            if (h > 0) {
+                                                actualH = h;
+                                                actualB = getIntField(sFmt.getClass(), sFmt, "bitrate", 0);
+                                                break;
+                                            }
+                                        }
+                                    } catch (Throwable ignored) {}
+                                }
+                            }
+                        }
+                    }
+                }
+                if (actualH > 0) {
+                    VideoTrackOption matched = null;
+                    for (VideoTrackOption opt : options) {
+                        if (opt.height == actualH && (actualB <= 0 || opt.bitrate == actualB)) {
+                            matched = opt;
+                            break;
+                        }
+                    }
+                    if (matched == null) {
+                        for (VideoTrackOption opt : options) {
+                            if (opt.height == actualH) {
+                                matched = opt;
+                                break;
+                            }
+                        }
+                    }
+                    if (matched != null) {
+                        for (int i = 0; i < options.size(); i++) {
+                            VideoTrackOption o = options.get(i);
+                            boolean isCur = (o == matched);
+                            if (o.isCurrentlyPlaying != isCur) {
+                                options.set(i, new VideoTrackOption(o.trackIndex, isCur, o.isSupported, o.width, o.height, o.frameRate, o.bitrate, o.codecs));
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
 
         return options;
     }
@@ -2930,6 +3123,75 @@ public final class KayoPatch {
                 return Integer.compare(b.bitrate, a.bitrate);
             }
         });
+
+        // Refine isCurrentlyPlaying using the player's actual videoFormat or active ExoTrackSelection
+        try {
+            Object p = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+            if (p != null && !options.isEmpty()) {
+                int actualH = 0;
+                int actualB = 0;
+                Object vFmt = getFieldAny(p, "videoFormat");
+                if (vFmt != null) {
+                    actualH = getIntField(vFmt.getClass(), vFmt, "height", 0);
+                    actualB = getIntField(vFmt.getClass(), vFmt, "bitrate", 0);
+                    if (actualB <= 0) actualB = getIntField(vFmt.getClass(), vFmt, "peakBitrate", 0);
+                    if (actualB <= 0) actualB = getIntField(vFmt.getClass(), vFmt, "averageBitrate", 0);
+                }
+                if (actualH <= 0) {
+                    Object pbInfo = getFieldAny(p, "playbackInfo");
+                    if (pbInfo != null) {
+                        Object tsResult = getFieldAny(pbInfo, "trackSelectorResult");
+                        if (tsResult != null) {
+                            Object[] selections = (Object[]) getFieldAny(tsResult, "selections");
+                            if (selections != null) {
+                                for (Object sel : selections) {
+                                    if (sel == null) continue;
+                                    try {
+                                        Method getSelFmt = sel.getClass().getMethod("getSelectedFormat");
+                                        Object sFmt = getSelFmt.invoke(sel);
+                                        if (sFmt != null) {
+                                            int h = getIntField(sFmt.getClass(), sFmt, "height", 0);
+                                            if (h > 0) {
+                                                actualH = h;
+                                                actualB = getIntField(sFmt.getClass(), sFmt, "bitrate", 0);
+                                                break;
+                                            }
+                                        }
+                                    } catch (Throwable ignored) {}
+                                }
+                            }
+                        }
+                    }
+                }
+                if (actualH > 0) {
+                    VideoTrackOption matched = null;
+                    for (VideoTrackOption opt : options) {
+                        if (opt.height == actualH && (actualB <= 0 || opt.bitrate == actualB)) {
+                            matched = opt;
+                            break;
+                        }
+                    }
+                    if (matched == null) {
+                        for (VideoTrackOption opt : options) {
+                            if (opt.height == actualH) {
+                                matched = opt;
+                                break;
+                            }
+                        }
+                    }
+                    if (matched != null) {
+                        for (int i = 0; i < options.size(); i++) {
+                            VideoTrackOption o = options.get(i);
+                            boolean isCur = (o == matched);
+                            if (o.isCurrentlyPlaying != isCur) {
+                                options.set(i, new VideoTrackOption(o.trackIndex, isCur, o.isSupported, o.width, o.height, o.frameRate, o.bitrate, o.codecs));
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
 
         return options;
     }

@@ -528,3 +528,30 @@ object TvDeviceStatsReadCpuMHzFingerprint : Fingerprint(
     returnType = "I",
     parameters = listOf()
 )
+
+/**
+ * Matches `ExoTrackSelection$Definition.<init>(ILandroidx/media3/common/TrackGroup;[I)V` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvExoTrackSelectionDefinitionConstructorFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/ExoTrackSelection\$Definition;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf(
+        "I",
+        "Landroidx/media3/common/TrackGroup;",
+        "[I"
+    )
+)
+
+/**
+ * Matches `AdaptiveTrackSelection.evaluateQueueSize(JLjava/util/List;)I` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvAdaptiveTrackSelectionEvaluateQueueSizeFingerprint : Fingerprint(
+    definingClass = "Landroidx/media3/exoplayer/trackselection/AdaptiveTrackSelection;",
+    name = "evaluateQueueSize",
+    returnType = "I",
+    parameters = listOf(
+        "J",
+        "Ljava/util/List;"
+    )
+)
