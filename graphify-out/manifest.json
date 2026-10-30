@@ -24,9 +24,9 @@
     "semantic_hash": "f68b52a18847381b54ed45b3ad0b6d2b"
   },
   "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java": {
-    "mtime": 1793332366.152068,
-    "seen": 1793332438.9039037,
-    "ast_hash": "86c1fda5fbb2c24012095f7c20c755b3",
+    "mtime": 1793335934.9471712,
+    "seen": 1793336031.7563004,
+    "ast_hash": "0a293690887fe834290cd0560330ede1",
     "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java": {
@@ -84,15 +84,15 @@
     "semantic_hash": ""
   },
   "patches-bundle.json": {
-    "mtime": 1793223528.7600713,
-    "seen": 1793223547.0521212,
-    "ast_hash": "e410977fa5da407178a409e7299f75cb",
+    "mtime": 1793332477.4409938,
+    "seen": 1793336031.756345,
+    "ast_hash": "6205ec12a7604b7d582949434a716229",
     "semantic_hash": ""
   },
   "patches-list.json": {
-    "mtime": 1793223528.7630124,
-    "seen": 1793223547.0521228,
-    "ast_hash": "3139e828aa50866cb17a1c60575a0a66",
+    "mtime": 1793332477.4421473,
+    "seen": 1793336031.7563486,
+    "ast_hash": "f18834dc00d821204e39fbbbe2088eaf",
     "semantic_hash": ""
   },
   "patches/build.gradle.kts": {
@@ -102,15 +102,15 @@
     "semantic_hash": "47654ef7f645e170ce681fe902be588f"
   },
   "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt": {
-    "mtime": 1793332015.1471238,
-    "seen": 1793332438.9039412,
-    "ast_hash": "37e3928fb00ef73290256664d0d0493f",
+    "mtime": 1793335836.314471,
+    "seen": 1793336031.7563558,
+    "ast_hash": "06fcd10b2cf20e533313ce4c88a1638d",
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/kayo/KayoPatch.kt": {
-    "mtime": 1793332037.6169083,
-    "seen": 1793332438.9039438,
-    "ast_hash": "92d4d6ed51a34fab9cfb4839a96ec891",
+    "mtime": 1793335839.2966976,
+    "seen": 1793336031.7563596,
+    "ast_hash": "2900629407b411a18cee001d92317ccb",
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/shared/Constants.kt": {
@@ -168,15 +168,15 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1793223528.750109,
-    "seen": 1793223547.0521514,
-    "ast_hash": "c3aa0fdfe0b4be32c196b4c5ae9166d1",
+    "mtime": 1793332477.4201043,
+    "seen": 1793336031.7564042,
+    "ast_hash": "8e950e4e7b2bcb51c675655a5434e628",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793223528.7531264,
-    "seen": 1793223547.0521536,
-    "ast_hash": "2f825dd3efa23bc199020d0877b2079d",
+    "mtime": 1793332477.4221108,
+    "seen": 1793336031.7564073,
+    "ast_hash": "21449049433139fe2d9e155d4dc1f218",
     "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {

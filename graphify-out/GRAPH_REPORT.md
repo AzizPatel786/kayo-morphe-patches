@@ -1,32 +1,32 @@
 # Graph Report - Morphe Stuff  (2026-10-30)
 
 ## Corpus Check
-- 27 files · ~21,156 words
+- 27 files · ~21,508 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 6, .properties 2, .xml 1)
 
 ## Summary
-- 379 nodes · 675 edges · 25 communities (14 shown, 11 thin omitted)
+- 383 nodes · 682 edges · 25 communities (15 shown, 10 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 26 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ab603cc1`
+- Built from commit: `40849036`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - gradientdrawable
-- VideoTrackOption
+- .getActiveStreamMetrics
 - KayoPatch.java
 - Builder
 - generate_patches_readme.py
 - Fingerprints.kt
+- TrackGroup
 - package.json
 - CHANGELOG.md
 - PatchListGenerator.kt
 - KayoPatch.kt
-- .getActiveStreamMetrics
 - Constants.kt
 - ExamplePatch
 - gradlew
@@ -39,7 +39,7 @@
 - .extractVideoTracks
 
 ## God Nodes (most connected - your core abstractions)
-1. `KayoPatch` - 98 edges
+1. `KayoPatch` - 99 edges
 2. `Builder` - 21 edges
 3. `TrackGroup` - 15 edges
 4. `Builder` - 13 edges
@@ -68,19 +68,19 @@
 ## Hyperedges (group relationships)
 - **GitHub Issue Template Configuration Suite** — github_issue_template_bug_report, github_issue_template_feature_request, github_issue_template_config [EXTRACTED 1.00]
 
-## Communities (25 total, 11 thin omitted)
+## Communities (25 total, 10 thin omitted)
 
-### Community 1 - "VideoTrackOption"
-Cohesion: 0.24
-Nodes (3): AudioTrackOption, VideoTrackOption, Pair
+### Community 1 - ".getActiveStreamMetrics"
+Cohesion: 0.10
+Nodes (5): AudioTrackOption, VideoTrackOption, ExoPlayer, Format, Pair
 
 ### Community 2 - "KayoPatch.java"
 Cohesion: 0.07
 Nodes (27): alertdialog, android.os.Handler, arraylist, clipboardmanager, clipdata, collections, color, comparator (+19 more)
 
 ### Community 3 - "Builder"
-Cohesion: 0.06
-Nodes (10): TrackGroup, Builder, DefaultTrackSelector, Parameters, TrackSelectionOverride, Builder, TrackSelectionParameters, ImmutableList (+2 more)
+Cohesion: 0.10
+Nodes (4): Builder, DefaultTrackSelector, Parameters, Override
 
 ### Community 4 - "generate_patches_readme.py"
 Cohesion: 0.13
@@ -88,7 +88,11 @@ Nodes (18): anchor(), build_content(), patches_table(), pkg_emoji(), Render a ma
 
 ### Community 5 - "Fingerprints.kt"
 Cohesion: 0.09
-Nodes (38): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint, AbstractDaznPlayerControlsTrackSelectorVisibilityFingerprint (+30 more)
+Nodes (39): accessflags, fieldaccess, Fingerprint, matchafterimmediately, methodcall, AbstractDaznPlayerControlsOnClickFingerprint, AbstractDaznPlayerControlsSetupFingerprint, AbstractDaznPlayerControlsTrackSelectorVisibilityFingerprint (+31 more)
+
+### Community 6 - "TrackGroup"
+Cohesion: 0.11
+Nodes (4): TrackGroup, TrackSelectionOverride, Builder, TrackSelectionParameters
 
 ### Community 7 - "package.json"
 Cohesion: 0.14
@@ -96,19 +100,15 @@ Nodes (13): devDependencies, conventional-changelog-conventionalcommits, gradle-
 
 ### Community 8 - "CHANGELOG.md"
 Cohesion: 0.06
-Nodes (32): 1.0.0 (2026-10-23), [1.0.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-23), [1.0.2](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.1...v1.0.2) (2026-10-23), [1.0.3](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.2...v1.0.3) (2026-10-24), [1.0.4](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.3...v1.0.4) (2026-10-24), [1.0.5](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.4...v1.0.5) (2026-10-24), [1.0.6](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.5...v1.0.6) (2026-10-24), [1.1.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.6...v1.1.0) (2026-10-26) (+24 more)
+Nodes (34): 1.0.0 (2026-10-23), [1.0.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-23), [1.0.2](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.1...v1.0.2) (2026-10-23), [1.0.3](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.2...v1.0.3) (2026-10-24), [1.0.4](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.3...v1.0.4) (2026-10-24), [1.0.5](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.4...v1.0.5) (2026-10-24), [1.0.6](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.5...v1.0.6) (2026-10-24), [1.1.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.6...v1.1.0) (2026-10-26) (+26 more)
 
 ### Community 9 - "PatchListGenerator.kt"
-Cohesion: 0.10
-Nodes (21): file, gsonbuilder, JSONArray, JSONObject, loadpatchesfromjar, manifest, Patch, generatePatchList() (+13 more)
+Cohesion: 0.14
+Nodes (19): file, gsonbuilder, loadpatchesfromjar, manifest, Patch, generatePatchList(), JsonCompatibility, JsonPatch (+11 more)
 
 ### Community 10 - "KayoPatch.kt"
 Cohesion: 0.14
 Nodes (12): addinstruction, addinstructions, addinstructionswithlabels, bytecodepatch, compatibility_kayo_sports, compatibility_kayo_sports_tv, fieldreference, getinstruction (+4 more)
-
-### Community 11 - ".getActiveStreamMetrics"
-Cohesion: 0.12
-Nodes (3): StreamMetrics, ExoPlayer, Format
 
 ### Community 12 - "Constants.kt"
 Cohesion: 0.33
@@ -123,28 +123,32 @@ Cohesion: 1.00
 Nodes (3): Bug Report Template, Issue Template Configuration, Feature Request Template
 
 ### Community 23 - "KayoPatch"
-Cohesion: 0.08
-Nodes (10): android.app.Activity, android.content.Context, android.graphics.drawable.GradientDrawable, android.view.View, android.view.ViewGroup, android.widget.TextView, SuppressWarnings, KayoPatch (+2 more)
+Cohesion: 0.07
+Nodes (13): android.app.Activity, android.content.Context, android.graphics.drawable.GradientDrawable, android.view.View, android.view.ViewGroup, android.widget.TextView, SuppressWarnings, KayoPatch (+5 more)
+
+### Community 25 - ".extractVideoTracks"
+Cohesion: 0.19
+Nodes (4): Group, Tracks, ImmutableList, list
 
 ## Knowledge Gaps
-- **35 isolated node(s):** `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec`, `@semantic-release/exec`, `@semantic-release/git` (+30 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 148 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **36 isolated node(s):** `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec`, `@semantic-release/exec`, `@semantic-release/git` (+31 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 149 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `KayoPatch` connect `KayoPatch` to `VideoTrackOption`, `KayoPatch.java`, `Builder`, `PatchListGenerator.kt`, `.getActiveStreamMetrics`, `.extractVideoTracks`?**
-  _High betweenness centrality (0.249) - this node is a cross-community bridge._
-- **Why does `TrackGroup` connect `Builder` to `VideoTrackOption`, `KayoPatch.java`, `.getActiveStreamMetrics`, `.extractVideoTracks`?**
-  _High betweenness centrality (0.036) - this node is a cross-community bridge._
-- **Why does `DefaultTrackSelector` connect `Builder` to `.extractVideoTracks`, `KayoPatch.java`, `KayoPatch`?**
+- **Why does `KayoPatch` connect `KayoPatch` to `.getActiveStreamMetrics`, `KayoPatch.java`, `Builder`, `.extractVideoTracks`?**
+  _High betweenness centrality (0.247) - this node is a cross-community bridge._
+- **Why does `TrackGroup` connect `TrackGroup` to `.getActiveStreamMetrics`, `KayoPatch.java`, `Builder`, `.extractVideoTracks`?**
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
+- **Why does `DefaultTrackSelector` connect `Builder` to `KayoPatch.java`, `TrackGroup`, `KayoPatch`?**
   _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **What connects `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec` to the rest of the system?**
-  _35 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _36 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `.getActiveStreamMetrics` be split into smaller, more focused modules?**
+  _Cohesion score 0.10365853658536585 - nodes in this community are weakly interconnected._
 - **Should `KayoPatch.java` be split into smaller, more focused modules?**
   _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._
 - **Should `Builder` be split into smaller, more focused modules?**
-  _Cohesion score 0.06274509803921569 - nodes in this community are weakly interconnected._
-- **Should `generate_patches_readme.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.1286549707602339 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09982174688057041 - nodes in this community are weakly interconnected._

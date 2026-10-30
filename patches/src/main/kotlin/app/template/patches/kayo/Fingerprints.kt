@@ -518,3 +518,13 @@ object TvDrmPlayerReleasePlayerFingerprint : Fingerprint(
     returnType = "V",
     parameters = listOf()
 )
+
+/**
+ * Matches `DeviceStatsPlugin.readProcCpuInfoMHz()I` in Kayo TV (au.com.kayosports.tv).
+ */
+object TvDeviceStatsReadCpuMHzFingerprint : Fingerprint(
+    definingClass = "Lcom/dazn/plugins/devicestats/DeviceStatsPlugin;",
+    name = "readProcCpuInfoMHz",
+    returnType = "I",
+    parameters = listOf()
+)

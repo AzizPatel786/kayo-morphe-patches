@@ -501,9 +501,12 @@ public final class KayoPatch {
                     org.json.JSONObject response = new org.json.JSONObject();
                     org.json.JSONArray codecs = new org.json.JSONArray();
 
+                    String hwBaseName = findRealHardwareDecoderBaseName(mimeType);
+
                     if ("video/hevc".equals(mimeType)) {
+                        String baseName = hwBaseName != null ? hwBaseName : "OMX.amlogic.hevc.decoder.awesome";
                         org.json.JSONObject codecSecure = new org.json.JSONObject();
-                        codecSecure.put("name", "c2.android.hevc.decoder.secure");
+                        codecSecure.put("name", baseName + ".secure");
                         codecSecure.put("secure", true);
                         codecSecure.put("hardwareAccelerated", true);
                         codecSecure.put("adaptive", true);
@@ -511,13 +514,16 @@ public final class KayoPatch {
                         codecSecure.put("maxWidth", 3840);
                         codecSecure.put("maxHeight", 2160);
                         codecSecure.put("maxFrameRate", 60);
-                        codecSecure.put("maxBitrate", 60000000);
+                        codecSecure.put("maxBitrate", 160000000);
 
                         org.json.JSONArray pl = new org.json.JSONArray();
                         pl.put(createProfileLevel(1, "HEVCProfileMain", 65536, "HEVCMainTierLevel51"));
                         pl.put(createProfileLevel(1, "HEVCProfileMain", 131072, "HEVCHighTierLevel51"));
+                        pl.put(createProfileLevel(1, "HEVCProfileMain", 262144, "HEVCMainTierLevel52"));
                         pl.put(createProfileLevel(2, "HEVCProfileMain10", 65536, "HEVCMainTierLevel51"));
                         pl.put(createProfileLevel(2, "HEVCProfileMain10", 131072, "HEVCHighTierLevel51"));
+                        pl.put(createProfileLevel(2, "HEVCProfileMain10", 262144, "HEVCMainTierLevel52"));
+                        pl.put(createProfileLevel(4096, "HEVCProfileMain10HDR10", 65536, "HEVCMainTierLevel51"));
                         pl.put(createProfileLevel(4096, "HEVCProfileMain10HDR10", 131072, "HEVCHighTierLevel51"));
                         pl.put(createProfileLevel(8192, "HEVCProfileMain10HDR10Plus", 131072, "HEVCHighTierLevel51"));
                         codecSecure.put("profileLevels", pl);
@@ -525,13 +531,14 @@ public final class KayoPatch {
 
                         if (!secureOnly) {
                             org.json.JSONObject codecNonSecure = new org.json.JSONObject(codecSecure.toString());
-                            codecNonSecure.put("name", "c2.android.hevc.decoder");
+                            codecNonSecure.put("name", baseName);
                             codecNonSecure.put("secure", false);
                             codecs.put(codecNonSecure);
                         }
                     } else if ("video/avc".equals(mimeType)) {
+                        String baseName = hwBaseName != null ? hwBaseName : "OMX.amlogic.avc.decoder.awesome";
                         org.json.JSONObject avcSecure = new org.json.JSONObject();
-                        avcSecure.put("name", "c2.android.avc.decoder.secure");
+                        avcSecure.put("name", baseName + ".secure");
                         avcSecure.put("secure", true);
                         avcSecure.put("hardwareAccelerated", true);
                         avcSecure.put("adaptive", true);
@@ -539,7 +546,7 @@ public final class KayoPatch {
                         avcSecure.put("maxWidth", 3840);
                         avcSecure.put("maxHeight", 2160);
                         avcSecure.put("maxFrameRate", 60);
-                        avcSecure.put("maxBitrate", 50000000);
+                        avcSecure.put("maxBitrate", 100000000);
 
                         org.json.JSONArray pl = new org.json.JSONArray();
                         pl.put(createProfileLevel(8, "AVCProfileHigh", 65536, "AVCLevel52"));
@@ -551,7 +558,7 @@ public final class KayoPatch {
 
                         if (!secureOnly) {
                             org.json.JSONObject avcNonSecure = new org.json.JSONObject(avcSecure.toString());
-                            avcNonSecure.put("name", "c2.android.avc.decoder");
+                            avcNonSecure.put("name", baseName);
                             avcNonSecure.put("secure", false);
                             codecs.put(avcNonSecure);
                         }
@@ -571,6 +578,35 @@ public final class KayoPatch {
             android.util.Log.e("MorpheKayo", "Error in onVideoCapabilitiesExecute", t);
             return false;
         }
+    }
+
+    private static String findRealHardwareDecoderBaseName(String mimeType) {
+        try {
+            android.media.MediaCodecList list = new android.media.MediaCodecList(android.media.MediaCodecList.ALL_CODECS);
+            android.media.MediaCodecInfo[] infos = list.getCodecInfos();
+            if (infos == null) return null;
+            for (android.media.MediaCodecInfo info : infos) {
+                if (info == null || info.isEncoder()) continue;
+                String name = info.getName();
+                if (name == null) continue;
+                String lower = name.toLowerCase(java.util.Locale.ROOT);
+                if (lower.startsWith("c2.android.") || lower.startsWith("omx.google.") || lower.contains(".sw.")) {
+                    continue;
+                }
+                String[] types = info.getSupportedTypes();
+                if (types == null) continue;
+                for (String t : types) {
+                    if (t != null && t.equalsIgnoreCase(mimeType)) {
+                        if (name.endsWith(".secure")) {
+                            return name.substring(0, name.length() - 7);
+                        }
+                        return name;
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
     }
 
     private static org.json.JSONObject createProfileLevel(int profile, String profileName, int level, String levelName) throws org.json.JSONException {
@@ -600,9 +636,9 @@ public final class KayoPatch {
 
     /**
      * TV hook: Configures DefaultTrackSelector.Parameters.Builder (or TrackSelectionParameters.Builder)
-     * for 4K UHD playback by unlimiting viewport constraints, setting unconstrained video resolution/bitrate
-     * bounds so all manifest tracks (including 4K HEVC) are eligible, and delegating exact track locking to
-     * overrideSelectTracksResult.
+     * for 4K UHD playback by unlimiting viewport constraints, setting video resolution/bitrate bounds
+     * so all manifest tracks up to the selected quality (including 4K HEVC) are eligible, and delegating
+     * exact single-track locking to overrideSelectTracksResult.
      */
     public static void configureTvTrackParametersBuilder(Object builder) {
         if (builder == null) {
@@ -619,9 +655,11 @@ public final class KayoPatch {
             setFieldSafe(bClass, builder, "minVideoFrameRate", 0);
             setFieldSafe(bClass, builder, "minVideoBitrate", 0);
             setFieldSafe(bClass, builder, "maxVideoWidth", Integer.MAX_VALUE);
-            setFieldSafe(bClass, builder, "maxVideoHeight", Integer.MAX_VALUE);
+            int maxH = (selectedHeight > 0 && selectedHeight < 2160) ? selectedHeight : Integer.MAX_VALUE;
+            int maxB = (selectedHeight > 0 && selectedHeight < 2160 && selectedBitrate > 0) ? selectedBitrate : Integer.MAX_VALUE;
+            setFieldSafe(bClass, builder, "maxVideoHeight", maxH);
             setFieldSafe(bClass, builder, "maxVideoFrameRate", Integer.MAX_VALUE);
-            setFieldSafe(bClass, builder, "maxVideoBitrate", Integer.MAX_VALUE);
+            setFieldSafe(bClass, builder, "maxVideoBitrate", maxB);
             setFieldSafe(bClass, builder, "exceedVideoConstraintsIfNecessary", true);
             setFieldSafe(bClass, builder, "exceedRendererCapabilitiesIfNecessary", true);
             setFieldSafe(bClass, builder, "allowVideoNonSeamlessAdaptiveness", true);
@@ -692,6 +730,35 @@ public final class KayoPatch {
         try {
             Object selector = getFieldAny(player, "trackSelector");
             if (selector != null) {
+                try {
+                    Method getParams = selector.getClass().getMethod("getParameters");
+                    Object currentParams = getParams.invoke(selector);
+                    if (currentParams != null) {
+                        Method buildUpon = currentParams.getClass().getMethod("buildUpon");
+                        Object builder = buildUpon.invoke(currentParams);
+                        if (builder != null) {
+                            configureTvTrackParametersBuilder(builder);
+                            Object newParams = null;
+                            for (java.lang.reflect.Constructor<?> ctor : currentParams.getClass().getDeclaredConstructors()) {
+                                ctor.setAccessible(true);
+                                if (ctor.getParameterTypes().length == 1 && ctor.getParameterTypes()[0].isInstance(builder)) {
+                                    newParams = ctor.newInstance(builder);
+                                    break;
+                                }
+                            }
+                            if (newParams != null) {
+                                for (Method m : selector.getClass().getMethods()) {
+                                    if ("setParameters".equals(m.getName()) && m.getParameterTypes().length == 1) {
+                                        m.invoke(selector, newParams);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+
                 boolean invalidated = false;
                 try {
                     Object listener = getFieldAny(selector, "listener");
@@ -3183,10 +3250,12 @@ public final class KayoPatch {
                 } else if (!opts.isEmpty()) {
                     activeH = opts.get(0).height;
                 }
-                if (activeH > 0 && activeH < 2160) {
+                if (activeH >= 2160) {
+                    badge.setText("4K");
+                } else if (activeH > 0) {
                     badge.setText(activeH + "p");
                 } else {
-                    badge.setText("4K");
+                    badge.setText("MAX");
                 }
             } else {
                 badge.setText(selectedHeight + "p");
@@ -3286,7 +3355,7 @@ public final class KayoPatch {
             // Fallback presets if opened before tracks are ready
             int[] presetHeights = {2160, 1080, 720, 540, 360, 288};
             String[] presetNames = {
-                    "2160p (4K UHD)",
+                    "Maximum Available (4K UHD / 1080p50)",
                     "1080p50 (Full HD)",
                     "720p50 (HD)",
                     "540p (SD)",
@@ -3688,10 +3757,12 @@ public final class KayoPatch {
                             } else if (!opts.isEmpty()) {
                                 activeH = opts.get(0).height;
                             }
-                            if (activeH > 0 && activeH < 2160) {
+                            if (activeH >= 2160) {
+                                tv.setText(prefix + "4K UHD");
+                            } else if (activeH > 0) {
                                 tv.setText(prefix + activeH + "p (MAX)");
                             } else {
-                                tv.setText(prefix + "4K UHD");
+                                tv.setText(prefix + "MAX");
                             }
                         } else if (selectedHeight == 1080) {
                             tv.setText(prefix + "1080p50");

@@ -390,7 +390,7 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                     method.addInstructions(
                         pairCreateIdx + 2,
                         """
-                            invoke-static {v0, p0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectTracksResult(Landroid/util/Pair;I)Landroid/util/Pair;
+                            invoke-static {v0}, $EXTENSION_CLASS_DESCRIPTOR->overrideSelectTracksResult(Landroid/util/Pair;)Landroid/util/Pair;
                             move-result-object v0
                         """
                     )
@@ -404,6 +404,19 @@ val inPlayerQualityMenuPatch = bytecodePatch(
                 method.addInstruction(
                     0,
                     "invoke-static {}, $EXTENSION_CLASS_DESCRIPTOR->onTvPlayerReleased()V"
+                )
+            }
+        }
+
+        // 23. Hook DeviceStatsPlugin.readProcCpuInfoMHz to return 2000 MHz so ARM64 TV boxes never report -1 MHz
+        safeHook("TvDeviceStatsReadCpuMHz") {
+            TvDeviceStatsReadCpuMHzFingerprint.methodOrNull?.let { method ->
+                method.addInstructions(
+                    0,
+                    """
+                        const/16 v0, 0x07d0
+                        return v0
+                    """
                 )
             }
         }
