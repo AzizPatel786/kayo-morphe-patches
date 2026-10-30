@@ -1,3 +1,9 @@
+## [1.1.10](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.9...v1.1.10) (2026-10-30)
+
+### 🐛 Bug Fixes
+
+* **kayo:** eliminate Android TV buffering on locked qualities via LoadControl, LivePlaybackSpeedControl, and live offset tuning ([0326dec](https://github.com/AzizPatel786/kayo-morphe-patches/commit/0326deccccf2f4a039976462d56743e0fd069581))
+
 ## [1.1.9](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.8...v1.1.9) (2026-10-30)
 
 ### 🐛 Bug Fixes
