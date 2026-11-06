@@ -129,6 +129,8 @@ public final class KayoPatch {
         public final int audioBitrate;
         public final String audioLanguage;
         public final String audioMimeType;
+        public final int droppedFrames;
+        public final String networkType;
 
         public StreamMetrics(
                 int width,
@@ -147,6 +149,30 @@ public final class KayoPatch {
                 String playbackState,
                 long bufferedDurationMs
         ) {
+            this(width, height, frameRate, bitrate, estimatedBandwidth, codecs, mimeType,
+                    audioCodec, audioChannels, audioSampleRate, audioBitrate, audioLanguage,
+                    audioMimeType, playbackState, bufferedDurationMs, -1, "Unknown");
+        }
+
+        public StreamMetrics(
+                int width,
+                int height,
+                float frameRate,
+                int bitrate,
+                long estimatedBandwidth,
+                String codecs,
+                String mimeType,
+                String audioCodec,
+                int audioChannels,
+                int audioSampleRate,
+                int audioBitrate,
+                String audioLanguage,
+                String audioMimeType,
+                String playbackState,
+                long bufferedDurationMs,
+                int droppedFrames,
+                String networkType
+        ) {
             this.width = width;
             this.height = height;
             this.frameRate = frameRate;
@@ -162,6 +188,8 @@ public final class KayoPatch {
             this.audioMimeType = audioMimeType != null ? audioMimeType : "";
             this.playbackState = playbackState != null ? playbackState : "Active";
             this.bufferedDurationMs = bufferedDurationMs;
+            this.droppedFrames = droppedFrames;
+            this.networkType = networkType != null ? networkType : "Unknown";
 
             this.is4K = (height >= 2160 || width >= 3840);
             this.is1080p = !is4K && (height >= 1080 || width >= 1920);
@@ -1972,6 +2000,17 @@ public final class KayoPatch {
             return false;
         }
 
+        // Dismiss Diagnostics HUD overlay on Back key if visible
+        if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
+            View overlay = activeOverlayRef != null ? activeOverlayRef.get() : null;
+            if (overlay != null && overlay.getVisibility() == View.VISIBLE) {
+                if (action == android.view.KeyEvent.ACTION_UP) {
+                    toggleDiagnosticsOverlay(activity);
+                }
+                return true;
+            }
+        }
+
         // --- VIDEO IS ACTIVELY PLAYING ---
 
         // Ensure button is attached
@@ -2217,6 +2256,34 @@ public final class KayoPatch {
      * Extracts active live stream playback metrics from ExoPlayer renderer or currentTracks.
      * Guarantees accurate metrics for both 4K UHD and 1080p FHD live streams.
      */
+    private static String getNetworkTypeName(Context context) {
+        if (context == null) return "Unknown";
+        try {
+            android.net.ConnectivityManager cm = (android.net.ConnectivityManager)
+                    context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm == null) return "Unknown";
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                android.net.Network net = cm.getActiveNetwork();
+                if (net == null) return "Disconnected";
+                android.net.NetworkCapabilities caps = cm.getNetworkCapabilities(net);
+                if (caps == null) return "Active";
+                if (caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                    return "Ethernet (LAN)";
+                } else if (caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI)) {
+                    return "Wi-Fi (Fast)";
+                } else if (caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                    return "Cellular (5G/4G)";
+                }
+            } else {
+                android.net.NetworkInfo ni = cm.getActiveNetworkInfo();
+                if (ni != null && ni.isConnected()) {
+                    return ni.getTypeName();
+                }
+            }
+        } catch (Throwable ignored) {}
+        return "Connected";
+    }
+
     public static StreamMetrics getActiveStreamMetrics() {
         Format format = null;
         ExoPlayer player = currentPlayerRef != null ? currentPlayerRef.get() : null;
@@ -2547,6 +2614,32 @@ public final class KayoPatch {
             }
         }
 
+        int droppedFrames = -1;
+        if (player != null) {
+            try {
+                Method mCounters = player.getClass().getMethod("getVideoDecoderCounters");
+                Object counters = mCounters.invoke(player);
+                if (counters != null) {
+                    Field fDropped = counters.getClass().getField("droppedBufferCount");
+                    droppedFrames = fDropped.getInt(counters);
+                }
+            } catch (Throwable ignored) {}
+        }
+        Object media3Pl = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+        if (droppedFrames < 0 && media3Pl != null) {
+            try {
+                Method mCounters = media3Pl.getClass().getMethod("getVideoDecoderCounters");
+                Object counters = mCounters.invoke(media3Pl);
+                if (counters != null) {
+                    Field fDropped = counters.getClass().getField("droppedBufferCount");
+                    droppedFrames = fDropped.getInt(counters);
+                }
+            } catch (Throwable ignored) {}
+        }
+
+        Activity activeAct = currentTvActivityRef != null ? currentTvActivityRef.get() : null;
+        String netType = getNetworkTypeName(activeAct);
+
         return new StreamMetrics(
                 width,
                 height,
@@ -2562,7 +2655,9 @@ public final class KayoPatch {
                 audioLanguage,
                 audioMimeType,
                 stateStr,
-                bufferedMs
+                bufferedMs,
+                droppedFrames,
+                netType
         );
     }
 
@@ -2598,6 +2693,14 @@ public final class KayoPatch {
         if (m.estimatedBandwidth > 0) {
             double bwMbps = m.estimatedBandwidth / 1_000_000.0;
             sb.append(String.format(Locale.US, "Speed:    %.2f Mbps (Bandwidth)\n", bwMbps));
+        }
+
+        if (!"Unknown".equals(m.networkType) && !"Connected".equals(m.networkType)) {
+            sb.append("Network:  ").append(m.networkType).append("\n");
+        }
+
+        if (m.droppedFrames >= 0) {
+            sb.append(String.format(Locale.US, "Dropped:  %d frames\n", m.droppedFrames));
         }
 
         if (!m.codecs.isEmpty()) {
