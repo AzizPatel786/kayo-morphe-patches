@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.4.0...v1.4.1) (2026-11-06)
+
+### 🐛 Bug Fixes
+
+* **kayo:** allow repeated audio track switching and enforce 1080p playback on mobile ([74359b4](https://github.com/AzizPatel786/kayo-morphe-patches/commit/74359b43852615e04161e05918d52b9dc1c58799))
+
 ## [1.4.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.3.0...v1.4.0) (2026-11-06)
 
 ### ✨ New Features
