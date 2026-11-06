@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.11...v1.2.0) (2026-11-06)
+
+### ✨ New Features
+
+* **kayo:** unify mobile player with TV engine - 80Mbps bandwidth meter, 60s/120s buffer, speed lock, and PiP button ([08b6e7e](https://github.com/AzizPatel786/kayo-morphe-patches/commit/08b6e7eae7bf6b6f17ebf9469d6244b3b84c5e83))
+
 ## [1.1.11](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.10...v1.1.11) (2026-11-06)
 
 ### 🐛 Bug Fixes
