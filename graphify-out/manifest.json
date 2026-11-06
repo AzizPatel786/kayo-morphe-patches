@@ -24,8 +24,8 @@
     "semantic_hash": "f68b52a18847381b54ed45b3ad0b6d2b"
   },
   "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java": {
-    "mtime": 1793957793.4955194,
-    "seen": 1793957854.192178,
+    "mtime": 1793957878.5780542,
+    "seen": 1793957879.5183098,
     "ast_hash": "5493dabc8ca0b7c22a10ede9a25ead84",
     "semantic_hash": ""
   },
@@ -84,15 +84,15 @@
     "semantic_hash": ""
   },
   "patches-bundle.json": {
-    "mtime": 1793957609.7492404,
-    "seen": 1793957611.2610347,
-    "ast_hash": "5af209a1cc4d40577c1d5d911557156b",
+    "mtime": 1793957878.3578503,
+    "seen": 1793957879.5183327,
+    "ast_hash": "226a438acf8447197d2f05fb4f17c988",
     "semantic_hash": ""
   },
   "patches-list.json": {
-    "mtime": 1793957609.750234,
-    "seen": 1793957611.2610364,
-    "ast_hash": "386151a1d929358b89508999855610db",
+    "mtime": 1793957878.3608537,
+    "seen": 1793957879.5183342,
+    "ast_hash": "3072d8119c671c7a330915a8d2ef6609",
     "semantic_hash": ""
   },
   "patches/build.gradle.kts": {
@@ -162,15 +162,15 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1793957609.7303503,
-    "seen": 1793957611.2610643,
-    "ast_hash": "653f6a1877ba8ce56716bd059e762f50",
+    "mtime": 1793957878.3373294,
+    "seen": 1793957879.5183623,
+    "ast_hash": "be68abe86df8bb726d920397eef0e98b",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793957609.7323563,
-    "seen": 1793957611.261066,
-    "ast_hash": "b3c6d0475835d9bd62ec7bc628cc9a57",
+    "mtime": 1793957878.339313,
+    "seen": 1793957879.518364,
+    "ast_hash": "e59ff33c7fa5e68f612544f8c715cc66",
     "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {
