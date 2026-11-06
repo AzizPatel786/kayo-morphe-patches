@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.3.0...v1.4.0) (2026-11-06)
+
+### ✨ New Features
+
+* **kayo:** add decoder dropped frame counter, active network transport detection, and TV Back-to-dismiss HUD ([044c0ef](https://github.com/AzizPatel786/kayo-morphe-patches/commit/044c0ef61a039f191eb254fd93b52987696a9df1))
+
 ## [1.3.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.2.1...v1.3.0) (2026-11-06)
 
 ### ✨ New Features
