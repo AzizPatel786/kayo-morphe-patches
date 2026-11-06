@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.2.0...v1.2.1) (2026-11-06)
+
+### 🐛 Bug Fixes
+
+* **kayo:** revert low-level ExoPlayer2 constructor bytecode hooks to resolve launch crash ([90a3bd3](https://github.com/AzizPatel786/kayo-morphe-patches/commit/90a3bd3755f6a3afd0767356c53d3864b3d1bff9))
+
 ## [1.2.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.11...v1.2.0) (2026-11-06)
 
 ### ✨ New Features

@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-06T09:16:26",
-  "description": "## [1.2.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.11...v1.2.0) (2026-11-06)\n\n### ✨ New Features\n\n* **kayo:** unify mobile player with TV engine - 80Mbps bandwidth meter, 60s/120s buffer, speed lock, and PiP button ([08b6e7e](https://github.com/AzizPatel786/kayo-morphe-patches/commit/08b6e7eae7bf6b6f17ebf9469d6244b3b84c5e83))",
-  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.2.0/patches-1.2.0.mpp",
+  "created_at": "2026-11-06T09:27:04",
+  "description": "## [1.2.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.2.0...v1.2.1) (2026-11-06)\n\n### 🐛 Bug Fixes\n\n* **kayo:** revert low-level ExoPlayer2 constructor bytecode hooks to resolve launch crash ([90a3bd3](https://github.com/AzizPatel786/kayo-morphe-patches/commit/90a3bd3755f6a3afd0767356c53d3864b3d1bff9))",
+  "download_url": "https://github.com/AzizPatel786/kayo-morphe-patches/releases/download/v1.2.1/patches-1.2.1.mpp",
   "signature_download_url": "",
-  "version": "1.2.0"
+  "version": "1.2.1"
 }
