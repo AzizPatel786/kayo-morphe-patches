@@ -82,6 +82,7 @@ public final class KayoPatch {
     // Specific bitrate to lock to (or -1 if any bitrate at that height)
     private static volatile int selectedBitrate = QUALITY_AUTO;
     private static volatile boolean prefsLoaded = false;
+    private static volatile AudioTrackOption currentSelectedAudioOption = null;
 
     private static volatile WeakReference<Object> currentMedia3PlayerRef;
     private static volatile WeakReference<Object> currentBandwidthMeterRef;
@@ -251,7 +252,10 @@ public final class KayoPatch {
      * Represents a single selectable audio track option.
      */
     public static final class AudioTrackOption {
+        final TrackGroup trackGroup;
+        final Object media3TrackGroup;
         final int trackIndex;
+        final int groupIndex;
         final boolean isSelected;
         final int channelCount;
         final int sampleRate;
@@ -261,8 +265,24 @@ public final class KayoPatch {
         final String label;
         final String mimeType;
 
-        AudioTrackOption(int trackIndex, boolean isSelected, int channelCount, int sampleRate, int bitrate, String codecs, String language, String label, String mimeType) {
+        // ExoPlayer v2 Constructor
+        AudioTrackOption(
+                TrackGroup trackGroup,
+                int trackIndex,
+                int groupIndex,
+                boolean isSelected,
+                int channelCount,
+                int sampleRate,
+                int bitrate,
+                String codecs,
+                String language,
+                String label,
+                String mimeType
+        ) {
+            this.trackGroup = trackGroup;
+            this.media3TrackGroup = null;
             this.trackIndex = trackIndex;
+            this.groupIndex = groupIndex;
             this.isSelected = isSelected;
             this.channelCount = channelCount;
             this.sampleRate = sampleRate;
@@ -273,10 +293,56 @@ public final class KayoPatch {
             this.mimeType = mimeType != null ? mimeType : "";
         }
 
+        // Media3 Constructor
+        AudioTrackOption(
+                Object media3TrackGroup,
+                int trackIndex,
+                int groupIndex,
+                boolean isSelected,
+                int channelCount,
+                int sampleRate,
+                int bitrate,
+                String codecs,
+                String language,
+                String label,
+                String mimeType
+        ) {
+            this.trackGroup = null;
+            this.media3TrackGroup = media3TrackGroup;
+            this.trackIndex = trackIndex;
+            this.groupIndex = groupIndex;
+            this.isSelected = isSelected;
+            this.channelCount = channelCount;
+            this.sampleRate = sampleRate;
+            this.bitrate = bitrate;
+            this.codecs = codecs != null ? codecs : "";
+            this.language = language != null ? language : "";
+            this.label = label != null ? label : "";
+            this.mimeType = mimeType != null ? mimeType : "";
+        }
+
+        // Backwards compatibility constructor
+        AudioTrackOption(
+                int trackIndex,
+                boolean isSelected,
+                int channelCount,
+                int sampleRate,
+                int bitrate,
+                String codecs,
+                String language,
+                String label,
+                String mimeType
+        ) {
+            this((TrackGroup) null, trackIndex, 0, isSelected, channelCount, sampleRate, bitrate, codecs, language, label, mimeType);
+        }
+
         public String getDisplayLabel() {
             StringBuilder sb = new StringBuilder();
+            if (!label.isEmpty()) {
+                sb.append(label).append(" ");
+            }
             if (!language.isEmpty()) {
-                sb.append(language.toUpperCase(Locale.US)).append(" ");
+                sb.append("(").append(language.toUpperCase(Locale.US)).append(") ");
             }
             if (channelCount >= 6) {
                 sb.append("5.1 Surround ");
@@ -295,7 +361,7 @@ public final class KayoPatch {
                 if (c.contains("ec-3") || c.contains("eac3")) c = "E-AC-3";
                 else if (c.contains("ac-3") || c.contains("ac3")) c = "AC-3";
                 else if (c.contains("mp4a") || c.contains("aac")) c = "AAC";
-                sb.append("(").append(c).append(") ");
+                sb.append("[").append(c).append("] ");
             }
 
             if (isSelected) {
@@ -704,7 +770,7 @@ public final class KayoPatch {
             setFieldSafe(bClass, builder, "viewportHeight", Integer.MAX_VALUE);
             setFieldSafe(bClass, builder, "viewportOrientationMayChange", false);
             setFieldSafe(bClass, builder, "minVideoWidth", 0);
-            setFieldSafe(bClass, builder, "minVideoHeight", 0);
+            setFieldSafe(bClass, builder, "minVideoHeight", (selectedHeight >= 2160 || selectedHeight == QUALITY_AUTO) ? 1080 : Math.min(1080, selectedHeight));
             setFieldSafe(bClass, builder, "minVideoFrameRate", 0);
             setFieldSafe(bClass, builder, "minVideoBitrate", 0);
             setFieldSafe(bClass, builder, "maxVideoWidth", Integer.MAX_VALUE);
@@ -1384,7 +1450,7 @@ public final class KayoPatch {
                 String label = getStringField(fClass, fmt, "label", "");
                 String sampleMimeType = getStringField(fClass, fmt, "sampleMimeType", "");
                 boolean isCur = (i == groupTrackIdx);
-                options.add(new AudioTrackOption(i, isCur, channelCount, sampleRate, bitrate, codecs, language, label, sampleMimeType));
+                options.add(new AudioTrackOption(group, i, 0, isCur, channelCount, sampleRate, bitrate, codecs, language, label, sampleMimeType));
             }
         } catch (Throwable ignored) {
         }
@@ -1782,6 +1848,7 @@ public final class KayoPatch {
                 return options;
             }
 
+            int audioGroupIdx = 0;
             for (Object group : groups) {
                 if (group == null) continue;
 
@@ -1837,7 +1904,9 @@ public final class KayoPatch {
                     if (fmt == null) continue;
 
                     boolean isSelected = false;
-                    if (trackSelected != null && i < trackSelected.length) {
+                    if (currentSelectedAudioOption != null && currentSelectedAudioOption.media3TrackGroup != null) {
+                        isSelected = (mediaTrackGroup != null && mediaTrackGroup.equals(currentSelectedAudioOption.media3TrackGroup)) && (i == currentSelectedAudioOption.trackIndex);
+                    } else if (trackSelected != null && i < trackSelected.length) {
                         isSelected = trackSelected[i];
                     } else {
                         try {
@@ -1858,8 +1927,21 @@ public final class KayoPatch {
                     String label = getStringField(fClass, fmt, "label", "");
                     String mime = getStringField(fClass, fmt, "sampleMimeType", "");
 
-                    options.add(new AudioTrackOption(i, isSelected, channels, sRate, br, codecs, lang, label, mime));
+                    options.add(new AudioTrackOption(
+                            mediaTrackGroup != null ? mediaTrackGroup : group,
+                            i,
+                            audioGroupIdx,
+                            isSelected,
+                            channels,
+                            sRate,
+                            br,
+                            codecs,
+                            lang,
+                            label,
+                            mime
+                    ));
                 }
+                audioGroupIdx++;
             }
         } catch (Throwable t) {
             android.util.Log.e("MorpheKayo", "Error extracting Media3 audio tracks", t);
@@ -3450,24 +3532,33 @@ public final class KayoPatch {
                 return options;
             }
 
+            int audioGroupIdx = 0;
             for (int g = 0; g < groups.size(); g++) {
                 Tracks.Group group = groups.get(g);
                 if (group == null || group.getType() != 1) { // 1 = C.TRACK_TYPE_AUDIO
                     continue;
                 }
 
+                TrackGroup tg = group.getMediaTrackGroup();
                 int length = group.length;
                 for (int i = 0; i < length; i++) {
                     Format format = group.getTrackFormat(i);
                     if (format == null) {
                         continue;
                     }
-                    boolean isSelected = group.isTrackSelected(i);
+                    boolean isSelected = false;
+                    if (currentSelectedAudioOption != null && currentSelectedAudioOption.trackGroup != null) {
+                        isSelected = tg.equals(currentSelectedAudioOption.trackGroup) && (i == currentSelectedAudioOption.trackIndex);
+                    } else {
+                        isSelected = group.isTrackSelected(i);
+                    }
                     int br = format.bitrate > 0 ? format.bitrate : (format.averageBitrate > 0 ? format.averageBitrate : format.peakBitrate);
                     int channels = getIntField(format.getClass(), format, "channelCount", 0);
                     int sRate = getIntField(format.getClass(), format, "sampleRate", 0);
                     options.add(new AudioTrackOption(
+                            tg,
                             i,
+                            audioGroupIdx,
                             isSelected,
                             channels,
                             sRate,
@@ -3478,6 +3569,7 @@ public final class KayoPatch {
                             format.sampleMimeType
                     ));
                 }
+                audioGroupIdx++;
             }
         } catch (Throwable ignored) {
         }
@@ -3489,8 +3581,25 @@ public final class KayoPatch {
             try {
                 DefaultTrackSelector.Parameters.Builder builder = selector.buildUponParameters();
 
+                // Re-assert active audio override so video changes or tracks updates never drop user-selected audio
+                if (currentSelectedAudioOption != null && currentSelectedAudioOption.trackGroup != null) {
+                    try {
+                        builder.setOverrideForType(new TrackSelectionOverride(
+                                currentSelectedAudioOption.trackGroup,
+                                currentSelectedAudioOption.trackIndex
+                        ));
+                    } catch (Throwable ignored) {}
+                }
+
+                List<VideoTrackOption> videoOptions = extractVideoTracks(tracks);
+                int maxAvailableHeight = 1080;
+                if (!videoOptions.isEmpty()) {
+                    maxAvailableHeight = videoOptions.get(0).height;
+                }
+
                 if (selectedHeight == QUALITY_AUTO) {
-                    // Restore adaptive streaming across all video tracks
+                    // Restore adaptive streaming across video tracks, but guarantee minimum 1080p if available
+                    int minH = Math.min(1080, maxAvailableHeight);
                     builder.clearOverridesOfType(VIDEO_TRACK_TYPE)
                             .clearVideoSizeConstraints()
                             .clearViewportSizeConstraints()
@@ -3498,50 +3607,57 @@ public final class KayoPatch {
                             .setMaxVideoBitrate(Integer.MAX_VALUE)
                             .setExceedVideoConstraintsIfNecessary(true)
                             .setExceedRendererCapabilitiesIfNecessary(true)
-                            .setMinVideoSize(0, 0)
+                            .setMinVideoSize(0, minH)
                             .setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)
-                            // Default to the highest rendition available in the manifest.
                             .setForceHighestSupportedBitrate(true);
                     selector.setParameters(builder.build());
                     updateAllQualityBadges();
                 } else {
-                    List<VideoTrackOption> videoOptions = extractVideoTracks(tracks);
                     VideoTrackOption bestMatch = null;
 
-                    // 1. Try exact height + bitrate match
-                    for (VideoTrackOption opt : videoOptions) {
-                        if (opt.height == selectedHeight && (selectedBitrate <= 0 || opt.bitrate == selectedBitrate)) {
-                            bestMatch = opt;
-                            break;
+                    if (selectedHeight >= 2160) {
+                        // User wants maximum available quality (4K UHD or highest stream rendition)
+                        if (!videoOptions.isEmpty()) {
+                            bestMatch = videoOptions.get(0);
                         }
-                    }
-
-                    // 2. Fallback: same height with highest bitrate
-                    if (bestMatch == null) {
+                    } else {
+                        // 1. Try exact height + bitrate match
                         for (VideoTrackOption opt : videoOptions) {
-                            if (opt.height == selectedHeight) {
+                            if (opt.height == selectedHeight && (selectedBitrate <= 0 || opt.bitrate == selectedBitrate)) {
                                 bestMatch = opt;
                                 break;
                             }
                         }
-                    }
 
-                    // 3. Fallback: closest available resolution if stream doesn't have exact height
-                    if (bestMatch == null && !videoOptions.isEmpty()) {
-                        int minDiff = Integer.MAX_VALUE;
-                        for (VideoTrackOption opt : videoOptions) {
-                            int diff = Math.abs(opt.height - selectedHeight);
-                            if (diff < minDiff) {
-                                minDiff = diff;
-                                bestMatch = opt;
+                        // 2. Fallback: same height with highest bitrate
+                        if (bestMatch == null) {
+                            for (VideoTrackOption opt : videoOptions) {
+                                if (opt.height == selectedHeight) {
+                                    bestMatch = opt;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // 3. Fallback: closest available resolution if stream doesn't have exact height
+                        if (bestMatch == null && !videoOptions.isEmpty()) {
+                            int minDiff = Integer.MAX_VALUE;
+                            for (VideoTrackOption opt : videoOptions) {
+                                int diff = Math.abs(opt.height - selectedHeight);
+                                if (diff < minDiff) {
+                                    minDiff = diff;
+                                    bestMatch = opt;
+                                }
                             }
                         }
                     }
 
                     builder.clearOverridesOfType(VIDEO_TRACK_TYPE)
                             .clearViewportSizeConstraints()
+                            .clearVideoSizeConstraints()
                             .setExceedVideoConstraintsIfNecessary(true)
-                            .setExceedRendererCapabilitiesIfNecessary(true);
+                            .setExceedRendererCapabilitiesIfNecessary(true)
+                            .setForceHighestSupportedBitrate(true);
 
                     if (bestMatch != null && bestMatch.trackGroup != null) {
                         TrackSelectionOverride override = new TrackSelectionOverride(
@@ -3550,20 +3666,18 @@ public final class KayoPatch {
                         );
                         builder.setOverrideForType(override);
 
-                        int targetBitrate = bestMatch.bitrate > 0 ? bestMatch.bitrate : Integer.MAX_VALUE;
-                        int targetWidth = bestMatch.width > 0 ? bestMatch.width : Integer.MAX_VALUE;
-                        int targetHeight = bestMatch.height > 0 ? bestMatch.height : selectedHeight;
-
-                        builder.setMinVideoSize(bestMatch.width > 0 ? bestMatch.width : 0, targetHeight)
-                                .setMaxVideoSize(targetWidth, targetHeight)
-                                .setMinVideoBitrate(bestMatch.bitrate > 0 ? bestMatch.bitrate : 0)
-                                .setMaxVideoBitrate(targetBitrate);
+                        int minH = (selectedHeight >= 2160) ? Math.min(1080, bestMatch.height) : bestMatch.height;
+                        builder.setMinVideoSize(0, minH)
+                                .setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)
+                                .setMinVideoBitrate(0)
+                                .setMaxVideoBitrate(Integer.MAX_VALUE);
                     } else {
-                        // Tracks not populated yet; constrain by height
-                        builder.setMinVideoSize(0, selectedHeight)
-                                .setMaxVideoSize(Integer.MAX_VALUE, selectedHeight)
-                                .setMinVideoBitrate(selectedBitrate > 0 ? selectedBitrate : 0)
-                                .setMaxVideoBitrate(selectedBitrate > 0 ? selectedBitrate : Integer.MAX_VALUE);
+                        // Tracks not populated yet; enforce at least 1080p floor
+                        int minH = (selectedHeight >= 2160) ? 1080 : selectedHeight;
+                        builder.setMinVideoSize(0, minH)
+                                .setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)
+                                .setMinVideoBitrate(0)
+                                .setMaxVideoBitrate(Integer.MAX_VALUE);
                     }
 
                     selector.setParameters(builder.build());
@@ -3614,6 +3728,13 @@ public final class KayoPatch {
                         @Override
                         public void onClick(View v) {
                             showQualityDialog(v.getContext(), null);
+                        }
+                    });
+                    badge.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            showAudioTrackDialog(v.getContext());
+                            return true;
                         }
                     });
                     buttonLayout.addView(badge);
@@ -3912,29 +4033,60 @@ public final class KayoPatch {
         builder.show();
     }
 
-    private static void applySelectedAudioTrack(AudioTrackOption chosen) {
+    private static void applySelectedAudioTrack(final AudioTrackOption chosen) {
         if (chosen == null) return;
-        if (currentTrackSelector != null && currentTracks != null) {
+        currentSelectedAudioOption = chosen;
+
+        // 1. ExoPlayer v2 (Mobile)
+        if (currentTrackSelector != null) {
             try {
-                for (Tracks.Group group : currentTracks.getGroups()) {
-                    if (group.getType() == 1) { // 1 = C.TRACK_TYPE_AUDIO
-                        TrackGroup tg = group.getMediaTrackGroup();
-                        if (chosen.trackIndex < group.length) {
-                            DefaultTrackSelector.Parameters.Builder b = currentTrackSelector.buildUponParameters();
-                            b.clearOverridesOfType(1);
-                            b.setOverrideForType(new TrackSelectionOverride(tg, chosen.trackIndex));
-                            currentTrackSelector.setParameters(b.build());
-                            break;
+                DefaultTrackSelector.Parameters.Builder b = currentTrackSelector.buildUponParameters();
+                b.clearOverridesOfType(1); // 1 = C.TRACK_TYPE_AUDIO
+
+                if (chosen.trackGroup != null) {
+                    TrackSelectionOverride override = new TrackSelectionOverride(chosen.trackGroup, chosen.trackIndex);
+                    b.setOverrideForType(override);
+                } else if (currentTracks != null) {
+                    int audioIdx = 0;
+                    for (Tracks.Group group : currentTracks.getGroups()) {
+                        if (group.getType() == 1) {
+                            if (audioIdx == chosen.groupIndex) {
+                                TrackGroup tg = group.getMediaTrackGroup();
+                                b.setOverrideForType(new TrackSelectionOverride(tg, chosen.trackIndex));
+                                break;
+                            }
+                            audioIdx++;
                         }
                     }
                 }
+                currentTrackSelector.setParameters(b.build());
+                android.util.Log.i("MorpheKayo", "Applied ExoPlayer2 audio track override: " + chosen.getDisplayLabel());
             } catch (Throwable t) {
                 android.util.Log.e("MorpheKayo", "Error applying audio track on ExoPlayer2", t);
             }
         }
-        Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
-        if (media3Player != null && currentMedia3Tracks != null) {
+
+        // 2. Media3 (Android TV)
+        final Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+        if (media3Player != null) {
             try {
+                final Object tg = chosen.media3TrackGroup;
+                Object overrideObj = null;
+                Class<?> tsoClass = null;
+                try {
+                    tsoClass = Class.forName("androidx.media3.common.TrackSelectionOverride");
+                    if (tg != null) {
+                        try {
+                            java.lang.reflect.Constructor<?> ctor = tsoClass.getConstructor(tg.getClass(), int.class);
+                            overrideObj = ctor.newInstance(tg, chosen.trackIndex);
+                        } catch (NoSuchMethodException e) {
+                            java.lang.reflect.Constructor<?> ctor = tsoClass.getConstructor(tg.getClass(), List.class);
+                            overrideObj = ctor.newInstance(tg, Collections.singletonList(Integer.valueOf(chosen.trackIndex)));
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+
                 Method getTSP = media3Player.getClass().getMethod("getTrackSelectionParameters");
                 Object tsp = getTSP.invoke(media3Player);
                 if (tsp != null) {
@@ -3943,12 +4095,26 @@ public final class KayoPatch {
                     if (b != null) {
                         Method clearOverrides = b.getClass().getMethod("clearOverridesOfType", int.class);
                         clearOverrides.invoke(b, 1);
+                        if (overrideObj != null && tsoClass != null) {
+                            try {
+                                Method setOverride = b.getClass().getMethod("setOverrideForType", tsoClass);
+                                setOverride.invoke(b, overrideObj);
+                            } catch (NoSuchMethodException e) {
+                                Method addOverride = b.getClass().getMethod("addOverride", tsoClass);
+                                addOverride.invoke(b, overrideObj);
+                            }
+                        }
                         Method build = b.getClass().getMethod("build");
                         Object newParams = build.invoke(b);
-                        Method setTSP = media3Player.getClass().getMethod("setTrackSelectionParameters", newParams.getClass().getSuperclass());
-                        setTSP.invoke(media3Player, newParams);
+                        for (Method m : media3Player.getClass().getMethods()) {
+                            if ("setTrackSelectionParameters".equals(m.getName()) && m.getParameterTypes().length == 1) {
+                                m.invoke(media3Player, newParams);
+                                break;
+                            }
+                        }
                     }
                 }
+                android.util.Log.i("MorpheKayo", "Applied Media3 audio track override: " + chosen.getDisplayLabel());
             } catch (Throwable t) {
                 android.util.Log.e("MorpheKayo", "Error applying audio track on Media3", t);
             }
@@ -4097,7 +4263,7 @@ public final class KayoPatch {
         );
 
         final List<AudioTrackOption> audioTracks = getAvailableAudioOptions();
-        if (audioTracks.size() > 1) {
+        if (audioTracks.size() >= 1) {
             builder.setPositiveButton("Audio (" + audioTracks.size() + ")", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
