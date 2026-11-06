@@ -70,6 +70,7 @@ public final class KayoPatch {
     private static final int DIAGNOSTICS_BUTTON_VIEW_ID = 0x7f0b9998;
     private static final int DIAGNOSTICS_OVERLAY_VIEW_ID = 0x7f0b9997;
     private static final int DIAGNOSTICS_OVERLAY_TEXT_VIEW_ID = 0x7f0b9996;
+    private static final int PIP_BUTTON_VIEW_ID = 0x7f0b9993;
 
     private static volatile DefaultTrackSelector currentTrackSelector;
     private static volatile Tracks currentTracks;
@@ -431,6 +432,30 @@ public final class KayoPatch {
         if (player != null) {
             currentPlayerRef = new WeakReference<>(player);
             updateAllQualityBadges();
+            try {
+                Class<?> listenerClass = Class.forName("com.google.android.exoplayer2.Player$Listener");
+                Object listenerProxy = Proxy.newProxyInstance(
+                        listenerClass.getClassLoader(),
+                        new Class<?>[]{listenerClass},
+                        new InvocationHandler() {
+                            @Override
+                            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                                String name = method.getName();
+                                if ("onTracksChanged".equals(name) && args != null && args.length >= 1) {
+                                    if (args[0] instanceof Tracks) {
+                                        onTracksChanged(currentTrackSelector, (Tracks) args[0]);
+                                    }
+                                } else if ("onPlaybackStateChanged".equals(name) || "onIsPlayingChanged".equals(name)) {
+                                    updateAllQualityBadges();
+                                }
+                                return null;
+                            }
+                        }
+                );
+                Method addListenerMethod = player.getClass().getMethod("addListener", listenerClass);
+                addListenerMethod.invoke(player, listenerProxy);
+            } catch (Throwable ignored) {
+            }
         }
     }
 
@@ -3515,8 +3540,70 @@ public final class KayoPatch {
                     });
                     buttonLayout.addView(diagBtn);
                 }
+
+                // 3. Picture-in-Picture (PiP) button
+                if (buttonLayout.findViewById(PIP_BUTTON_VIEW_ID) == null) {
+                    final Activity activity = findActivity(context);
+                    if (activity != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        TextView pipBtn = createPipButtonTextView(context);
+                        pipBtn.setId(PIP_BUTTON_VIEW_ID);
+                        pipBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                enterPipMode(activity);
+                            }
+                        });
+                        buttonLayout.addView(pipBtn);
+                    }
+                }
             }
         } catch (Throwable ignored) {
+        }
+    }
+
+    private static TextView createPipButtonTextView(Context context) {
+        TextView tv = new TextView(context);
+        tv.setText("PIP");
+        tv.setTextColor(Color.WHITE);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+        tv.setTypeface(Typeface.DEFAULT_BOLD);
+        tv.setGravity(Gravity.CENTER);
+        tv.setSingleLine(true);
+
+        int padH = dpToPx(context, 6);
+        int padV = dpToPx(context, 2);
+        tv.setPadding(padH, padV, padH, padV);
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dpToPx(context, 4));
+        bg.setColor(Color.parseColor("#991F2421"));
+        bg.setStroke(dpToPx(context, 1), Color.parseColor("#44FFFFFF"));
+        tv.setBackground(bg);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.leftMargin = dpToPx(context, 4);
+        tv.setLayoutParams(params);
+
+        return tv;
+    }
+
+    public static void enterPipMode(Activity activity) {
+        if (activity == null || android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O) {
+            return;
+        }
+        try {
+            android.app.PictureInPictureParams.Builder builder = new android.app.PictureInPictureParams.Builder();
+            android.util.Rational rational = new android.util.Rational(16, 9);
+            builder.setAspectRatio(rational);
+            activity.enterPictureInPictureMode(builder.build());
+        } catch (Throwable t) {
+            try {
+                activity.enterPictureInPictureMode();
+            } catch (Throwable ignored) {
+            }
         }
     }
 

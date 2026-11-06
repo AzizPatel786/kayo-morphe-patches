@@ -615,3 +615,129 @@ object TvNotificatorOnBandwidthSampleFingerprint : Fingerprint(
         "J"
     )
 )
+
+/**
+ * Matches `DefaultBandwidthMeter.getInitialBitrateEstimateForNetworkType(I)J` in Kayo Mobile (au.com.kayosports).
+ */
+object MobileDefaultBandwidthMeterGetInitialEstimateFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/exoplayer2/upstream/DefaultBandwidthMeter;",
+    name = "getInitialBitrateEstimateForNetworkType",
+    returnType = "J",
+    parameters = listOf("I")
+)
+
+/**
+ * Matches `DefaultTrackSelector.selectTracksForType(...)` in Kayo Mobile (au.com.kayosports).
+ */
+object MobileDefaultTrackSelectorSelectTracksForTypeFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/exoplayer2/trackselection/DefaultTrackSelector;",
+    name = "selectTracksForType",
+    returnType = "Landroid/util/Pair;",
+    parameters = listOf(
+        "I",
+        "Lcom/google/android/exoplayer2/trackselection/MappingTrackSelector\$MappedTrackInfo;",
+        "[[[I",
+        "Lcom/google/android/exoplayer2/trackselection/DefaultTrackSelector\$TrackInfo\$Factory;",
+        "Ljava/util/Comparator;"
+    ),
+    filters = listOf(
+        opcode(Opcode.INVOKE_STATIC),
+        opcode(Opcode.MOVE_RESULT_OBJECT),
+        opcode(Opcode.RETURN_OBJECT)
+    )
+)
+
+/**
+ * Matches `ExoTrackSelection$Definition.<init>(TrackGroup, int[], int)` in Kayo Mobile (au.com.kayosports).
+ */
+object MobileExoTrackSelectionDefinitionConstructorFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/exoplayer2/trackselection/ExoTrackSelection\$Definition;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf(
+        "Lcom/google/android/exoplayer2/source/TrackGroup;",
+        "[II"
+    )
+)
+
+/**
+ * Matches `AdaptiveTrackSelection.determineIdealSelectedIndex(long, long)` in Kayo Mobile (au.com.kayosports).
+ */
+object MobileAdaptiveTrackSelectionDetermineIdealSelectedIndexFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/exoplayer2/trackselection/AdaptiveTrackSelection;",
+    name = "determineIdealSelectedIndex",
+    returnType = "I",
+    parameters = listOf(
+        "J",
+        "J"
+    )
+)
+
+/**
+ * Matches `AdaptiveTrackSelection.getSelectedIndex()` in Kayo Mobile (au.com.kayosports).
+ */
+object MobileAdaptiveTrackSelectionGetSelectedIndexFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/exoplayer2/trackselection/AdaptiveTrackSelection;",
+    name = "getSelectedIndex",
+    returnType = "I",
+    parameters = listOf()
+)
+
+/**
+ * Matches `AdaptiveTrackSelection.updateSelectedTrack(...)` in Kayo Mobile (au.com.kayosports).
+ */
+object MobileAdaptiveTrackSelectionUpdateSelectedTrackFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/exoplayer2/trackselection/AdaptiveTrackSelection;",
+    name = "updateSelectedTrack",
+    returnType = "V",
+    parameters = listOf(
+        "J",
+        "J",
+        "J",
+        "Ljava/util/List;",
+        "[Lcom/google/android/exoplayer2/source/chunk/MediaChunkIterator;"
+    )
+)
+
+/**
+ * Matches `AdaptiveTrackSelection.evaluateQueueSize(long, List)` in Kayo Mobile (au.com.kayosports).
+ */
+object MobileAdaptiveTrackSelectionEvaluateQueueSizeFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/exoplayer2/trackselection/AdaptiveTrackSelection;",
+    name = "evaluateQueueSize",
+    returnType = "I",
+    parameters = listOf(
+        "J",
+        "Ljava/util/List;"
+    )
+)
+
+/**
+ * Matches `DefaultLoadControl.<init>()V` in Kayo Mobile (au.com.kayosports).
+ */
+object MobileDefaultLoadControlConstructorFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/exoplayer2/DefaultLoadControl;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf(),
+    filters = listOf(opcode(Opcode.RETURN_VOID))
+)
+
+/**
+ * Matches `DefaultLivePlaybackSpeedControl.<init>(FFJFJJF)V` in Kayo Mobile (au.com.kayosports).
+ */
+object MobileDefaultLivePlaybackSpeedControlConstructorFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/exoplayer2/DefaultLivePlaybackSpeedControl;",
+    name = "<init>",
+    returnType = "V",
+    parameters = listOf(
+        "F",
+        "F",
+        "J",
+        "F",
+        "J",
+        "J",
+        "F"
+    ),
+    filters = listOf(opcode(Opcode.RETURN_VOID))
+)

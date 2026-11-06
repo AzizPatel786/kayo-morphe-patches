@@ -1,6 +1,6 @@
 {
   "0": "gradientdrawable",
-  "1": ".extractVideoTracks",
+  "1": ".getActiveStreamMetrics",
   "2": "KayoPatch.java",
   "3": "Builder",
   "4": "generate_patches_readme.py",
@@ -10,7 +10,6 @@
   "8": "CHANGELOG.md",
   "9": "PatchListGenerator.kt",
   "10": "KayoPatch.kt",
-  "11": ".getActiveStreamMetrics",
   "12": "Constants.kt",
   "13": "ExamplePatch",
   "14": "gradlew",
@@ -24,7 +23,6 @@
   "22": "Open PR to Main Workflow",
   "23": "KayoPatch",
   "24": "viewgroup",
-  "25": "TrackSelectionOverride",
-  "26": ".findLockedIndexInSelection",
-  "27": "TrackGroup"
+  "26": ".setFieldSafe",
+  "28": "TrackGroup"
 }
