@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.2.1...v1.3.0) (2026-11-06)
+
+### ✨ New Features
+
+* **kayo:** add 50fps badge display, long-press HUD toggle, and commentary audio track switcher ([83264a5](https://github.com/AzizPatel786/kayo-morphe-patches/commit/83264a59546c5150efa71df1e584bd5a79e0556d))
+
 ## [1.2.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.2.0...v1.2.1) (2026-11-06)
 
 ### 🐛 Bug Fixes
