@@ -1,3 +1,9 @@
+## [1.1.11](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.10...v1.1.11) (2026-11-06)
+
+### 🐛 Bug Fixes
+
+* **kayo:** remove mobile client-side bitrate/viewport caps and default Auto to highest rendition ([6d7632f](https://github.com/AzizPatel786/kayo-morphe-patches/commit/6d7632f6231e71de4ee1b49f82c0c53585f56caa))
+
 ## [1.1.10](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.1.9...v1.1.10) (2026-10-30)
 
 ### 🐛 Bug Fixes
