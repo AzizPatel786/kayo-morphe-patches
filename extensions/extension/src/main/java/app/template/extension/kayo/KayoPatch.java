@@ -2085,11 +2085,11 @@ public final class KayoPatch {
 
         updateAllQualityBadges();
 
-        if (selectedHeight != QUALITY_AUTO && currentTrackSelector != null && currentTracks != null) {
+        if (currentTrackSelector != null) {
+            // Apply in Auto too: removes viewport/screen-size caps and defaults to max quality.
             applySelectedQuality(currentTrackSelector, currentTracks);
-            return true;
         }
-        return false;
+        return selectedHeight != QUALITY_AUTO;
     }
 
     /**
@@ -2099,11 +2099,12 @@ public final class KayoPatch {
      *         from overwriting our selection), {@code false} to allow normal adaptive behavior.
      */
     public static boolean shouldIgnoreBitrateLimit() {
-        if (selectedHeight != QUALITY_AUTO && currentTrackSelector != null && currentTracks != null) {
+        // Always block Kayo's client-side profile/data-saver bitrate cap so the player can use
+        // the best rendition the server already delivered, in both Auto and manual modes.
+        if (currentTrackSelector != null) {
             applySelectedQuality(currentTrackSelector, currentTracks);
-            return true;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -3369,7 +3370,10 @@ public final class KayoPatch {
                             .setMaxVideoBitrate(Integer.MAX_VALUE)
                             .setExceedVideoConstraintsIfNecessary(true)
                             .setExceedRendererCapabilitiesIfNecessary(true)
-                            .setForceHighestSupportedBitrate(false);
+                            .setMinVideoSize(0, 0)
+                            .setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)
+                            // Default to the highest rendition available in the manifest.
+                            .setForceHighestSupportedBitrate(true);
                     selector.setParameters(builder.build());
                     updateAllQualityBadges();
                 } else {
