@@ -1,17 +1,17 @@
 # Graph Report - Morphe Stuff  (2026-11-06)
 
 ## Corpus Check
-- 27 files · ~24,014 words
+- 27 files · ~24,486 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 6, .properties 2, .xml 1)
 
 ## Summary
-- 410 nodes · 747 edges · 27 communities (14 shown, 13 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 26 edges (avg confidence: 0.81)
+- 414 nodes · 758 edges · 27 communities (14 shown, 13 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 30 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `08b6e7ea`
+- Built from commit: `90a3bd37`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -40,7 +40,7 @@
 - TrackGroup
 
 ## God Nodes (most connected - your core abstractions)
-1. `KayoPatch` - 109 edges
+1. `KayoPatch` - 111 edges
 2. `Builder` - 21 edges
 3. `TrackGroup` - 15 edges
 4. `Builder` - 13 edges
@@ -80,7 +80,7 @@ Cohesion: 0.07
 Nodes (27): alertdialog, android.os.Handler, arraylist, clipboardmanager, clipdata, collections, color, comparator (+19 more)
 
 ### Community 3 - "Builder"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (4): Builder, DefaultTrackSelector, Parameters, Override
 
 ### Community 4 - "generate_patches_readme.py"
@@ -97,7 +97,7 @@ Nodes (13): devDependencies, conventional-changelog-conventionalcommits, gradle-
 
 ### Community 8 - "CHANGELOG.md"
 Cohesion: 0.04
-Nodes (44): 1.0.0 (2026-10-23), [1.0.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-23), [1.0.2](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.1...v1.0.2) (2026-10-23), [1.0.3](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.2...v1.0.3) (2026-10-24), [1.0.4](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.3...v1.0.4) (2026-10-24), [1.0.5](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.4...v1.0.5) (2026-10-24), [1.0.6](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.5...v1.0.6) (2026-10-24), [1.1.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.6...v1.1.0) (2026-10-26) (+36 more)
+Nodes (46): 1.0.0 (2026-10-23), [1.0.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-23), [1.0.2](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.1...v1.0.2) (2026-10-23), [1.0.3](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.2...v1.0.3) (2026-10-24), [1.0.4](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.3...v1.0.4) (2026-10-24), [1.0.5](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.4...v1.0.5) (2026-10-24), [1.0.6](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.5...v1.0.6) (2026-10-24), [1.1.0](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.0.6...v1.1.0) (2026-10-26) (+38 more)
 
 ### Community 9 - "PatchListGenerator.kt"
 Cohesion: 0.14
@@ -124,11 +124,11 @@ Cohesion: 0.07
 Nodes (12): android.app.Activity, android.content.Context, android.graphics.drawable.GradientDrawable, android.view.View, android.view.ViewGroup, android.widget.TextView, SuppressWarnings, KayoPatch (+4 more)
 
 ### Community 28 - "TrackGroup"
-Cohesion: 0.18
+Cohesion: 0.20
 Nodes (3): TrackGroup, TrackSelectionOverride, list
 
 ## Knowledge Gaps
-- **41 isolated node(s):** `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec`, `@semantic-release/exec`, `@semantic-release/git` (+36 more)
+- **42 isolated node(s):** `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec`, `@semantic-release/exec`, `@semantic-release/git` (+37 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 151 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -138,14 +138,14 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `KayoPatch` connect `KayoPatch` to `.extractVideoTracks`, `KayoPatch.java`, `Builder`, `.getActiveStreamMetrics`, `.setFieldSafe`?**
   _High betweenness centrality (0.240) - this node is a cross-community bridge._
 - **Why does `TrackGroup` connect `TrackGroup` to `.extractVideoTracks`, `KayoPatch.java`, `Builder`, `Builder`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
-- **Why does `DefaultTrackSelector` connect `Builder` to `KayoPatch.java`, `TrackGroup`, `KayoPatch`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
 - **What connects `@MorpheApp/changelog`, `@MorpheApp/changelog`, `@semantic-release/exec` to the rest of the system?**
-  _41 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _42 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `.extractVideoTracks` be split into smaller, more focused modules?**
-  _Cohesion score 0.1141025641025641 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11097560975609756 - nodes in this community are weakly interconnected._
 - **Should `KayoPatch.java` be split into smaller, more focused modules?**
   _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._
 - **Should `Builder` be split into smaller, more focused modules?**
-  _Cohesion score 0.11724137931034483 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11397849462365592 - nodes in this community are weakly interconnected._
+- **Should `generate_patches_readme.py` be split into smaller, more focused modules?**
+  _Cohesion score 0.1286549707602339 - nodes in this community are weakly interconnected._

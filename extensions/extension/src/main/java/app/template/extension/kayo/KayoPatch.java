@@ -3587,6 +3587,14 @@ public final class KayoPatch {
         params.leftMargin = dpToPx(context, 4);
         tv.setLayoutParams(params);
 
+        tv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                toggleDiagnosticsOverlay(v.getContext());
+                return true;
+            }
+        });
+
         return tv;
     }
 
@@ -3631,6 +3639,14 @@ public final class KayoPatch {
         params.leftMargin = dpToPx(context, 4);
         tv.setLayoutParams(params);
 
+        tv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                toggleDiagnosticsOverlay(v.getContext());
+                return true;
+            }
+        });
+
         return tv;
     }
 
@@ -3660,6 +3676,14 @@ public final class KayoPatch {
         params.leftMargin = dpToPx(context, 4);
         tv.setLayoutParams(params);
 
+        tv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                toggleDiagnosticsOverlay(v.getContext());
+                return true;
+            }
+        });
+
         return tv;
     }
 
@@ -3686,19 +3710,19 @@ public final class KayoPatch {
         if (badge == null) {
             return;
         }
+        VideoTrackOption playing = findCurrentlyPlayingTrack(getAvailableVideoOptions());
+        if (playing == null && lastObservedMedia3Track != null) {
+            playing = lastObservedMedia3Track;
+        }
+        int activeFps = (playing != null && playing.frameRate >= 48f) ? Math.round(playing.frameRate) : 0;
+        String fpsSuffix = activeFps > 0 ? String.valueOf(activeFps) : "";
+
         if (selectedHeight == QUALITY_AUTO) {
-            VideoTrackOption playing = findCurrentlyPlayingTrack(extractVideoTracks(currentTracks));
-            if (playing == null && currentMedia3Tracks != null) {
-                playing = findCurrentlyPlayingTrack(extractMedia3VideoTracks(currentMedia3Tracks));
-            }
-            if (playing == null && lastObservedMedia3Track != null) {
-                playing = lastObservedMedia3Track;
-            }
             if (playing != null && playing.height > 0) {
                 if (playing.height >= 2160) {
-                    badge.setText("AUTO (4K)");
+                    badge.setText("AUTO (4K" + (activeFps > 0 ? " " + activeFps + "fps" : "") + ")");
                 } else {
-                    badge.setText("AUTO (" + playing.height + "p)");
+                    badge.setText("AUTO (" + playing.height + "p" + fpsSuffix + ")");
                 }
             } else {
                 badge.setText("AUTO");
@@ -3711,21 +3735,20 @@ public final class KayoPatch {
             if (selectedHeight >= 2160) {
                 List<VideoTrackOption> opts = getAvailableVideoOptions();
                 int activeH = 0;
-                VideoTrackOption playing = findCurrentlyPlayingTrack(opts);
                 if (playing != null) {
                     activeH = playing.height;
                 } else if (!opts.isEmpty()) {
                     activeH = opts.get(0).height;
                 }
                 if (activeH >= 2160) {
-                    badge.setText("4K");
+                    badge.setText("4K" + fpsSuffix);
                 } else if (activeH > 0) {
-                    badge.setText(activeH + "p");
+                    badge.setText(activeH + "p" + fpsSuffix);
                 } else {
                     badge.setText("MAX");
                 }
             } else {
-                badge.setText(selectedHeight + "p");
+                badge.setText(selectedHeight + "p" + fpsSuffix);
             }
             GradientDrawable bg = new GradientDrawable();
             bg.setCornerRadius(dpToPx(badge.getContext(), 4));
@@ -3750,6 +3773,85 @@ public final class KayoPatch {
     /**
      * Displays the interactive Video Quality selector dialog.
      */
+    public static void showAudioTrackDialog(final Context rawContext) {
+        final Activity activity = findActivity(rawContext);
+        final Context context = activity != null ? activity : rawContext;
+        if (context == null) return;
+
+        final List<AudioTrackOption> audioOptions = getAvailableAudioOptions();
+        if (audioOptions.isEmpty()) {
+            Toast.makeText(context, "No alternate audio tracks reported yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final List<String> labels = new ArrayList<>();
+        int selectedIndex = 0;
+        for (int i = 0; i < audioOptions.size(); i++) {
+            AudioTrackOption opt = audioOptions.get(i);
+            labels.add(opt.getDisplayLabel());
+            if (opt.isSelected) {
+                selectedIndex = i;
+            }
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_DEVICE_DEFAULT_DARK);
+        builder.setTitle("Select Audio / Commentary Track");
+        builder.setSingleChoiceItems(labels.toArray(new String[0]), selectedIndex, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                AudioTrackOption chosen = audioOptions.get(which);
+                applySelectedAudioTrack(chosen);
+                Toast.makeText(context, "Switched audio: " + chosen.getDisplayLabel(), Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Close", null);
+        builder.show();
+    }
+
+    private static void applySelectedAudioTrack(AudioTrackOption chosen) {
+        if (chosen == null) return;
+        if (currentTrackSelector != null && currentTracks != null) {
+            try {
+                for (Tracks.Group group : currentTracks.getGroups()) {
+                    if (group.getType() == 1) { // 1 = C.TRACK_TYPE_AUDIO
+                        TrackGroup tg = group.getMediaTrackGroup();
+                        if (chosen.trackIndex < group.length) {
+                            DefaultTrackSelector.Parameters.Builder b = currentTrackSelector.buildUponParameters();
+                            b.clearOverridesOfType(1);
+                            b.setOverrideForType(new TrackSelectionOverride(tg, chosen.trackIndex));
+                            currentTrackSelector.setParameters(b.build());
+                            break;
+                        }
+                    }
+                }
+            } catch (Throwable t) {
+                android.util.Log.e("MorpheKayo", "Error applying audio track on ExoPlayer2", t);
+            }
+        }
+        Object media3Player = currentMedia3PlayerRef != null ? currentMedia3PlayerRef.get() : null;
+        if (media3Player != null && currentMedia3Tracks != null) {
+            try {
+                Method getTSP = media3Player.getClass().getMethod("getTrackSelectionParameters");
+                Object tsp = getTSP.invoke(media3Player);
+                if (tsp != null) {
+                    Method buildUpon = tsp.getClass().getMethod("buildUpon");
+                    Object b = buildUpon.invoke(tsp);
+                    if (b != null) {
+                        Method clearOverrides = b.getClass().getMethod("clearOverridesOfType", int.class);
+                        clearOverrides.invoke(b, 1);
+                        Method build = b.getClass().getMethod("build");
+                        Object newParams = build.invoke(b);
+                        Method setTSP = media3Player.getClass().getMethod("setTrackSelectionParameters", newParams.getClass().getSuperclass());
+                        setTSP.invoke(media3Player, newParams);
+                    }
+                }
+            } catch (Throwable t) {
+                android.util.Log.e("MorpheKayo", "Error applying audio track on Media3", t);
+            }
+        }
+    }
+
     public static void showQualityDialog(final Context rawContext, final Runnable onOpenOriginalTrackSelector) {
         final Activity activity = findActivity(rawContext);
         final Context context = activity != null ? activity : rawContext;
@@ -3891,7 +3993,16 @@ public final class KayoPatch {
                 }
         );
 
-        if (onOpenOriginalTrackSelector != null) {
+        final List<AudioTrackOption> audioTracks = getAvailableAudioOptions();
+        if (audioTracks.size() > 1) {
+            builder.setPositiveButton("Audio (" + audioTracks.size() + ")", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    showAudioTrackDialog(context);
+                }
+            });
+        } else if (onOpenOriginalTrackSelector != null) {
             builder.setPositiveButton("Audio / CC", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -4202,15 +4313,18 @@ public final class KayoPatch {
             public void run() {
                 try {
                     String prefix = focused ? "⚙ QUALITY: " : "⚙ ";
+                    VideoTrackOption playing = findCurrentlyPlayingTrack(getAvailableVideoOptions());
+                    if (playing == null && lastObservedMedia3Track != null) {
+                        playing = lastObservedMedia3Track;
+                    }
+                    int activeFps = (playing != null && playing.frameRate >= 48f) ? Math.round(playing.frameRate) : 0;
+                    String fpsSuffix = activeFps > 0 ? String.valueOf(activeFps) : "";
+
                     if (selectedHeight == QUALITY_AUTO) {
-                        VideoTrackOption playing = findCurrentlyPlayingTrack(getAvailableVideoOptions());
-                        if (playing == null && lastObservedMedia3Track != null) {
-                            playing = lastObservedMedia3Track;
-                        }
                         if (playing != null && playing.height >= 2160) {
-                            tv.setText(prefix + "AUTO (4K)");
+                            tv.setText(prefix + "AUTO (4K" + (activeFps > 0 ? " " + activeFps + "fps" : "") + ")");
                         } else if (playing != null && playing.height > 0) {
-                            tv.setText(prefix + "AUTO (" + playing.height + "p)");
+                            tv.setText(prefix + "AUTO (" + playing.height + "p" + fpsSuffix + ")");
                         } else {
                             tv.setText(prefix + "AUTO");
                         }
@@ -4218,23 +4332,20 @@ public final class KayoPatch {
                         if (selectedHeight >= 2160) {
                             List<VideoTrackOption> opts = getAvailableVideoOptions();
                             int activeH = 0;
-                            VideoTrackOption playing = findCurrentlyPlayingTrack(opts);
                             if (playing != null) {
                                 activeH = playing.height;
                             } else if (!opts.isEmpty()) {
                                 activeH = opts.get(0).height;
                             }
                             if (activeH >= 2160) {
-                                tv.setText(prefix + "4K UHD");
+                                tv.setText(prefix + "4K UHD" + (activeFps > 0 ? " " + activeFps + "fps" : ""));
                             } else if (activeH > 0) {
-                                tv.setText(prefix + activeH + "p (MAX)");
+                                tv.setText(prefix + activeH + "p" + fpsSuffix + " (MAX)");
                             } else {
                                 tv.setText(prefix + "MAX");
                             }
-                        } else if (selectedHeight == 1080) {
-                            tv.setText(prefix + "1080p50");
                         } else {
-                            tv.setText(prefix + selectedHeight + "p");
+                            tv.setText(prefix + selectedHeight + "p" + fpsSuffix);
                         }
                     }
                 } catch (Throwable ignored) {
