@@ -294,6 +294,86 @@ object PlayerInterfaceAttachExoPlayerFingerprint : Fingerprint(
 )
 
 /**
+ * Matches `ProfileBasedTrackSelector.setAudioTrack(String)` (`Lpx/e;->setAudioTrack(Ljava/lang/String;)V` in Kayo v6.1.3).
+ */
+object ProfileBasedTrackSelectorSetAudioTrackFingerprint : Fingerprint(
+    name = "setAudioTrack",
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "V",
+    parameters = listOf("Ljava/lang/String;"),
+    filters = listOf(
+        fieldAccess(
+            opcode = Opcode.IGET_OBJECT,
+            definingClass = "this",
+            type = "Lcom/google/android/exoplayer2/trackselection/DefaultTrackSelector;"
+        ),
+        methodCall(
+            definingClass = "Lcom/google/android/exoplayer2/trackselection/DefaultTrackSelector;",
+            name = "buildUponParameters"
+        ),
+        methodCall(
+            definingClass = "Lcom/google/android/exoplayer2/trackselection/DefaultTrackSelector\$Parameters\$Builder;",
+            name = "setPreferredAudioLanguage",
+            parameters = listOf("Ljava/lang/String;")
+        )
+    )
+)
+
+/**
+ * Matches `TrackSelectorService.i(Tracks)` (`LFK/b0;->i(Lcom/google/android/exoplayer2/Tracks;)V` in Kayo v6.1.3),
+ * which is always invoked by `LHv/P$e;->onTracksChanged` even when `skipNextTrackReselection` is true.
+ */
+object TrackSelectorServiceOnTracksChangedFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "V",
+    parameters = listOf("Lcom/google/android/exoplayer2/Tracks;"),
+    filters = listOf(
+        string("tracks"),
+        opcode(Opcode.CONST_4),
+        opcode(Opcode.CONST_4)
+    )
+)
+
+/**
+ * Matches `PlaybackForceQualityModeService.a()` (`LUw/b;->a()I` in Kayo v6.1.3),
+ * which reads Featurevisor's `MAX_RESOLUTION_HEIGHT` (720p cap on mobile).
+ */
+object PlaybackForceQualityModeMaxResolutionHeightFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC),
+    returnType = "I",
+    parameters = listOf(),
+    filters = listOf(
+        fieldAccess(
+            opcode = Opcode.SGET_OBJECT,
+            name = "FORCE_PLAYBACK_QUALITY_MODE"
+        ),
+        fieldAccess(
+            opcode = Opcode.SGET_OBJECT,
+            name = "MAX_RESOLUTION_HEIGHT"
+        )
+    )
+)
+
+/**
+ * Matches `LHv/P;->m1(...)` which calls `MediaCodecUtil.forceDisableFrameRateCheck(Z)`
+ * and attaches `ExoPlayer` via `R1(ExoPlayer)`.
+ */
+object PlayerInterfaceInitExoPlayerFingerprint : Fingerprint(
+    returnType = "V",
+    filters = listOf(
+        methodCall(
+            definingClass = "Lcom/google/android/exoplayer2/mediacodec/MediaCodecUtil;",
+            name = "forceDisableFrameRateCheck",
+            parameters = listOf("Z")
+        ),
+        methodCall(
+            name = "setAudioTrack",
+            parameters = listOf("Ljava/lang/String;")
+        )
+    )
+)
+
+/**
  * Matches `VideoCapabilitiesPlugin.execute(String, JSONArray, PluginCallback)` in Kayo TV (au.com.kayosports.tv).
  */
 object TvVideoCapabilitiesPluginExecuteFingerprint : Fingerprint(

@@ -12,10 +12,10 @@
     "semantic_hash": "9f56f86029d0d25dd1d125ea46193d1c"
   },
   "extensions/extension/build.gradle.kts": {
-    "mtime": 1792625261.0707808,
-    "seen": 1792658498.1721768,
-    "ast_hash": "88f8ff2379f2182df8b7f77b99e10ac4",
-    "semantic_hash": "88f8ff2379f2182df8b7f77b99e10ac4"
+    "mtime": 1794015549.4624143,
+    "seen": 1794016292.2546418,
+    "ast_hash": "2a1b2166162c13683ea8c5f2af84bdd8",
+    "semantic_hash": ""
   },
   "extensions/extension/src/main/java/app/template/extension/extension/ExamplePatch.java": {
     "mtime": 1792625261.0864074,
@@ -24,52 +24,52 @@
     "semantic_hash": "f68b52a18847381b54ed45b3ad0b6d2b"
   },
   "extensions/extension/src/main/java/app/template/extension/kayo/KayoPatch.java": {
-    "mtime": 1793960426.2289133,
-    "seen": 1793960437.2920735,
-    "ast_hash": "271b914ae876dce02c2fdde6c62124b1",
+    "mtime": 1794016006.0706234,
+    "seen": 1794016292.2546473,
+    "ast_hash": "f305011056b61d4e54b1e2b715189648",
     "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/Format.java": {
-    "mtime": 1792627070.7296872,
-    "seen": 1792658498.172181,
-    "ast_hash": "06cd9abc225684efdf9ce1eff4f6ec0a",
-    "semantic_hash": "06cd9abc225684efdf9ce1eff4f6ec0a"
+    "mtime": 1794015518.9343903,
+    "seen": 1794016292.2546508,
+    "ast_hash": "9bffbba215a9df63592890a212906966",
+    "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/Tracks.java": {
-    "mtime": 1792627076.8268943,
-    "seen": 1792658498.1721826,
-    "ast_hash": "50803a18592492f05261dcb5c672865d",
-    "semantic_hash": "50803a18592492f05261dcb5c672865d"
+    "mtime": 1794015552.469368,
+    "seen": 1794016292.2546525,
+    "ast_hash": "47ca62b4311bd1dabaa3984288e28517",
+    "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/source/TrackGroup.java": {
-    "mtime": 1792627072.9833026,
-    "seen": 1792658498.1721838,
-    "ast_hash": "638df76846605922609e80c4772c79ce",
-    "semantic_hash": "638df76846605922609e80c4772c79ce"
+    "mtime": 1794015521.533841,
+    "seen": 1794016292.2546542,
+    "ast_hash": "f7d527b2ab2dbedce52a1421e4a50bd8",
+    "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/DefaultTrackSelector.java": {
-    "mtime": 1792660755.4294932,
-    "seen": 1792660938.8012202,
-    "ast_hash": "a179d61874d0818244e02170c0b17698",
+    "mtime": 1794015593.4726963,
+    "seen": 1794016292.2546556,
+    "ast_hash": "a2b3e7dd8a81d3b0e48a8a730ed27d65",
     "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionOverride.java": {
-    "mtime": 1792627081.8449564,
-    "seen": 1792658498.172186,
-    "ast_hash": "6d0d41005422dbbd4c686c574fc06704",
-    "semantic_hash": "6d0d41005422dbbd4c686c574fc06704"
+    "mtime": 1794015554.875899,
+    "seen": 1794016292.254657,
+    "ast_hash": "37d184a34c1c1486b70c35bfe106aafe",
+    "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/trackselection/TrackSelectionParameters.java": {
-    "mtime": 1792660741.6615493,
-    "seen": 1792660938.8012238,
-    "ast_hash": "02cd9f66ddcade78748163dac9f5b564",
+    "mtime": 1794015591.5439904,
+    "seen": 1794016292.2546587,
+    "ast_hash": "1df318fabb280557d9a20898062f6622",
     "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/common/collect/ImmutableList.java": {
-    "mtime": 1792627067.078962,
-    "seen": 1792658498.1721888,
-    "ast_hash": "df3583b6df6aae312436b6d61e65cd07",
-    "semantic_hash": "df3583b6df6aae312436b6d61e65cd07"
+    "mtime": 1794015516.9333127,
+    "seen": 1794016292.2546601,
+    "ast_hash": "060864e5ad16a46e6b9fe4069c57bd7c",
+    "semantic_hash": ""
   },
   "gradlew": {
     "mtime": 1792625261.0965164,
@@ -102,9 +102,9 @@
     "semantic_hash": "47654ef7f645e170ce681fe902be588f"
   },
   "patches/src/main/kotlin/app/template/patches/kayo/KayoPatch.kt": {
-    "mtime": 1793957148.8123791,
-    "seen": 1793957149.327637,
-    "ast_hash": "2ea6d230a28a84170784fb0f8286c1af",
+    "mtime": 1794016148.6239245,
+    "seen": 1794016292.254675,
+    "ast_hash": "a92ada2b7af98ec03f234d178891d3fd",
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/shared/Constants.kt": {
@@ -186,15 +186,21 @@
     "semantic_hash": ""
   },
   "extensions/extension/src/main/java/com/google/android/exoplayer2/ExoPlayer.java": {
-    "mtime": 1792662133.4551132,
-    "seen": 1792662426.0148964,
-    "ast_hash": "3df6b7cc986cf929820f5bf9ab3acd86",
+    "mtime": 1794015557.6484208,
+    "seen": 1794016292.2546494,
+    "ast_hash": "55eecab0bf652fc1dad89eafd9f75da5",
     "semantic_hash": ""
   },
   "patches/src/main/kotlin/app/template/patches/kayo/Fingerprints.kt": {
-    "mtime": 1793957148.8113787,
-    "seen": 1793957590.9118102,
-    "ast_hash": "f5991bf4e55ea1a817e89e7ffee9d999",
+    "mtime": 1794016148.6219103,
+    "seen": 1794016292.2546735,
+    "ast_hash": "2547234c5fdf819133b509ce7c1860ce",
+    "semantic_hash": ""
+  },
+  "extensions/extension/src/test/java/app/template/extension/kayo/KayoPatchTest.java": {
+    "mtime": 1794015728.863293,
+    "seen": 1794016292.254662,
+    "ast_hash": "99ee7c874c2df7649df14ca0bdfed6aa",
     "semantic_hash": ""
   }
 }

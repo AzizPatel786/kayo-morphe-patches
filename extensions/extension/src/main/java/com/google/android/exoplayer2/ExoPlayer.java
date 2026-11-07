@@ -11,6 +11,7 @@ public interface ExoPlayer {
 
     Format getVideoFormat();
     Format getAudioFormat();
+    Tracks getCurrentTracks();
     boolean isPlaying();
     int getPlaybackState();
     long getTotalBufferedDuration();

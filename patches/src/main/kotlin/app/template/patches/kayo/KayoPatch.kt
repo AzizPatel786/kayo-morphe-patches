@@ -206,6 +206,63 @@ val inPlayerQualityMenuPatch = bytecodePatch(
             }
         }
 
+        // 11b. Hook ProfileBasedTrackSelector.setAudioTrack(String) so Kayo's native Audio/CC menu
+        // and our in-player Audio dialog stay synchronized and can switch audio repeatedly without conflict.
+        safeHook("ProfileBasedTrackSelectorSetAudioTrack") {
+            ProfileBasedTrackSelectorSetAudioTrackFingerprint.methodOrNull?.let { method ->
+                val fp = ProfileBasedTrackSelectorSetAudioTrackFingerprint
+                val selectorFieldIndex = fp.instructionMatches[0].index
+                val selectorFieldRef = method.getInstruction<ReferenceInstruction>(selectorFieldIndex).reference as FieldReference
+
+                method.addInstructions(
+                    0,
+                    """
+                        iget-object v0, p0, $selectorFieldRef
+                        invoke-static {v0, p1}, $EXTENSION_CLASS_DESCRIPTOR->onSetAudioTrack(Lcom/google/android/exoplayer2/trackselection/DefaultTrackSelector;Ljava/lang/String;)V
+                        return-void
+                    """
+                )
+            }
+        }
+
+        // 11c. Hook TrackSelectorService.i(Tracks) so currentTracks is always updated even when
+        // LHv/P.skipNextTrackReselection (o0) skips ProfileBasedTrackSelector.onTracksChanged(Tracks).
+        safeHook("TrackSelectorServiceOnTracksChanged") {
+            TrackSelectorServiceOnTracksChangedFingerprint.methodOrNull?.let { method ->
+                method.addInstruction(
+                    0,
+                    "invoke-static {p1}, $EXTENSION_CLASS_DESCRIPTOR->onTracksUpdated(Lcom/google/android/exoplayer2/Tracks;)V"
+                )
+            }
+        }
+
+        // 11d. Hook PlaybackForceQualityModeService.a() to return 0 so Featurevisor's MAX_RESOLUTION_HEIGHT (720p) is disabled.
+        safeHook("PlaybackForceQualityModeMaxResolutionHeight") {
+            PlaybackForceQualityModeMaxResolutionHeightFingerprint.methodOrNull?.let { method ->
+                method.addInstructions(
+                    0,
+                    """
+                        const/4 v0, 0x0
+                        return v0
+                    """
+                )
+            }
+        }
+
+        // 11e. Force MediaCodecUtil.forceDisableFrameRateCheck(true) in LHv/P;->m1(...) so 1080p50 / 4K50
+        // is never rejected with FORMAT_EXCEEDS_CAPABILITIES by strict hardware decoder frame-rate checks on mobile.
+        safeHook("PlayerInterfaceForceDisableFrameRateCheck") {
+            PlayerInterfaceInitExoPlayerFingerprint.methodOrNull?.let { method ->
+                val fp = PlayerInterfaceInitExoPlayerFingerprint
+                val callIndex = fp.instructionMatches[0].index
+                val argReg = method.getInstruction<OneRegisterInstruction>(callIndex - 1).registerA
+                method.addInstruction(
+                    callIndex,
+                    "const/4 v$argReg, 0x1"
+                )
+            }
+        }
+
         // =====================================================================
         // Android TV Specific Hooks (au.com.kayosports.tv)
         // =====================================================================

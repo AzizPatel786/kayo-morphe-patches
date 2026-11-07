@@ -18,17 +18,30 @@ public final class Format {
     public final int height;
     public final float frameRate;
 
+    public Format(
+            String id,
+            String label,
+            String language,
+            int width,
+            int height,
+            float frameRate,
+            int bitrate,
+            String codecs,
+            String sampleMimeType) {
+        this.id = id;
+        this.label = label;
+        this.language = language;
+        this.averageBitrate = bitrate;
+        this.peakBitrate = bitrate;
+        this.bitrate = bitrate;
+        this.codecs = codecs;
+        this.sampleMimeType = sampleMimeType;
+        this.width = width;
+        this.height = height;
+        this.frameRate = frameRate;
+    }
+
     private Format() {
-        this.id = null;
-        this.label = null;
-        this.language = null;
-        this.averageBitrate = NO_VALUE;
-        this.peakBitrate = NO_VALUE;
-        this.bitrate = NO_VALUE;
-        this.codecs = null;
-        this.sampleMimeType = null;
-        this.width = NO_VALUE;
-        this.height = NO_VALUE;
-        this.frameRate = NO_VALUE;
+        this(null, null, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, null);
     }
 }
