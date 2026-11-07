@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.4.1...v1.4.2) (2026-11-07)
+
+### 🐛 Bug Fixes
+
+* **kayo:** guarantee multi-switch audio commentary and 1080p50+ playback with TDD suite ([5d80dfc](https://github.com/AzizPatel786/kayo-morphe-patches/commit/5d80dfcd566eee16726bdad7c66d02cb884f790b))
+
 ## [1.4.1](https://github.com/AzizPatel786/kayo-morphe-patches/compare/v1.4.0...v1.4.1) (2026-11-06)
 
 ### 🐛 Bug Fixes
